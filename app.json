@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "react-native-course",
+    "slug": "react-native-course",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/react-logo.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "useNextNotificationsApi": true,
+      "package": "com.faztweb.reactnativecourse",
+      "permissions": []
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": "true"
+        }
+      ]
+    ]
+  }
+}
