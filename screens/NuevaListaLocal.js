@@ -232,7 +232,7 @@ export default function NuevaListaLocal () {
           text: 'Icono de la app',
           onPress: () => setModalVisible(true)
         },
-        {text: "Imagen de la galería", onPress: openImagePickerAsync}      
+        {text: "Imagen de la galería", onPress: abrirImagen}      
       ]
     );
 
@@ -245,7 +245,7 @@ export default function NuevaListaLocal () {
     };
     
     //creamos una función que se lance cuando pulsamos el boton y nos pida acceder a la galeria de fotos
-    let openImagePickerAsync = async() => {
+    let abrirImagen = async() => {
       /*
       for (let i=0; i<Imagenes.length; i++) {
         Imagenes.push(Imagenes[i]);
@@ -540,7 +540,8 @@ export default function NuevaListaLocal () {
         lista.series = series + " series";
         lista.repeticiones = repeticiones + " repeticiones";
         lista.tiempo = tiempo + " " + listValueNumberTiempo;
-        lista.videos = video(link);
+        lista.videos = videoLocal;
+        //lista.videos = video(link);
 
         const idItem = (Math.round(Math.random() * 1000)).toString();
 

@@ -44,14 +44,10 @@ export default function Historial ({route}) {
 
     const navigation = useNavigation();
     const {listHistorial, itemIdHistorial} = route.params;
-    let listaHActual = listHistorial;
-    const listaInicial = JSON.parse(listHistorial);
-    //const [listaActual, setListaActual] = useState('');
-    const [modo, setModo] = useState([]);  //guardamos los datos del usuario en un array con nombre: datos[0]
-    const [flagModo, setFlagModo] = useState(false);
+
     const [modalVisibleHistorial, setModalVisibleHistorial] = useState(false);
     const [listActualH, setListActualH] = useState([]);
-    //const [listH, setListH] = useState([]);
+    const [flagListActual, setFlagListActual] = useState(false);
     const videoLocalReference = useRef(null);
     const [statusVideoR, setStatusVideoR] = useState({});
  
@@ -69,11 +65,10 @@ export default function Historial ({route}) {
         ]);
       }
       else {
-        isMounted = false;
-        //setListH('');
-        let listat = listActualH;
-        listat.length = 0;
-        setListActualH(listat);
+        if(modalVisibleHistorial===false){
+          isMounted = false;
+        }
+        let listH = listActualH;
         navigation.reset({
           index: 0,
           routes: [
@@ -86,60 +81,28 @@ export default function Historial ({route}) {
           ],
         })
         navigation.navigate("Lista", {
-          singleList: listHistorial,
+          singleList: ((listH.length!==0) ? listActualH : listHistorial),
           itemId: JSON.parse(listHistorial).listaid,
         });
       }
       return true;
     };
-    
-    /*
-    const getDatos = async() => {
-
-      
-      await AsyncStorage.getItem("USUARIO").then((datos) => {
-        console.log('El tipo de usuario es: ', datos)
-        setUsuario(JSON.parse(datos));
-        navigation.navigate("AllLists");
-      });
-        
-    }
-    */
-
-    const getLista = async() => {
-      /*
-      var f = [''];
-      f.length=0;
-      console.log('Al vaciar array datos el resultado es: ', f)  
-      setDatos(f);
-
-      await AsyncStorage.setItem("DATOS", JSON.stringify(f));
-      */
-    try {
-      if((listaInicial.videolista) !== undefined){             
-        //setListH(JSON.parse(listHistorial).historial);
-        console.log('la lista Historial es: ', listaInicial)
-      }
-    
-    } catch (error){
-      console.log(error)
-    }
-
-  }
 
   useFocusEffect(
     React.useCallback(() => {
     isMounted = true;
 
     if(isMounted){
-      getLista();
+      //getLista();
       BackHandler.addEventListener('hardwareBackPress', backAction);
     }
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => {
       backHandler.remove();
-      isMounted = false;
+      if(modalVisibleHistorial===false){
+        isMounted = false;
+      }
       //setListH('');
     };
       
@@ -152,13 +115,8 @@ export default function Historial ({route}) {
       let newLists = '';
       let listaAhoraH = JSON.parse(listHistorial);
       listaAhoraH.historial = '';
-      if(listActualH !== '') {
-        newLists = l.filter((lista) => lista !== listActualH);
-      }
-      else {
-        newLists = l.filter((lista) => lista !== listHistorial);
-      }
-      //let newLists = l.filter((lista) => lista !== listHistorial);
+
+      newLists = l.filter((lista) => lista !== listHistorial); 
 
       newLists.push(JSON.stringify(listaAhoraH));
 
@@ -167,7 +125,10 @@ export default function Historial ({route}) {
       await AsyncStorage.getItem("LISTAS").then((listas) => {
         console.log('Las lista historial tras borrar el historial es: ', listaAhoraH)
         setListActualH(JSON.stringify(listaAhoraH));
-        //setFlagList(!flagList);                           
+        setFlagListActual(true);                          
+      })
+      .catch(()=>{
+        console.log('No existe la lista')
       });
       
       console.log('Se ha borrado el historial')
@@ -261,13 +222,13 @@ export default function Historial ({route}) {
                 </View>
                 )}
                />
-              <View style={{marginTop: 10, top: 6}}>
-                <Button style={styles.button}
+              <View style={{marginTop: 10, height: 70}}>
+                <TouchableOpacity style={styles.botonAtrasModal}
                   onPress={() => {
                     setModalVisibleHistorial(!modalVisibleHistorial);
                   }}>
                   <Text>Atrás</Text>
-                </Button>
+                </TouchableOpacity>
               </View>
             </View>
           </Modal>
@@ -282,60 +243,21 @@ export default function Historial ({route}) {
     }
   }
 
-    const guardarConfiguracion = async() => {
-      /*
-      var f = [''];
-      f.length=0;
-      console.log('Al vaciar array datos el resultado es: ', f)  
-      setDatos(f);
-
-      await AsyncStorage.setItem("DATOS", JSON.stringify(f));
-      */
-
-      var listaDatos = {};
-      listaDatos.tipo = "Configuracion";
-
-      var jsonDatos = JSON.stringify(listaDatos);
-
-      setFlagModo(true);
-
-      await AsyncStorage.setItem("MODO", JSON.stringify(jsonDatos));
-
-      AsyncStorage.getItem("MODO").then((datos) => {
-        setModo(JSON.parse(datos));
-        navigation.navigate("AllLists");
-      });
-
-      console.log('El tipo de pantalla es: ', modo)
-
-  }
-
   return (
     <View style={styles.container}>
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
         <Text style={styles.title} category="h1"> 
           Historial
         </Text>
-
-        {((listActualH.length !== 0) ? (JSON.parse(listActualH).historial !== '') : 
-        (JSON.parse(listHistorial).historial !== '')) ? 
-        (<View style={{backgroundColor: 'rgba(52, 52, 52, 0)', flex:1, marginTop: -5, marginBottom: -40}}>
+        {(flagListActual===false && (JSON.parse(listHistorial).historial !== '')) ? 
+        (<View style={{backgroundColor: '#fafafd', flex:1, marginTop: -5}}>
           <List
-            style={{width: Dimensions.get("window").width}}
+            style={{width: Dimensions.get("window").width, marginBottom: 40}}
             data={JSON.parse(listHistorial).historial}
             renderItem={renderItem}
           />
-        </View>
-        ) :
-        (<View style={{backgroundColor: '#fafafd', flex:1, width: Dimensions.get("window").width, 
-        alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={styles.textoH}>El historial está vacío</Text>
-        </View>
-        )}
-        <View style={{backgroundColor: '#fafafd', width: Dimensions.get("window").width, 
-          alignItems: 'center', justifyContent: 'center'}}>
-        <Button style={styles.button14}
-          onPress={() => {
+          <Button style={styles.botonBorrarHistorial}
+            onPress={() => {
             Alert.alert('Borrar historial',
               "¿Está seguro de borrar el historial?", [
               {
@@ -347,18 +269,26 @@ export default function Historial ({route}) {
               ]
             );                 
           }}>
-          <Text>Borrar historial</Text>
-        </Button>
-       
+            <Text>Borrar historial</Text>
+          </Button>
+        </View>
+        ) :
+        (<View style={{backgroundColor: '#fafafd', flex:1, width: Dimensions.get("window").width, 
+        alignItems: 'center', justifyContent: 'center'}}>
+          <Text style={styles.textoH}>El historial está vacío</Text>
+        </View>
+        )}
+        <View style={{backgroundColor: '#fafafd', width: Dimensions.get("window").width, 
+          alignItems: 'center', justifyContent: 'center'}}>    
         <Button
           title="Atrás"
-          style={styles.button}
+          style={styles.botonAtras}
           onPress={() => {
-            isMounted = false;
-            //setListH('');
-            let listat = listActualH;
-            listat.length = 0;
-            setListActualH(listat);
+            if(modalVisibleHistorial === false){
+              isMounted = false;
+            }
+            let listH = listActualH;
+            console.log('VOLVEMOS A LA LISTA DESDE EL HISTORIAL')
             navigation.reset({
               index: 0,
               routes: [
@@ -371,9 +301,10 @@ export default function Historial ({route}) {
               ],
             })
             navigation.navigate("Lista", {
-              singleList: ((listActualH.length!==0) ? listActualH : listHistorial),
+              singleList: ((listH.length!==0) ? listActualH : listHistorial),
               itemId: JSON.parse(listHistorial).listaid,
             });
+            
           }}>
             <Text>Atrás</Text>
         </Button>
@@ -382,17 +313,7 @@ export default function Historial ({route}) {
     </View>
   );
 }
-/*
-backgroundColor: '#fcfcfc'
 
-        <FlatList 
-          data={listH ? listH : JSON.parse(listHistorial).historial}
-          initialNumToRender={1}
-          initialScrollIndex={0}
-          keyExtractor={( item , index) => index.toString()}
-          renderItem={renderItem}
-        />
-*/
 
 const { width } = Dimensions.get('window');
 
@@ -445,15 +366,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  button: {
-    backgroundColor: '#1B4B95',
+  botonAtras: {
+    backgroundColor: '#d1453d',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#bd3c35',
     padding: 0,
-    marginBottom: 25,
-    borderRadius: 5,
+    bottom: 25,
     alignItems: 'center',
     justifyContent: 'center',
     height: 50,
-    width: width-310,
+    width: 80,
+  },
+  botonAtrasModal: {
+    backgroundColor: '#d1453d',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#bd3c35',
+    top: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 50,
+    width: 80,
   },
   button2: {
     //backgroundColor: '#1B4B95',
@@ -574,16 +508,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  button14: {
-    backgroundColor: '#1B4B95',
+  botonBorrarHistorial: {
+    backgroundColor: '#5280c7',
+    borderWidth: 1,
+    borderColor: '#4973b3',
     padding: 0,
     marginBottom: 25,
-    borderRadius: 5,
+    borderRadius: 10,
     alignItems: 'center',
     alignSelf: 'center',
     justifyContent: 'center',
+    bottom: 20,
     height: 60,
-    width: width-250,
+    width: 150,
   },
   foto2: {
     //backgroundColor: '#1B4B95',
@@ -639,7 +576,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     fontSize: 26,
     marginTop: 40,
-    right: 10,
     marginBottom: 10,
     color: 'black',
   },

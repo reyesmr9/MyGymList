@@ -43,11 +43,11 @@ import {ApplicationProvider, BottomNavigation, BottomNavigationTab} from '@ui-ki
 export default function Entrenamiento ({route}) {
 
     const navigation = useNavigation();
-    const [modo, setModo] = useState([]);  //guardamos los datos del usuario en un array con nombre: datos[0]
+    //const [modo, setModo] = useState([]);  //guardamos los datos del usuario en un array con nombre: datos[0]
     const [flagPlay, setFlagPlay] = useState(false);
     const {listPlay, itemIdPlay} = route.params;
     const [listas, setListas] = useState([]);
-    const [listT, setListT] = useState([]);
+    const [listT, setListT] = useState([]); //cambiarla por variables locales en las funciones
     const listaInicialT = JSON.parse(listPlay);
     const [listaActualT, setlistaActualT] = useState('');
     const flatListRef = useRef(null);
@@ -59,11 +59,11 @@ export default function Entrenamiento ({route}) {
     const [flagTiempoInicial, setFlagTiempoInicial] = useState(false);
     const [flagButton, setFlagButton] = useState(false);
     const [flagButtonGuardar, setFlagButtonGuardar] = useState(false);
-    const [flagTimer, setFlagTimer] = useState(false);
+    const [flagFinal, setFlagFinal] = useState(false);
     const [tiempoInicio, setTiempoInicio] = useState("");
     const [tiempoFinal, setTiempoFinal] = useState("");
     const [tiempoTotal, setTiempoTotal] = useState("");
-    const [itemPlay, setItemPlay] = useState(false);
+    //const [itemPlay, setItemPlay] = useState(false);
     const [statusVideo, setStatusVideo] = useState({});
     let previewVideoPlay = null;
     let youtubeVideoPlay = null;
@@ -89,29 +89,29 @@ export default function Entrenamiento ({route}) {
       />
     );
 
-    const startTimer = () => {
+    const comenzarTimer = () => {
       setCustomInterval(
         setInterval(() => {
-          changeTime();
+          cambiarTiempo();
         }, 1000)
       );
     }
 
-    const stopTimer = () => {
+    const pararTimer = () => {
       if(customInterval){
         clearInterval(customInterval);
       }
     }
 
-    const clear = () => {
-      stopTimer();
+    const resetearTimer = () => {
+      pararTimer();
       setSeconds(0);
       setMinutes(0);
       setHours(0);
       return;
     }
 
-    const changeTime = () => {     
+    const cambiarTiempo = () => {     
       setSeconds((prevState) => {
         if((prevState + 1) == 60){
           setMinutes((prevMinutes) => {
@@ -120,7 +120,7 @@ export default function Entrenamiento ({route}) {
               console.log('los minutos ahora son: ', minutes)
               setHours((prevHours) => {
                 if((hours + 1) == 60){
-                  clear();
+                  resetearTimer();
                   return 0;
                 }
                 return hours + 1;
@@ -159,6 +159,7 @@ export default function Entrenamiento ({route}) {
         setFlagButton(false);
         setFlagButtonGuardar(false);
         setFlagTiempoInicial(false);
+        setFlagFinal(false);
         previewVideoPlay=null;
         youtubeVideoPlay=null;
         videoGuardar=false;
@@ -182,7 +183,7 @@ export default function Entrenamiento ({route}) {
           routes: [
             {
               name: 'Lista',
-              params: { singleList: ((listaActualT !== '') ? listaActualT : listPlay),
+              params: { singleList: listPlay,
                         itemId: JSON.parse(listPlay).listaid,
                       },
             },
@@ -259,8 +260,8 @@ export default function Entrenamiento ({route}) {
         if(flagOneVideo === false && flagTiempoInicial === true){
           //setList((singleList.split('[')[1]).split(','));
           console.log('Se ha abierto listtiempo useeffect')
-          onButtonPress();
-          let it = itemPlay;
+          pulsarSiguiente();
+          //let it = itemPlay;
           /*
           for(let i=0; i < listaInicialT.videolista.length; i++){
             if(it.id == JSON.parse(listaInicialT.videolista)[i].id) {
@@ -297,7 +298,7 @@ export default function Entrenamiento ({route}) {
           }
         }
         if(flagTiempoPress === true){
-          guardarTiempoVideo();
+          guardarTiemposEjercicios();
         }
         }
         return () => {
@@ -306,7 +307,13 @@ export default function Entrenamiento ({route}) {
   
       }, [flagTiempo]);
 
-  
+/*
+      useEffect(() => {
+        if(flagTiempoPress === true){
+          regresarLista();
+        }
+      }, [flagFinal]);
+*/
 
     const getLista = async() => {
         /*
@@ -358,31 +365,49 @@ export default function Entrenamiento ({route}) {
 
     }
 
-    const guardarConfiguracion = async() => {
-      /*
-      var f = [''];
-      f.length=0;
-      console.log('Al vaciar array datos el resultado es: ', f)  
-      setDatos(f);
+    const regresarLista = async() => {
+      const valorListas = await AsyncStorage.getItem("LISTAS");
+      const l = valorListas ? JSON.parse(valorListas) : [];
 
-      await AsyncStorage.setItem("DATOS", JSON.stringify(f));
-      */
+      let listaHist = '';
+      let listaFinal = '';
 
-      var listaDatos = {};
-      listaDatos.tipo = "Configuracion";
+      if (listaActualT !== '' && listaActualT !== undefined) {              
+        listaHist = JSON.parse(listaActualT);
+      }
+      else {              
+        listaHist = listaInicialT; 
+      }
 
-      var jsonDatos = JSON.stringify(listaDatos);
-
-      setFlagModo(true);
-
-      await AsyncStorage.setItem("MODO", JSON.stringify(jsonDatos));
-
-      AsyncStorage.getItem("MODO").then((datos) => {
-        setModo(JSON.parse(datos));
-        navigation.navigate("AllLists");
+      for(let i=0; i<l.length; i++){
+        if((listaHist.idlista) === (JSON.parse(l[i]).idlista)) {
+          listaFinal = l[i];
+          break;
+        }    
+      }
+      
+      setFlagTiempoPress(false);
+      console.log("VOLVEMOS A LISTA DESDE ENTRENAMIENTO")
+      console.log("listaFinal ES: ", JSON.parse(listaFinal))
+      let listaf = listT;
+      listaf.length=0;
+      setListT(listaf);
+      isMounted=false;
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'Lista',
+            params: { singleList: listPlay,
+                      itemId: JSON.parse(listPlay).listaid,
+                    },
+          },
+        ],
+      })
+      navigation.navigate("Lista", {
+        singleList: ((listaFinal !== '') ? listaFinal : listPlay),
+        itemId: JSON.parse(listPlay).listaid,
       });
-
-      console.log('El tipo de pantalla es: ', modo)
 
   }
 
@@ -445,51 +470,35 @@ export default function Entrenamiento ({route}) {
         </View>
         {videoGuardar &&
         ((flagButton === false) ?
-        (<Button
-          style={{marginLeft: 20, alignItems: 'center', justifyContent: 'center'}}
-          onPress={() => {tiempoVideoButton(item)}}>
-          Comenzar ejercicio
-        </Button>) : 
+        (<TouchableOpacity
+          style={styles.botonComenzar}
+          onPress={() => {tiempoVideoDescanso(item)}}>
+          <Text style={styles.buttonText}>Comenzar ejercicio</Text>
+        </TouchableOpacity>) : 
         (<View style={{marginLeft: 20, alignItems: 'center', justifyContent: 'center'}}>
-          <Button style={styles.button}
+          <Button style={styles.botonGuardar}
             onPress={() => {
             console.log('se ha guardado play')
             //guardarTiempoVideo(item);
             //clear();              
-            tiempoVideo(item);             
+            tiempoEjerciciosRealizados(item);             
             setFlagTiempoGuardar(true);
             setFlagTiempoPress(true);
             setFlagButtonGuardar(false);             
             //setModalVisiblePlay(!modalVisiblePlay);
             setFlagTiempoInicial(false);
             setFlagTiempo(!flagTiempo);
+            /*
             setCurrentSectionIndex(0);
             if(customInterval){
               clearInterval(customInterval);
               setSeconds(0);
               setMinutes(0);
               setHours(0);
-            }              
+            }    
+            */          
             //setFlagList(!flagList);
-            let listaf = listT;
-            listaf.length=0;
-            setListT(listaf);
-            isMounted = false;
-            navigation.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'Lista',
-                  params: { singleList: ((listaActualT !== '') ? listaActualT : listPlay),
-                            itemId: JSON.parse(listPlay).listaid,
-                          },
-                },
-              ],
-            })
-            navigation.navigate("Lista", {
-              singleList: ((listaActualT !== '') ? listaActualT : listPlay),
-              itemId: JSON.parse(listPlay).listaid,
-            });
+            //setFlagFinal(!flagFinal);
             
             }}>
             <Text>Guardar</Text>
@@ -498,16 +507,16 @@ export default function Entrenamiento ({route}) {
         }
         {videoSiguiente &&
         ((flagButton === false) ? 
+        (<TouchableOpacity
+          style={styles.botonComenzar}
+          onPress={() => {tiempoVideoDescanso(item)}}>
+          <Text style={styles.buttonText}>Comenzar ejercicio</Text>
+        </TouchableOpacity>) :
         (<Button
-          style={{marginLeft: 20, alignItems: 'center', justifyContent: 'center'}}
-          onPress={() => {tiempoVideoButton(item)}}>
-          Comenzar ejercicio
-        </Button>) :
-        (<Button
-          style={{marginLeft: 20, alignItems: 'center', justifyContent: 'center'}}
+          style={styles.botonSiguiente}
           status='success'
           accessoryRight={siguienteIcon}
-          onPress={() => {tiempoVideoPress(item)}}>
+          onPress={() => {tiempoVideoRealizado(item)}}>
           Siguiente
         </Button>)
         )}
@@ -515,7 +524,7 @@ export default function Entrenamiento ({route}) {
     );
   }
 
-  const onButtonPress = () => {
+  const pulsarSiguiente = () => {
     if (currentSectionIndex >= ((listaActualT !== '') ? 
       (JSON.parse(listaActualT).videolista.length-1) : (listaInicialT.videolista.length-1))) {
       console.log('he llegado al final de la lista')
@@ -572,7 +581,7 @@ export default function Entrenamiento ({route}) {
   }
 
 
-  const guardarTiempoVideo = async() => {
+  const guardarTiemposEjercicios = async() => {
     try{
       const valorListas = await AsyncStorage.getItem("LISTAS");
       const l = valorListas ? JSON.parse(valorListas) : [];
@@ -588,8 +597,29 @@ export default function Entrenamiento ({route}) {
       var año = new Date().getFullYear(); //To get the Current Year
       var fecha = dia + '-' + mes + '-' + año;
 
+      let listaHist = '';
       var listaHistorial = {};
       listaHistorial.idHistorial = (Math.round(Math.random() * 1000)).toString();
+
+      if (listaActualT !== '' && listaActualT !== undefined) {              
+        listaHist = JSON.parse(listaActualT);
+      }
+      else {              
+        listaHist = listaInicialT; 
+      }
+
+      for(let i=0; i<l.length; i++){
+        if(listaHist.idlista === (JSON.parse(l[i]).idlista)) {
+          for(let j=0; j<((listaHist.historial).length); j++){
+            if((listaHist.historial)[j].idHistorial === listaHistorial.idHistorial){
+              listaHistorial.idHistorial = (Math.round(Math.random() * 1000)).toString();
+              break;
+            }
+          }
+          break;
+        }
+      }
+
       listaHistorial.fechaRealizado = fecha;
 
       let tiempoT = tiempoTotal;
@@ -698,7 +728,7 @@ export default function Entrenamiento ({route}) {
       //setDatList(listFilterVideos);
       //setList(listFilterVideos);
       setFlagSaveTime(true);
-      setFlagTiempoPress(false);
+      //setFlagTiempoPress(false);
       setFlagOneVideo(false);
       //newLists.push(listaNueva); //guardamos la lista en LISTAS
 
@@ -724,17 +754,57 @@ export default function Entrenamiento ({route}) {
             
       await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
 
+      let listaFinal = '';
+
       await AsyncStorage.getItem("LISTAS").then((listas) => {
         setListas(JSON.parse(listas)); 
         console.log('Las listas definitivas son: ', listas)
-        setlistaActualT(listaNueva);
+        //setlistaActualT(JSON.stringify(listaH));
+        /*
+        for(let i=0; i<(JSON.parse(listas).length); i++){
+          if((listPlay.idlista) === ((JSON.parse(listas))[i].idlista)) {
+            listaFinal = (JSON.parse(listas))[i];
+            break;
+          }    
+        }
+        */
+        listaFinal = JSON.stringify(listaH);
+        setFlagTiempoPress(false);
+        console.log("VOLVEMOS A LISTA DESDE ENTRENAMIENTO")
+        console.log("listaFinal ES: ", JSON.parse(listaFinal))
+        let listaf = listT;
+        listaf.length=0;
+        setListT(listaf);
+        isMounted=false;
+        setCurrentSectionIndex(0);
+        if(customInterval){
+          clearInterval(customInterval);
+          setSeconds(0);
+          setMinutes(0);
+          setHours(0);
+        }    
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'Lista',
+              params: { singleList: listPlay,
+                        itemId: JSON.parse(listPlay).listaid,
+                      },
+            },
+          ],
+        })
+        navigation.navigate("Lista", {
+          singleList: ((listaFinal !== '') ? listaFinal : listPlay),
+          itemId: JSON.parse(listPlay).listaid,
+        });
         //setFlagList(!flagList);                           
       });
       
     }
     else {
       console.log('No se ha guardado el tiempo en ninguno de LOS VIDEOS')
-      setFlagTiempoPress(false);
+      //setFlagTiempoPress(false);
     }
       
     } catch(error){
@@ -743,7 +813,7 @@ export default function Entrenamiento ({route}) {
 
   }
 
-  const tiempoVideo = async(item) => {
+  const tiempoEjerciciosRealizados = async(item) => {
     try{
       setTiempoFinal(hours + ":" + minutes + ":" + seconds);
       setTiempoTotal(hours + ":" + minutes + ":" + seconds);
@@ -1084,7 +1154,7 @@ export default function Entrenamiento ({route}) {
   }
 
 
-  const tiempoVideoPress = async(item) => {
+  const tiempoVideoRealizado = async(item) => {
     try{
       setTiempoFinal(hours + ":" + minutes + ":" + seconds);
 
@@ -1469,7 +1539,7 @@ export default function Entrenamiento ({route}) {
   }
 
 
-  const tiempoVideoButton = async(item) => {
+  const tiempoVideoDescanso = async(item) => {
     try{
       setTiempoInicio(hours + ":" + minutes + ":" + seconds);
 
@@ -1477,7 +1547,7 @@ export default function Entrenamiento ({route}) {
       const t = valorTiempo ? JSON.parse(valorTiempo) : [];
            
       if(t.length==0){
-        startTimer();
+        comenzarTimer();
         setFlagSaveTime(true);
         setFlagButton(true);
       }
@@ -1805,6 +1875,7 @@ export default function Entrenamiento ({route}) {
     setFlagButton(false);
     setFlagButtonGuardar(false);
     setFlagTiempoInicial(false);
+    setFlagFinal(false);
     previewVideoPlay=null;
     youtubeVideoPlay=null;
     videoGuardar=false;
@@ -1827,7 +1898,7 @@ export default function Entrenamiento ({route}) {
       routes: [
         {
           name: 'Lista',
-          params: { singleList: ((listaActualT !== '') ? listaActualT : listPlay),
+          params: { singleList: listPlay,
                     itemId: JSON.parse(listPlay).listaid,
                   },
         },
@@ -1856,7 +1927,7 @@ export default function Entrenamiento ({route}) {
           showsHorizontalScrollIndicator={false}
           renderItem={renderItemPlay}
         />
-        <Button style={styles.button}
+        <Button style={styles.botonCancelar}
           onPress={() => {
             Alert.alert('',
             "¿Está seguro de cancelar el entrenamiento?", [
@@ -1869,7 +1940,7 @@ export default function Entrenamiento ({route}) {
             ]
             );
           }}>
-            <Text>Cancelar</Text>
+            <Text style={styles.buttonText}>Cancelar</Text>
         </Button>
       </View>
     </View>
@@ -1920,13 +1991,34 @@ const styles = StyleSheet.create({
     height: 550,
     backgroundColor: '#fff',
   },
-  button: {
-    backgroundColor: '#1B4B95',
+  botonCancelar: {
+    backgroundColor: '#d1453d',
+    borderWidth: 1,
+    borderColor: '#bd3c35',
     padding: 8,
     marginBottom: 15,
-    borderRadius: 5,
+    borderRadius: 10,
     alignItems: 'center',
     marginBottom: 15,
+  },
+  botonGuardar: {
+    backgroundColor: '#1B4B95',
+    borderWidth: 1,
+    borderColor: '#4973b3',
+    padding: 8,
+    marginBottom: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  botonSiguiente: {
+    backgroundColor: '#1dc28d',
+    borderWidth: 1,
+    borderColor: '#24b385',
+    borderRadius: 10,
+    marginLeft: 20, 
+    alignItems: 'center', 
+    justifyContent: 'center'
   },
   button2: {
     //backgroundColor: '#1B4B95',
@@ -2083,11 +2175,23 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: 12,
+    fontSize: 15,
   },
   bottom: {
     flexDirection: 'row',
     marginBottom: 36,
+  },
+  botonComenzar: {
+    backgroundColor: '#3f6cb0',
+    borderWidth: 1,
+    borderColor: '#4973b3',
+    borderRadius: 10,
+    marginLeft: 20, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 50,
+    width: 150,
   },
   title: {
     textAlign: 'center',

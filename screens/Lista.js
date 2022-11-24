@@ -82,7 +82,7 @@ const PlayIcon = (props) => (
 
 export default function Lista ({route}) {
 
-    const [listas, setListas] = useState([]);  //listas es un array de listas
+    //const [listas, setListas] = useState([]);  //listas es un array de listas
     const [videos, setVideos] = useState([]);
     const {singleList, itemId} = route.params;
     let component = null;
@@ -103,7 +103,7 @@ export default function Lista ({route}) {
     const [flag, setFlag] = useState(false);
     const [flagList, setFlagList] = useState(false);
     const [dat, setDat] = useState(false);
-    const [visible, setVisible] = useState(false);
+    //const [visible, setVisible] = useState(false);
     const [edit, setEdit] = useState(false);
     const [title, setTitle] = useState("");
     const [flagEdit, setFlagEdit] = useState(false);
@@ -114,6 +114,7 @@ export default function Lista ({route}) {
     const [flagOneVideo, setFlagOneVideo] = useState(false);
     const [flagButton, setFlagButton] = useState(false);
     const [flagButtonGuardar, setFlagButtonGuardar] = useState(false);
+    const [flagHistorial, setFlagHistorial] = useState(false);
 
     const [datList, setDatList] = useState([]);
     const initialDate = new Date();
@@ -122,7 +123,7 @@ export default function Lista ({route}) {
     const [time, setTime] = useState(new Date());
     const [date, setDate] = useState(new Date(1598051730000));
     const [mode, setMode] = useState('date');
-    const [show, setShow] = useState(false);
+    //const [show, setShow] = useState(false);
 
     /*
     const [selectedDate, setSelectedDate] = useStateWithCallback(
@@ -149,14 +150,14 @@ export default function Lista ({route}) {
     const [opened, setOpened] = useState(false);
     const [openedMenu, setOpenedMenu] = useState(false);
     //const [idItem, setIdItem] = useState("");
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisibleRecordatorio, setModalVisibleRecordatorio] = useState(false);
     const [dateVisible, setDateVisible] = useState(false);
     const [realizado, setRealizado] = useState('');
     const [listaRealizado, setListaRealizado] = useState('');
-    const [textoRealizado, setTextoRealizado] = useState(true);
+    //const [textoRealizado, setTextoRealizado] = useState(true);
     const [list, setList] = useState([]);
     const [listaActual, setListaActual] = useState('');
-    const [listaHistorialL, setListaHistorialL] = useState(listaHInicial);
+    const [listaHistorialL, setListaHistorialL] = useState('');
     const [menuVisible, setMenuVisible] = useState(false);
     const videoLocalRef = useRef(null);
     let cameraRef = useRef();
@@ -221,6 +222,7 @@ export default function Lista ({route}) {
     const [fotoFlag, setFotoFlag] = useState(false);
     const [flagFotoModal, setFlagFotoModal] = useState(false);
     const [flagBackground, setFlagBackground] = useState(false);
+    const [flagLocalVideo, setFlagLocalVideo] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const uri = FileSystem.cacheDirectory + "myList.zip";
     const dirUri = FileSystem.cacheDirectory + "listDir";
@@ -232,6 +234,24 @@ export default function Lista ({route}) {
     const [customInterval, setCustomInterval] = useState();
     const [listTiempo, setListTiempo] = useState([]);
 
+    const iconDiaRef = React.useRef();
+    const iconHoraRef = React.useRef();
+    
+    const diaIcon = (props) => (
+      <Icon
+        {...props}
+        ref={iconDiaRef}
+        name='calendar-outline'
+      />
+    );
+
+    const horaIcon = (props) => (
+      <Icon
+        {...props}
+        ref={iconHoraRef}
+        name='clock-outline'
+      />
+    );
 
     const startTimer = () => {
       setCustomInterval(
@@ -330,7 +350,7 @@ export default function Lista ({route}) {
     const showMenu = () => {
         setVisible(true);
     };
-
+/*
     let showvisible = () => {
       if(visible == true){
         return true;
@@ -340,11 +360,11 @@ export default function Lista ({route}) {
         return false;
       }
     };
-
+*/
     const onChangeValue = (event, selectedDate) => {
-      setShow(Platform.OS === 'ios' ? true : false);
+      //setShow(Platform.OS === 'ios' ? true : false);
       setDate(selectedDate);
-      setSelectedDate(value);
+      //setSelectedDate(value);
       const currentDate = selectedDate || date;
       //setSelectedDate(selectedDate);
       //setDay(currentDate);
@@ -380,19 +400,19 @@ export default function Lista ({route}) {
 */
 
     const onChange = (event, value) => {
-      console.log('al entrar en onchange, show es: ', show)
+      //console.log('al entrar en onchange, show es: ', show)
       setDateVisible(true);
       
       const currentDate = value || date;
-      setShow(false);
+      //setShow(false);
 
       if (dateVisible === true) {
-        console.log('el valor de show1 es: ', show)
-        setShow(false);
-        console.log('el valor de show2 es: ', show)
+        //console.log('el valor de show1 es: ', show)
+        //setShow(false);
+        console.log('el valor de show2 es:')
       }
       
-      console.log('el valor de show3 es: ', show)
+      //console.log('el valor de show3 es: ', show)
       setDate(currentDate);
       //setSelectedDate(value);
       let tempDate = new Date(currentDate);
@@ -417,10 +437,10 @@ export default function Lista ({route}) {
       */
       
       setMode(currentMode);
-      console.log('al salir de showmode, show es: ', show)
+      //console.log('al salir de showmode, show es: ', show)
     }
 
-    const showDatepicker = () => {
+    const seleccionarFecha = () => {
       
       showMode('date');
       /*
@@ -431,7 +451,7 @@ export default function Lista ({route}) {
       */
     }
   
-    const showTimepicker = () => {
+    const seleccionarTiempo = () => {
       
       showMode('time');
       /*
@@ -483,6 +503,7 @@ export default function Lista ({route}) {
         setFlagOneVideo(false);
         setFlagButton(false);
         setFlagButtonGuardar(false);
+        setFlagLocalVideo(false);
         setTiempoRealizacion('');
         previewVideoPlay=null;
         youtubeVideoPlay=null;
@@ -518,7 +539,14 @@ export default function Lista ({route}) {
         */
         //setDat(false);
         //navigation.goBack();
-        
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'AllLists'
+            },
+          ],
+        })
         navigation.navigate('AllLists');
       
       }
@@ -533,7 +561,7 @@ export default function Lista ({route}) {
         isMounted=true;
 
         if(isMounted === true){
-          getListas(listmenuinicial);
+          getListas();
           getVideos();
           BackHandler.addEventListener('hardwareBackPress', backAction);
         }
@@ -541,49 +569,7 @@ export default function Lista ({route}) {
      
         return () => {
           backHandler.remove();
-          isMounted = false;
-          /*
-          setOpened(false);
-          setOpenedMenu(false);
-          setEdit(false); 
-          setFlag(false);
-          setFlagEdit(false);
-          let listaf = list;
-          listaf.length=0;
-          setList(listaf);
-          setDatList('');
-          setListaActual('');
-          setTitle('');
-          setFlagEm(false);
-          setItemFlag(false);
-          setVideoFlag(false);
-          setFlagFotoModal(false);
-          setFlagTitle(false);
-          setFlagFondo(false);
-          setFotoFlag(false);
-          setFlagTiempo(false);
-          setFlagTiempoGuardar(false);
-          setFlagTiempoPress(false);
-          setFlagSaveTime(false);
-          setFlagOneVideo(false);
-          setFlagButton(false);
-          setFlagButtonGuardar(false);
-          setTiempoRealizacion('');
-          previewVideoPlay=null;
-          youtubeVideoPlay=null;
-          videoGuardar=false;
-          videoSiguiente=false;
-          setCurrentSectionIndex(currentSectionIndex-currentSectionIndex); 
-          /*
-          if(customInterval){
-            clearInterval(customInterval);
-            setSeconds(0);
-            setMinutes(0);
-            setHours(0);
-          }  
-          */
-          //setIm("");
-          
+          isMounted = false;         
         };
     }, [flagList]));
     
@@ -774,6 +760,19 @@ export default function Lista ({route}) {
       return false
     })
     */
+
+    useEffect(() => {
+      isMounted = true;
+  
+      if(isMounted){
+        if(previewVideo !== null) {
+          setFlagLocalVideo(true);
+        }
+      }
+
+    }, [previewVideo]);
+
+
     const getVideos = async () => {
       /*
       AsyncStorage.setItem("VIDEOS", JSON.stringify('f6TXEnHT_Mk'))
@@ -810,7 +809,7 @@ export default function Lista ({route}) {
           getListasInicial();
         }
           
-      }, []));
+      }, [flagHistorial]));
   
 
     const getListasInicial = async() => {
@@ -826,10 +825,12 @@ export default function Lista ({route}) {
           }
           })
       }
+      let listasIniciales = '';
+      let listaConHistorial = '';
       await AsyncStorage.getItem("LISTAS").then((listas) => {
-        setListas(JSON.parse(listas));    //guardamos cada lista en formato string en listas
-        //setIdItem(id);
-        //console.log('el valor de listmenu es: ', listmenu)
+        console.log('el valor de listas es: ', listas)
+        //guardamos el valor de "LISTAS" en listasIniciales
+        listasIniciales = listas;
       });
       if(flag === false && itemFlag === false && fotoFlag === false && flagTitle === false && videoFlag === false 
         && flagFondo === false && flagSaveTime === false){
@@ -848,8 +849,21 @@ export default function Lista ({route}) {
             setCurrentSectionIndex(currentSectionIndex-currentSectionIndex);
           }
           if(JSON.parse(singleList).historial !== ''){
-            setListaHistorialL(singleList);
-            console.log('Se ha actualizado el historial, ahora la lista es: ', JSON.parse(singleList))
+            //buscamos la lista con el historial actualizado
+            for(let i=0; i<(JSON.parse(listasIniciales)).length; i++){
+              let listaActualizada = (JSON.parse(listasIniciales))[i];
+              if(JSON.parse(listaActualizada).idlista == JSON.parse(singleList).idlista){
+                listaConHistorial = listaActualizada;
+              }
+            }
+            //establecemos la lista, que contiene el historial actualizado
+            if(listaConHistorial !== ''){
+              setListaHistorialL(listaConHistorial);
+            }
+            else{
+              setListaHistorialL(singleList);
+            }
+            console.log('Se ha actualizado el historial, ahora la lista es: ', JSON.parse(listaConHistorial))
 
           }
           console.log('La NUEVA LIST es si flag=FALSE: ', list)
@@ -860,9 +874,7 @@ export default function Lista ({route}) {
     }
 
 
-    const getListas = async (listmenu) => {
-
-
+    const getListas = async () => {
         //listmenu=(singleList.split('[')[1]).split(',');
         //setList(listmenusplice);
         try {
@@ -941,7 +953,17 @@ export default function Lista ({route}) {
                 const nuevasListas = l.filter((lista) => lista !== singleList); 
                 const newLists = nuevasListas.filter((lista) => lista !== jsonListIni); //no hace nada
                 await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists))
-                  .then(() => navigation.navigate("AllLists"));
+                  .then(() => {
+                    navigation.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'AllLists'
+                        },
+                      ],
+                    })
+                    navigation.navigate("AllLists")
+                  });
                 console.log('NUEVASLISTAS es al final2: ', nuevasListas)
               }
               
@@ -1022,7 +1044,17 @@ export default function Lista ({route}) {
               const newListas = l.filter((lista) => lista !== singleList);
               const nuevasListas = newListas.filter((lista) => lista !== jsonListIni);  //creamos un nuevo array con todas las listas que no coinciden con el parametro singleList de las listas usando array.filter
               await AsyncStorage.setItem("LISTAS", JSON.stringify(nuevasListas))  //nos quedamos solo con las listas que no coinciden con singleList
-                  .then(() => navigation.navigate("AllLists"));
+                  .then(() => {
+                    navigation.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'AllLists'
+                        },
+                      ],
+                    })
+                    navigation.navigate("AllLists")
+                  });
               //setDat(true);
 
             }
@@ -1046,7 +1078,7 @@ export default function Lista ({route}) {
           var fecha = dia + '-' + mes + '-' + año;
           console.log('la fecha actual es: ', fecha);
           //listaInicial.videolista.realizado="si";
-          setTextoRealizado(!textoRealizado);
+          //setTextoRealizado(!textoRealizado);
           let jsonListMenu = '';
           let jsonListaFinal = '';
 
@@ -1159,7 +1191,7 @@ export default function Lista ({route}) {
           await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
 
           await AsyncStorage.getItem("LISTAS").then((listas) => {
-            setListas(JSON.parse(listas)); 
+            //setListas(JSON.parse(listas)); 
             setListaActual(jsonListIni);                 
             setFlagList(!flagList);            
           });
@@ -1170,7 +1202,7 @@ export default function Lista ({route}) {
         else {
           setRealizado("no");
           //listaInicial.videolista.realizado="no";
-          setTextoRealizado(!textoRealizado);
+          //setTextoRealizado(!textoRealizado);
           let jsonListMenu = '';
           let jsonListaFinal = '';
           
@@ -1279,7 +1311,7 @@ export default function Lista ({route}) {
             await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
 
             await AsyncStorage.getItem("LISTAS").then((listas) => {
-              setListas(JSON.parse(listas));
+              //setListas(JSON.parse(listas));
               setListaActual(jsonListIni);                  
               setFlagList(!flagList);            
             });
@@ -1384,7 +1416,7 @@ export default function Lista ({route}) {
         await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
 
         await AsyncStorage.getItem("LISTAS").then((listas) => {
-          setListas(JSON.parse(listas));
+          //setListas(JSON.parse(listas));
           setListaActual(jsonListNew);                  
           //setFlagList(!flagList);            
         });
@@ -1460,7 +1492,7 @@ export default function Lista ({route}) {
         await AsyncStorage.setItem("LISTAS", JSON.stringify(newListas));
 
         await AsyncStorage.getItem("LISTAS").then((listas) => {
-          setListas(JSON.parse(listas));
+          //setListas(JSON.parse(listas));
           setListaActual(jsonListNew);                  
           //setFlagList(!flagList);            
         });
@@ -1533,7 +1565,7 @@ export default function Lista ({route}) {
         //console.log('EL valor de JSONLISTINI es: ', jsonListIni)
         await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
         await AsyncStorage.getItem("LISTAS").then((listas) => {
-          setListas(JSON.parse(listas)); 
+          //setListas(JSON.parse(listas)); 
           setListaActual(jsonListNew);
           setFlagList(!flagList);                 
         })  
@@ -1579,7 +1611,7 @@ export default function Lista ({route}) {
 
     const añadirRecordatorio = () => {
       setOpened(false);
-      setModalVisible(true);
+      setModalVisibleRecordatorio(true);
     }
 
     const eliminarRecordatorio = async(lista) => {
@@ -1745,7 +1777,7 @@ export default function Lista ({route}) {
       await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
 
       await AsyncStorage.getItem("LISTAS").then((listas) => {
-        setListas(JSON.parse(listas));  
+        //setListas(JSON.parse(listas));  
         setListaActual(listaNueva);             
         setFlagList(!flagList);
       });
@@ -1787,7 +1819,7 @@ export default function Lista ({route}) {
         await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
   
         await AsyncStorage.getItem("LISTAS").then((listas) => {
-          setListas(JSON.parse(listas));  
+          //setListas(JSON.parse(listas));  
           setListaActual(listaNueva);             
           setFlagList(!flagList);
         });
@@ -1840,13 +1872,13 @@ export default function Lista ({route}) {
       //setIm(im);
       console.log('im es despues de elegir el em1: ', im)
       if(flagEm === true){
-        getAbrirEmoticono(item);
+        guardarEmoticono(item);
       }
       
       
     }
 
-    const getAbrirEmoticono = async (item) => {
+    const guardarEmoticono = async (item) => {
       
       try {
       /*  
@@ -1995,7 +2027,7 @@ export default function Lista ({route}) {
       await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
 
       await AsyncStorage.getItem("LISTAS").then((listas) => {
-        setListas(JSON.parse(listas));  
+        //setListas(JSON.parse(listas));  
         setListaActual(listaNueva);             
         setFlagList(!flagList);
       });
@@ -2013,28 +2045,25 @@ export default function Lista ({route}) {
     const renderItem = ({ item, index }) => {
       try {
         if ((item !== undefined) && (item !== null) && (JSON.parse(item).videos !== undefined)){
-          //console.log('los ITEMS SEPARADOS son: ', (singleList.split('[')[1]).split(','))
-          //setDat(false);
-          /*
-          setList((prevState) => {
-            prevState=listmenu;
-            return (prevState)
-          })
-          */
-         let it = item;
+
           if(JSON.parse(item).videos.includes("file")){
+            if(previewVideo === null){
+              setFlagLocalVideo(true);
+            }
+            else {
+              console.log('Los vídeos son locales');
+            }
             previewVideo = JSON.parse(item).videos;
           }
           else {
             youtubeVideo = JSON.parse(item).videos;
           }
+
           if(JSON.parse(item).foto !== ''){
             previewFoto = JSON.parse(item).foto;
           }
-          //console.log('previewFoto es en el item: ', previewFoto)
 
-          return (     
-            
+          return (            
             <View style={styles.border}>     
               <View style={{ flexDirection: 'row', marginLeft: 40 }}>    
               <View style={styles.button5}>
@@ -2173,134 +2202,23 @@ export default function Lista ({route}) {
                 </View>
               </Modal>
 
-              <Modal
-                visible={modalVisibleTiempo} 
-                animationType='fade' 
-                transparent={true}>
-                <View style={styles.modalStyle}>
-                <Text>Indica el tiempo total empleado en realizar el ejercicio: </Text>
-                <View style={{ flexDirection: 'row'}}>
-                  <View style={{right: 20, top: 40}}>
-                    <TextInput 
-                      value={tiempoRealizacion}
-                      onChangeText={tiempo => setTiempoRealizacion(tiempo)}
-                      multiline={false}
-                      style={styles.input4}
-                      selectionColor='#515759'
-                      maxLength={5}
-                      blurOnSubmit={true}
-                      returnKeyType="done"
-                      keyboardType='number-pad'
-                    />
-                  </View>
-                  <View style={styles.pickerStyle5}>
-                    <DropDownPicker
-                      placeholder='Tiempo'
-                      open={openListTiempo}
-                      value={valuelistTiempo}
-                      items={numerosTiempo}
-                      setOpen={setOpenListTiempo}
-                      setValue={setvaluelistTiempo}
-                      setItems={setNumerosTiempo}
-                      onChangeValue={(value) => {
-                        setListValueNumberTiempo(value);
-                      }}
-                      theme="DARK"
-                      mode="BADGE"
-                      badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
-                    />
-                  </View>
-                </View>
-                <View style={{top: 300, right: 70}}>
-                <Button onPress={async() => {
-                  try{
-                  const valorListas = await AsyncStorage.getItem("LISTAS");
-                  const l = valorListas ? JSON.parse(valorListas) : [];
-                  let jsonListTiempo = null;
-                  let jsonListTiempoVideos = '';
-                  let listFilterVideos = null;
-
-                  if (listaActual !== '' && listaActual !== undefined) {              
-                    jsonListTiempo = JSON.parse(listaActual);                 
-         
-                    console.log('El tiempo de realización es: ', tiempoRealizacion)
-                  }
-                  else {              
-                    jsonListTiempo = listaInicial;  //listaEm
-         
-                    console.log('El tiempo de realización es: ', tiempoRealizacion)
-                  }
-
-                  jsonListTiempoVideos = jsonListTiempo.videolista;  //em
-
-                  for (let i = 0; i < jsonListTiempo.videolista.length; i++){
-                    if((JSON.parse(item).id) == (JSON.parse(jsonListTiempoVideos[i]).id)){
-                      listFilterVideos = jsonListTiempo.videolista.filter((lista) => ((JSON.parse(lista).id) !== 
-                        (JSON.parse(jsonListTiempoVideos[i]).id)));
-                      let videoItem = JSON.parse(item);
-                      videoItem.tiempoRealizacion = tiempoRealizacion;
-                      
-                      listFilterVideos.push(JSON.stringify(videoItem));
-                      console.log('Funciona hasta abrirVideo1: ', JSON.parse(jsonListTiempo.videolista[i]).tiempoRealizacion)
-                      console.log('Funciona hasta abrirVideo2: ', videoItem.tiempoRealizacion)
-                    }              
-                  }
-                    
-                  jsonListTiempo.videolista = listFilterVideos;
-                  let listaNueva = JSON.stringify(jsonListTiempo);
-                  l.push(listaNueva);
-
-                  setDatList(listFilterVideos);
-                  setList(listFilterVideos);
-                  setFlagTiempo(true);        
-
-                  const newListas = l.filter((lista) => lista !== singleList);
-                  const newLists = newListas.filter((lista) => lista !== listaActual);
-                  await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
-
-                  await AsyncStorage.getItem("LISTAS").then((listas) => {
-                    setListas(JSON.parse(listas)); 
-                    setListaActual(listaNueva);                 
-                    setFlagList(!flagList);            
-                  });
-
-                  setModalVisibleTiempo(!modalVisibleTiempo)
-                  setTiempoRealizacion('');
-                } catch (error){
-                  console.log(error)
-                }
-                }}
-                style={styles.button8}>
-                    <Text>Guardar</Text>
-                </Button>
-                <Button onPress={() => {
-                    setModalVisibleTiempo(false);
-                    }}
-                    style={styles.button9}>
-                    <Text>Cancelar</Text>
-                </Button>
-                </View> 
-              </View> 
-              </Modal>
-
-
               <Menu>
                 <MenuTrigger
                   style={{marginLeft: 200, top: 15, height: 30, width: 30}}>
                   <Entypo name="dots-three-vertical" size={24} color="black" />
                 </MenuTrigger>
-                  <MenuOptions optionsContainerStyle={{width:200,height:125}}>
+                  <MenuOptions optionsContainerStyle={{width:200,height:100}}>
                     <MenuOption value={1}
                       onSelect={() => abrirMenu(item)}
-                      style={{marginLeft: 30, marginTop: 0}}
+                      style={{marginLeft: 10, marginTop: 0}}
                       text={((JSON.parse(item)).realizado == "no") ? "Marcar como realizado" : "Desmarcar como realizado"} />
                     <MenuOption value={2}
                       onSelect={() => abrirEmoticono(item)}
-                      style={{marginLeft: 30, marginTop: 0}}
+                      style={{marginLeft: 10, marginTop: 0}}
                       text={"Seleccionar un emoticono"} />
                     <MenuOption value={3}
                       onSelect={() => abrirCamara(item)}
-                      style={{marginLeft: 30, marginTop: 0}}
+                      style={{marginLeft: 10, marginTop: 0}}
                       text={((JSON.parse(item)).foto == '') ? "Añadir foto" : "Borrar foto"} />                                                 
                   </MenuOptions>
               </Menu>          
@@ -2379,6 +2297,7 @@ export default function Lista ({route}) {
 
     } 
 
+/*
     const openYoutubeApp = () => {
       Linking.canOpenURL('vnd.youtube://').then(supported => {
         if (supported) {
@@ -2388,7 +2307,7 @@ export default function Lista ({route}) {
         }
      });
     }
-
+*/
     const video = (text) => {
       var valu=text;
       if (valu != undefined){
@@ -2404,6 +2323,7 @@ export default function Lista ({route}) {
       }
     }
 
+/*    
     const options = {
       container: {
         backgroundColor: '#FF0000',
@@ -2418,7 +2338,7 @@ export default function Lista ({route}) {
         marginLeft: 7,
       },
     };
-
+*/
     /*
     const renderItemPlay = ({ item, index }) => {
       if(JSON.parse(item).videos.includes("file")){
@@ -2696,7 +2616,7 @@ export default function Lista ({route}) {
         await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
 
         await AsyncStorage.getItem("LISTAS").then((listas) => {
-          setListas(JSON.parse(listas)); 
+          //setListas(JSON.parse(listas)); 
           setListaActual(listaNueva);
           setFlagList(!flagList);                           
         });
@@ -3242,7 +3162,7 @@ export default function Lista ({route}) {
           setVideoFlag(true);
 
           await AsyncStorage.getItem("LISTAS").then((listas) => {
-            setListas(JSON.parse(listas));  
+            //setListas(JSON.parse(listas));  
             setListaActual(listaNueva);             
             setFlagList(!flagList);            
           });
@@ -3366,260 +3286,61 @@ export default function Lista ({route}) {
     
     }
 
-    const openShareDialog = async () => {
+    const enviarLista = async () => {
       //llamamos al modulo 'Sharing' y dentro del modulo llamamos al metodo 'isAvailableAsync'
       //si una funcion es asincrona, le debemos poner async, y a los modulos asincronos se les pone 'await' delante
       if (!(await Sharing.isAvailableAsync())) {
-        alert('No se pueden compartir imagenes');
+        alert('No se puede compartir la lista');
         return;
       }
   
-      await saveFile();
-      
+      saveFile();
+
       if (fileUri !== null) {
         if (previewVideo !== null){
           //await sendEmailWithAttachment();
           //await Sharing.shareAsync(FileSystem.cacheDirectory + "listDir/test0.mp4");
-
-          await Sharing.shareAsync(fileUri);
+          console.log('NO SE PUEDE ENVIAR LISTA')
+          //await Sharing.shareAsync(fileUri);
         }
         else {
-          await Sharing.shareAsync(fileUri);
+          //await Sharing.shareAsync(fileUri);
+          console.log('SE PUEDE ENVIAR LISTA')
         }
       }
       //usamos el metodo shareAsync para compartir la imagen que esta guardada en selectedImage.localUri
 
     }
 
-    const getFiles = async () => {
-      //let media = await MediaLibrary.getAssetsAsync({ mediaType: 'photo' });
-      //console.log(media);
-      try{
-        var lista = {};
-        const valorListas = await AsyncStorage.getItem("LISTAS");
-        const l = valorListas ? JSON.parse(valorListas) : [];
+  const getFiles = async () => {
+    try{
+      var lista = {};
+      const valorListas = await AsyncStorage.getItem("LISTAS");
+      const l = valorListas ? JSON.parse(valorListas) : [];
 
-        for (let i=0; i < l.length; i++){
-          if((JSON.parse(l[i])).idlista == listaInicial.idlista){
-            lista.imagen = (JSON.parse(l[i])).imagen;
-            lista.titulo = (JSON.parse(l[i])).titulo;
-            lista.videolista = (JSON.parse(l[i])).videolista;
-        //lista.series = listaInicial.videolista.series;
-        //lista.repeticiones = listaInicial.videolista.repeticiones;
-        //lista.tiempo = listaInicial.videolista.tiempo;
-        //lista.videos = listaInicial.videolista.videos;
-        //lista.id = listaInicial.videolista.id;
-            lista.email = (JSON.parse(l[i])).email;
-            lista.idlista = (JSON.parse(l[i])).idlista;
-            lista.fechacreacion = (JSON.parse(l[i])).fechacreacion;
-            lista.listaRealizado = (JSON.parse(l[i])).listaRealizado;
-            lista.imagenListaRealizado = (JSON.parse(l[i])).imagenListaRealizado;
-            lista.historial = (JSON.parse(l[i])).historial;
-            lista.fondo = (JSON.parse(l[i])).fondo;
-            break;
-          }
+      for (let i=0; i < l.length; i++){
+        if((JSON.parse(l[i])).idlista == listaInicial.idlista){
+          lista.imagen = (JSON.parse(l[i])).imagen;
+          lista.titulo = (JSON.parse(l[i])).titulo;
+          lista.videolista = (JSON.parse(l[i])).videolista;
+          lista.email = (JSON.parse(l[i])).email;
+          lista.idlista = (JSON.parse(l[i])).idlista;
+          lista.fechacreacion = (JSON.parse(l[i])).fechacreacion;
+          lista.listaRealizado = (JSON.parse(l[i])).listaRealizado;
+          lista.imagenListaRealizado = (JSON.parse(l[i])).imagenListaRealizado;
+          lista.historial = (JSON.parse(l[i])).historial;
+          lista.fondo = (JSON.parse(l[i])).fondo;
+          break;
         }
-        /*
-        for(let i = 0; i < listaInicial.videolista.length; i++){
-          lista.series = lista.series + ',' + (((singleList.split('[')[1]).split(',')[i]).split('\n'))[0];
-          lista.repeticiones = lista.repeticiones + ',' + (((singleList.split('[')[1]).split(',')[i]).split('\n'))[1];
-          //lista.tiempo = (singleList.split('\n'))[i][2];
-          lista.tiempo = lista.tiempo + ',' + (((singleList.split('[')[1]).split(',')[i]).split('\n'))[2];
-          lista.videos = lista.videos + ',' + (((singleList.split('[')[1]).split(',')[i]).split('\n'))[3];
-          lista.id = lista.id + ',' + (((singleList.split('[')[1]).split(',')[i]).split('\n'))[4];
-        }
-        */
-        var jsonLista = JSON.stringify(lista, null, 2);
-        console.log('la lista en formato JSON es: ', jsonLista);
-        fileUri = FileSystem.documentDirectory + "lista.txt";
-        await FileSystem.writeAsStringAsync(fileUri, jsonLista, { encoding: FileSystem.EncodingType.UTF8 });
-        file = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.UTF8 });
-
-        if(previewVideo != null){
-
-        let listaVideos = lista.videolista;
-        let copyVideos = null;
-        let base64Img = [];
-        console.log('listaVideos es', listaVideos)
-
-        
-        //const metaDataDir = await FileSystem.getInfoAsync(FileSystem.documentDirectory + dirUri);
-        //const isDir = metaDataDir.isDirectory;
-
-        try {
-          
-            await FileSystem.makeDirectoryAsync(
-                dirUri,
-                { intermediates: true }
-            );
-          
-            //await FileSystem.deleteAsync(dirUri, { idempotent: true });
-
-            let albumDownload = '';
-            const granted = await PermissionsAndroid.request(
-              PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-              {
-                title: 'Permiso de almacenamiento requerido',
-                message:
-                  'La aplicación necesita acceso al almacenamiento para enviar la lista',
-                buttonNegative: "Cancelar",
-                buttonPositive: "OK"
-              }
-            );
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-              console.log('Se puede escribir en el almacenamiento externo');
-              const permission = await MediaLibrary.getPermissionsAsync();
-              console.log('EL permiso ES: ,', permission);
-              if (permission.granted) {
-            for (let i = 0; i < listaVideos.length; i++){
-              copyVideos = await FileSystem.copyAsync({
-                from: (JSON.parse(listaVideos[i])).videos,
-                to: `${dirUri}/test`+ [i] +`.mp4`,
-              });
-              const fsRead = await FileSystem.readAsStringAsync(`${dirUri}/test`+ [i] +`.mp4`, {
-                encoding: "base64",
-              });
-              /*
-              base64Img.push(`data:video/mp4;base64,${fsRead}`);
-              base64Video = base64Img.toString();
-            */
-            console.log('se ha copiado el video en la carpeta dirUri', dirUri)
-            const read = await FileSystem.readDirectoryAsync(`${dirUri}`);
-            //setVideosDir(read);
-            console.log('El contenido del directorio cache es: ', read)
-
-
-              /*
-              try {
-
-                  // we want to get all the files
-                  /*
-                  const asset = await MediaLibrary.createAssetAsync((JSON.parse(listaVideos[i])).videos);
-
-                  albumDownload = await MediaLibrary.getAlbumAsync('Downloadfiles');
-                    
-                  if (albumDownload == null) {
-                    //albumDownload = await MediaLibrary.createAlbumAsync('Downloadfiles', asset, false);
-                    console.log('')
-                  } else {
-                    //await MediaLibrary.addAssetsToAlbumAsync([asset], albumDownload, false);
-                    console.log('')
-                  }                                
-                  */
-                  //console.log('EL ALBUM ES: ', albumDownload)
-                
-
-/*
-            const writegranted = await PermissionsAndroid.check(
-              PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-            );
-
-            //const writeGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
-            if (writegranted) {
-            try{
-            const asset = await MediaLibrary.createAssetAsync((JSON.parse(listaVideos[i])).videos);
-
-            const album = await MediaLibrary.getAlbumAsync('Download');
-              
-            if (album == null) {
-              albumDownload = await MediaLibrary.createAlbumAsync('Download', asset, false);
-            } else {
-              await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
-            }
-                          
-            
-            console.log('EL ALBUM ES: ', albumDownload)
-
-            } catch(error){
-              console.log('Error al crear ALBUM: ', error)
-            }
-            */
-          }
-        }
-            
-
-            /*
-            //console.log('Los videos en formato base64 son: ', base64Img)
-            //const sourcePath = `${DocumentDirectoryPath}/myList.zip`;
-            //const targetPath = DocumentDirectoryPath;
-            */
-            if (!permission.granted && permission.canAskAgain) {
-              const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync();
-
-              if (status === 'denied' && canAskAgain) {
-                Alert.alert('El usuario debe aceptar los permisos para enviar la lista');
-              }
-              if (status === 'granted'){
-                //getFiles();
-              }
-              if (status === 'denied' && !canAskAgain) {
-                console.log("El usuario ha denegado el permiso y no se puede volver a preguntar");
-              }
-            }
-            if (!permission.canAskAgain && !permission.granted) {
-              console.log("El usuario ha denegado el permiso y no se puede volver a preguntar");
-            }
-            }
-            /*
-            if(albumDownload !== '' && albumDownload !== null){
-              const assetfileuri = await CameraRoll.save(fileUri);
-              //await MediaLibrary.addAssetsToAlbumAsync([assetfileuri], albumDownload, false);
-            }
-            */
-            /*
-            const dataVideo = await new JSZip.external.Promise((resolve, reject) => {
-              JSZipUtils.getBinaryContent(dirUri, (err, data) => {
-                if (err) {
-                  reject(err)
-                } else {
-                  resolve(data)
-                }
-              })
-            })
-            
-           
-            console.log('Funciona hasta getBinaryContent')
-            
-            const zip = await JSZip.loadAsync(dataVideo)
-            zip.forEach(async (relativePath, file) => {
-              console.log('file: ', file)
-              console.log('relativePath: ', relativePath) 
-            })
-            
-            */
-            /*
-            zip.folder(dirUri);
-            
-            zip.generateAsync({ type: "string" }).then(function (content) {
-              //const base64Data = content;
-              console.log(content)
-            });
-            */
-
-            //console.log('Funciona hasta const zip', zip.files)
-
-            /*
-            //Este es el método zip definitivo
-            zip(dirUri, uri)
-            .then((path) => {
-              console.log(`zip completed at ${path}`)
-            })
-            .catch((error) => {
-              console.error(error)
-            })
-            
-            */  
-
-        } catch (e) {
-          console.info("ERROR", e);
-        }
-
-        //(JSON.parse(listaVideos[i])).videos
-        //const asset = await MediaLibrary.createAssetAsync(fileUri)
-        //await MediaLibrary.createAlbumAsync("Download", asset, false)
-        }
+      }
+      var jsonLista = JSON.stringify(lista, null, 2);
+      console.log('la lista en formato JSON es: ', jsonLista);
+      fileUri = FileSystem.documentDirectory + "lista.txt";
+      await FileSystem.writeAsStringAsync(fileUri, jsonLista, { encoding: FileSystem.EncodingType.UTF8 });
+      file = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.UTF8 });
       
-
+      await Sharing.shareAsync(fileUri);
+ 
       } catch (error){
       console.log(error)
       }
@@ -3631,34 +3352,16 @@ export default function Lista ({route}) {
     if (Platform.OS === 'ios') {
       getFiles();
     } else {
-      //getFiles();
         try{
           const writegranted = await PermissionsAndroid.check(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
           );
-          //const writeGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
           if (writegranted) {
             try {
                 getFiles();
             } catch (e) {
               console.log(e);
             }
-            /*
-            // Start downloading
-            const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
-            // Check if permission granted
-            let directoryUri = permissions.directoryUri;
-            //const fileUri = `${FileSystem.documentDirectory}${filename}`;
-            let data = "Hello World";
-            // Create file and pass it's SAF URI
-            await StorageAccessFramework.createFileAsync(directoryUri, "filename", "application/json").then(async(fileUri) => {
-              // Save data to newly created file
-              await FileSystem.writeAsStringAsync(fileUri, data, { encoding: FileSystem.EncodingType.UTF8 });
-            })
-            .catch((e) => {
-              console.log(e);
-            });
-            */
           }  
           else {
             const granted = await PermissionsAndroid.request(
@@ -4143,7 +3846,7 @@ let añadirFondo = () => {
 }
 */
 
-let addBackground = async() => {
+let añadirFondo = async() => {
   const valorListas = await AsyncStorage.getItem("LISTAS");
   const l = valorListas ? JSON.parse(valorListas) : [];
       //setTitle(title);
@@ -4214,7 +3917,7 @@ let addBackground = async() => {
   
   await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
   await AsyncStorage.getItem("LISTAS").then((listas) => {
-    setListas(JSON.parse(listas)); 
+    //setListas(JSON.parse(listas)); 
     setListaActual(jsonListNew);
     setFlagList(!flagList);                 
   });
@@ -4229,7 +3932,7 @@ try {
     is24Hour={true}
     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
     onChange={(event, value) => {
-      console.log('al entrar en onchange, show es: ', show)
+      //console.log('al entrar en onchange, show es: ', show)
       setDateVisible(!dateVisible);
       
       const currentDate = value || date;
@@ -4241,7 +3944,7 @@ try {
         console.log('el valor de show2 es: ', show)
       }
       */
-      console.log('el valor de show3 es: ', show)
+      //console.log('el valor de show3 es: ', show)
       setDate(currentDate);
       //setSelectedDate(value);
       let tempDate = new Date(currentDate);
@@ -4285,7 +3988,7 @@ try {
 
 try {
   if (flagBackground === true){
-    addBackground();
+    añadirFondo();
   }
   } catch (error){
   console.log(error)
@@ -4319,7 +4022,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
             </View>
             <View style={{left: 23, height: 130, width: 160}}>
               <TextInput 
-                value={(listaActual !== '') ? (JSON.parse(listaActual).titulo) : (listaInicial.titulo)}
+                value={title}
                 onChangeText={newtext => setTitle(newtext)}
                 multiline={true}
                 style={styles.title}
@@ -4358,30 +4061,38 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                     style={{height: 35, width: 35}}>
                     <Entypo name="dots-three-vertical" size={24} color="black" />
                   </MenuTrigger>
-                    <MenuOptions optionsContainerStyle={{width:200,height:180}}>
+                    <MenuOptions optionsContainerStyle={{width:200,height:170}}>
                       <MenuOption value={1}
-                        style={{marginLeft: 30, marginTop: 0}}
+                        style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => abrirMenuLista()}
                         text={(listaActual)?((JSON.parse(listaActual).listaRealizado == "no") ? ("Marcar como realizado") : ("Desmarcar como realizado"))
                          : ((listaInicial.listaRealizado == "no") ? ("Marcar como realizado") : ("Desmarcar como realizado"))} />
                       <MenuOption value={2} 
-                        style={{marginLeft: 30, marginTop: 3}}
+                        style={{marginLeft: 10, marginTop: 3}}
                         onSelect={() => añadirRecordatorio()}
                         text="Añadir recordatorio"/>
                       <MenuOption value={3}
                         onSelect={() => eliminarRecordatorio()}
-                        style={{marginLeft: 30, marginTop: 3}}
+                        style={{marginLeft: 10, marginTop: 3}}
                         text={"Eliminar recordatorio"} />
                       <MenuOption value={4}
-                        style={{marginLeft: 30, marginTop: 0}}
+                        style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => abrirFondo()}
                         text="Añadir fondo de pantalla" />
                       <MenuOption value={4}
-                        style={{marginLeft: 30, marginTop: 0}}
+                        style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => {
                           setOpened(false);
+                          isMounted = false;
+                          
+                          if(listaActual==''){
+                            setFlagHistorial(!flagHistorial);
+                          }
+                          
+                          console.log("VAMOS AL HISTORIAL")
                           navigation.navigate("Historial", {
-                            listHistorial: ((listaActual !== '') ? listaActual : 
+                            listHistorial: ((listaActual !== '') ? ((listaHistorialL !== '' ) ? (listaHistorialL) :
+                            listaActual) : 
                             singleList),
                             itemIdHistorial: JSON.parse(singleList).idlista,
                           });
@@ -4394,18 +4105,26 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
             
           </View>
             <Modal
-                visible={modalVisible} 
+                visible={modalVisibleRecordatorio} 
                 animationType='fade' 
                 transparent={true}>
                 <View style={styles.modalStyle}>
-                <View style={styles.button7}>
-                  <Button onPress={showDatepicker} title="Show date picker!">
-                    <Text>Seleccionar día</Text>
+                <View>
+                  <Button
+                    style={styles.botonFecha}
+                    status='success'
+                    accessoryRight={diaIcon}
+                    onPress={() => {seleccionarFecha()}}>
+                    Seleccionar día
                   </Button>
                 </View>
-                <View style={styles.button7}>
-                  <Button onPress={showTimepicker} title="Show time picker!">
-                    <Text>Seleccionar hora</Text>
+                <View>
+                  <Button
+                    style={styles.botonFecha}
+                    status='success'
+                    accessoryRight={horaIcon}
+                    onPress={() => {seleccionarTiempo()}}>
+                    Seleccionar hora
                   </Button>
                 </View>
                
@@ -4434,7 +4153,15 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                   </View>
                 </View>
                 </View>
-                <Text style={{marginLeft: 55, bottom: 180}}>seleccionado: {(date) ? (date.toLocaleString()) : ''}</Text>               
+                <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={{bottom: 180}}>Fecha Seleccionada:    {(date) ? 
+                  (date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()) : ''} </Text>
+                <Text style={{right: 20, bottom: 180}}>Hora Seleccionada:      {(date) ? 
+                  (((date.getHours()<10) ? ('0'+ date.getHours()) : date.getHours()) + ':' + 
+                   ((date.getMinutes()<10) ? ('0'+ date.getMinutes()) : date.getMinutes())
+                  ) : ''} 
+                </Text>
+                </View>    
                 {datepick}
                 
                   <Button onPress={async () => {   
@@ -4607,129 +4334,20 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       opacity: 1,
                       delay: 0,                     
                     });
-                    setModalVisible(false);      
+                    setModalVisibleRecordatorio(false);      
                   }} 
-                  style={styles.button8}>
+                  style={styles.botonGuardarFecha}>
                     <Text>Guardar</Text>
                   </Button>
                 
                   <Button onPress={() => {
-                    setModalVisible(false);
+                    setModalVisibleRecordatorio(false);
                     }}
-                    style={styles.button9}>
+                    style={styles.botonCancelarFecha}>
                     <Text>Cancelar</Text>
                   </Button>              
                 </Modal>
             
-
-                <Modal
-                  visible={modalVisibleVideo} 
-                  animationType='fade' 
-                  transparent={true}>
-                  <View style={styles.modalStyle}>
-                    <Text style={styles.titleVideo}>Añadir Vídeo</Text>                 
-                    <TextInput
-                      placeholder="Series"
-                      value={series}
-                      onChangeText={setSeries}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <TextInput
-                      placeholder="Repeticiones"
-                      value={repeticiones}
-                      onChangeText={setRepeticiones}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <TextInput
-                      placeholder="Tiempo"
-                      value={tiempo}
-                      onChangeText={setTiempo}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <View style={{ flexDirection: 'row' }}>
-                      <View>
-                        <TextInput
-                          placeholder="Insertar link del vídeo de Youtube"
-                          value={link}
-                          onChangeText={(text) => setLink(text)}
-                          style={styles.input3}
-                          selectionColor='#515759'
-                        />
-                      </View>
-                      <View style={styles.button11}>
-                        <TouchableOpacity onPress={openYoutubeApp}>
-                          <Image
-                            source={datosIm[16].image}
-                            style={styles.imagen12}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    </View>                                                
-                  </View>
-                  <Button onPress={guardarVideo} 
-                  style={styles.button10}>
-                    <Text>Guardar</Text>
-                  </Button>      
-                  <Button onPress={() => {setModalVisibleVideo(false);}} 
-                  style={styles.button10}>
-                    <Text>Cancelar</Text>
-                  </Button>         
-                </Modal>
-
-                <Modal
-                  visible={modalVisibleLocalVideo} 
-                  animationType='fade' 
-                  transparent={true}>
-                  <View style={styles.modalStyle}>
-                    <Text style={styles.titleVideo}>Añadir Vídeo</Text>                 
-                    <TextInput
-                      placeholder="Series"
-                      value={series}
-                      onChangeText={setSeries}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <TextInput
-                      placeholder="Repeticiones"
-                      value={repeticiones}
-                      onChangeText={setRepeticiones}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <TextInput
-                      placeholder="Tiempo"
-                      value={tiempo}
-                      onChangeText={setTiempo}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <View style={{ marginTop: 10 }}>
-                      <Button
-                        title="Abrir vídeo"
-                        style={{marginBottom: 10, marginTop: 10, backgroundColor: '#7284b5', borderColor: '#7284b5'}}
-                        onPress={importarVideo}>
-                        <Text>Abrir vídeo</Text>                                  
-                      </Button>
-                    </View>                                                
-                  </View>
-                  <Button onPress={guardarVideo} 
-                  style={styles.button10}>
-                    <Text>Guardar</Text>
-                  </Button>      
-                  <Button onPress={() => {setModalVisibleLocalVideo(false);}} 
-                  style={styles.button10}>
-                    <Text>Cancelar</Text>
-                  </Button>         
-                </Modal>
 
             {component}
             
@@ -4742,16 +4360,16 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
               renderItem={renderItem}
             />
 
-            <View style={{ flexDirection: 'row', marginLeft: 40, marginTop: 10 }}>
-              <View style={styles.button2}>
+            <View style={{ flexDirection: 'row', marginLeft: 0, marginTop: 10, top: 10, justifyContent: 'space-evenly' }}>
+              <View style={styles.botonEliminarLista}>
                 <TouchableOpacity onPress={eliminarLista}>
                   <Image
                     source={datosIm[21].image}
-                    style={styles.imagen14}
+                    style={styles.imagenEliminarLista}
                   />
                 </TouchableOpacity>
               </View>
-              <View style={styles.button3}>
+              <View style={styles.botonEntrenamiento}>
                 <Button
                   status='success'
                   style={{backgroundColor: '#48BEEA', borderColor: '#48BEEA'}}
@@ -4775,17 +4393,21 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       itemIdPlay: JSON.parse(singleList).idlista,
                     });
                     }}>
-                  PLAY
+                  INICIAR{'\n'}ENTRENAMIENTO
                 </Button>
               </View>
-              <View style={styles.button12}>
-                <TouchableOpacity onPress={openShareDialog}>
+              {(flagLocalVideo === true) ? 
+              (<View>
+                </View>
+              ) :
+              (<View style={styles.botonEnviarLista}>
+                <TouchableOpacity onPress={enviarLista}>
                   <Image
                     source={datosIm[4].image}
-                    style={styles.imagen15}
+                    style={styles.imagenEnviarLista}
                   />
                 </TouchableOpacity>
-              </View>
+              </View>)}
             </View>
         </View>
         </ImageBackground>
@@ -5088,27 +4710,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
   },
-  button2: {
-    //backgroundColor: '#1B4B95',
-    padding: 0,
-    marginBottom: 0,
-    marginTop: 3,
-    marginLeft: 20,
-    left: 5,
-    bottom: 2,
-    borderRadius: 5,
-    width: width - 230,
+  botonEliminarLista: {
+    marginTop: 6,
+    borderRadius: 1000,
+    width: 50,
     height: 50,
     alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  button3: {
-    //backgroundColor: '#1B4B95',
-    padding: 4,
-    marginBottom: 0,
-    right: 25,
+  botonEntrenamiento: {
+    top: 0,
     borderRadius: 400/2,
-    width: width - 230,
-    height: 35,
+    width: 250,
+    height: 100,
     alignItems: 'center',
   },
   button4: {
@@ -5141,31 +4762,41 @@ const styles = StyleSheet.create({
     top: 320,
     marginLeft: 135,
   },
-  button7: {
+  botonFecha: {
+    //backgroundColor: '#2cc1de',
+    backgroundColor: '#9678cc',
     bottom: 100,
     padding: 8,
     marginRight: 10,
-    marginBottom: 15,
-    borderRadius: 5,
+    marginBottom: 35,
+    borderRadius: 8,
+    borderColor: '#8559d2',
+    //borderColor: '#2399b0',
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 270,
+    height: 45,
+    width: 180,
   },
-  button8: {
-    backgroundColor: '#214ca3',
+  botonGuardarFecha: {
+    backgroundColor: '#2d65c4',
     borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#2a5db5',
     height: 45,
     width: 100,
     marginLeft: 140,
     bottom: 160,
   },
-  button9: {
-    backgroundColor: '#214ca3',
+  botonCancelarFecha: {
+    backgroundColor: '#d1453d',
     borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#bd3c35',
     height: 45,
     width: 100,
     marginLeft: 140,
-    bottom: 145,
+    bottom: 150,
   },
   button10: {
     backgroundColor: '#214ca3',
@@ -5188,16 +4819,20 @@ const styles = StyleSheet.create({
     left: 225,
     top: 4,
   },
-  button12: {
-    //backgroundColor: '#1B4B95',
-    padding: 0,
-    marginBottom: 40,
-    marginLeft: 10,
-    right: 60,
+  botonEnviarLista: {
+    marginTop: 5,
     borderRadius: 400/2,
-    width: width - 230,
-    height: 35,
+    width: 52,
+    height: 52,
     alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   button13: {
     backgroundColor: '#1B4B95',
@@ -5383,18 +5018,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center"
   },
-  imagen14: {
-    height: 52,
-    width: 52,
+  imagenEliminarLista: {
+    height: 50,
+    width: 50,
     borderRadius: 400/2,
-    marginBottom: 15,
+    marginBottom: 0,
   },
-  imagen15: {
+  imagenEnviarLista: {
     height: 52,
     width: 52,
-    borderRadius: 400/2,
-    marginBottom: 15,
-    right: 3,
+    borderRadius: 1000,
   },
   listaRealizadoIm: {
     //backgroundColor: '#1B4B95',

@@ -100,7 +100,7 @@ export default function LogIn () {
 
         AsyncStorage.getItem("DATOS").then((datos) => {
           setDatos(JSON.parse(datos));    //guardamos cada lista en formato string en listas
-          navigation.navigate("Usuario");
+          navigation.navigate("Modo");
         });
 
         console.log('Los datos que tenemos son: ', datos)

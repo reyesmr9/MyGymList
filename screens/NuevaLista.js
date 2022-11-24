@@ -229,7 +229,7 @@ export default function NuevaLista () {
           text: 'Icono de la app',
           onPress: () => setModalVisible(true)
         },
-        {text: "Imagen de la galería", onPress: openImagePickerAsync} 
+        {text: "Imagen de la galería", onPress: abrirImagen} 
       ]
     );
 
@@ -242,7 +242,7 @@ export default function NuevaLista () {
     };
     
     //creamos una función que se lance cuando pulsamos el boton y nos pida acceder a la galeria de fotos
-    let openImagePickerAsync = async() => {
+    let abrirImagen = async() => {
       /*
       for (let i=0; i<Imagenes.length; i++) {
         Imagenes.push(Imagenes[i]);
@@ -253,7 +253,7 @@ export default function NuevaLista () {
       
       //si el usuario ha denegado el permiso para acceder a su galeria, entonces sale una alerta
       if (permissionResult.granted == false) {
-      alert('Permisos para acceder a la camara son requeridos');
+      alert('Permisos para acceder a la galería son requeridos');
       return;
       }
       //cuando el usuario escoge una imagen de su galeria, pickerResult retorna la imagen que escogio. Se pone 'await' porque es asincrono.
@@ -512,7 +512,7 @@ export default function NuevaLista () {
           lista.series = series + " series";
           lista.repeticiones = repeticiones + " repeticiones";
           lista.tiempo = tiempo + " " + listValueNumberTiempo;
-          lista.videos = video(link);
+          lista.videos = video(link); //añadir un alert(introduce un link válido) si el link no es válido
 
           let idVideos = "";
 
@@ -729,7 +729,7 @@ export default function NuevaLista () {
       //'kHd-8DZeHCQ'
     }
 
-    const openYoutubeApp = () => {
+    const abrirYoutube = () => {
       Linking.canOpenURL('vnd.youtube://').then(supported => {
         if (supported) {
            return Linking.openURL('vnd.youtube://');
@@ -885,7 +885,7 @@ try{
               />
               </View>
               <View style={styles.button4}>
-                <TouchableOpacity onPress={openYoutubeApp}>
+                <TouchableOpacity onPress={abrirYoutube}>
                   <Image
                     source={datosIm[16].image}
                     style={styles.imagen2}

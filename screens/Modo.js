@@ -18,7 +18,7 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import { NavigationContainer, useNavigation, useFocusEffect } from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import {createStackNavigator} from '@react-navigation/stack';
-import {List, ListItem, Divider, Text, Button} from '@ui-kitten/components';
+import {Text, Button} from '@ui-kitten/components';
 import * as FileSystem from 'expo-file-system';
 import NativeModules from "react-native";
 import {startActivityAsync, ActivityAction} from 'expo-intent-launcher';
@@ -117,8 +117,8 @@ export default function Modo () {
 
         await AsyncStorage.setItem("MODO", JSON.stringify(jsonDatos));
 
-        AsyncStorage.getItem("MODO").then((datos) => {
-          setModo(JSON.parse(datos));
+        AsyncStorage.getItem("MODO").then((datosModo) => {
+          setModo(JSON.parse(datosModo));
           navigation.navigate("AllLists");
         });
 
@@ -144,8 +144,8 @@ export default function Modo () {
 
       await AsyncStorage.setItem("MODO", JSON.stringify(jsonDatos));
 
-      AsyncStorage.getItem("MODO").then((datos) => {
-        setModo(JSON.parse(datos));
+      AsyncStorage.getItem("MODO").then((datosModo) => {
+        setModo(JSON.parse(datosModo));
         navigation.navigate("AllLists");
       });
 
@@ -156,18 +156,18 @@ export default function Modo () {
   return (
     <View style={styles.container}>
       <View>
-          <Button
+          <TouchableOpacity
               title="Entrenamiento"
-              style={styles.button}
+              style={styles.botonEntrenamiento}
               onPress={guardarEntrenamiento}>
-                <Text>Entrenamiento</Text>
-          </Button>
-          <Button
+                <Text style={styles.buttonText}>Entrenamiento</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
               title="Configuracion"
-              style={styles.button}
+              style={styles.botonConfiguracion}
               onPress={guardarConfiguracion}>
-                <Text>Configuración</Text>
-          </Button>
+                <Text style={styles.buttonText}>Configuración</Text>
+          </TouchableOpacity>
       </View>
     </View>
   );
@@ -180,14 +180,35 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
   },
-  button: {
-    backgroundColor: '#1B4B95',
+  botonEntrenamiento: {
+    backgroundColor: '#63c0eb',
+    borderColor: "#5bb1d9",
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 8,
     marginTop: 20,
     marginLeft: 10,
     marginRight: 10,
     marginBottom: 20,
-    borderRadius: 5,
+    borderRadius: 15,
+    height: 70,
+    width: 170,
+  },
+  botonConfiguracion: {
+    backgroundColor: '#ebae63',
+    borderColor: "#d69e5a",
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    marginTop: 80,
+    marginLeft: 10,
+    marginRight: 10,
+    marginBottom: 20,
+    borderRadius: 15,
+    height: 70,
+    width: 170,
   },
   bottom: {
     backgroundColor: '#FAFAFF',
@@ -195,7 +216,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 20,
+    textAlign: 'center',
   },
   title: {
     textAlign: 'center',

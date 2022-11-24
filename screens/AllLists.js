@@ -158,6 +158,8 @@ export default function AllLists () {
       { id: '32', image: Imagenes.treintaydos },
       { id: '46', image: Imagenes.cuarentayseis },  //datosIm[20]
       { id: '47', image: Imagenes.cuarentaysiete },
+      { id: '48', image: Imagenes.cuarentayocho },
+      { id: '49', image: Imagenes.cuarentaynueve },
     ]);
 
     const backAction = () => {
@@ -346,7 +348,7 @@ export default function AllLists () {
       */
     }
 
-    const showEmail = () =>
+    const abrirEmail = () =>
     Alert.alert(
       "",
       "Escoja el dispositivo", [
@@ -359,7 +361,7 @@ export default function AllLists () {
       ]
     );
 
-    const openYoutubeApp = async() => {
+    const abrirYoutube = async() => {
       
       Linking.canOpenURL('vnd.youtube://').then(supported => {
         if (supported) {
@@ -371,7 +373,7 @@ export default function AllLists () {
           
     }
 
-    const newList = () => 
+    const nuevaLista = () => 
       Alert.alert(
         "",
         "Crear Lista", [
@@ -477,17 +479,32 @@ export default function AllLists () {
                   const m = valorModo ? JSON.parse(valorModo) : [];
                   console.log('MODO es: ', m)
                   try{
-                    navigation.reset({
-                      index: 0,
-                      routes: [
-                        {
-                          name: 'Lista',
-                          params: { singleList: item,
-                                    itemId: index, 
-                                  },
-                        },
-                      ],
-                    })
+                    if (JSON.parse(m).tipo === "Entrenamiento"){
+                      navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'Lista',
+                            params: { singleList: item,
+                                      itemId: index, 
+                                    },
+                          },
+                        ],
+                      })
+                    }
+                    if (JSON.parse(m).tipo === "Configuracion"){
+                      navigation.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'ListaConfiguracion',
+                            params: { singleList: item,
+                                      itemId: index, 
+                                    },
+                          },
+                        ],
+                      })
+                    }
                   if (JSON.parse(m).tipo === "Entrenamiento"){
                     navigation.navigate("Lista", {
                       singleList: item,
@@ -615,7 +632,7 @@ export default function AllLists () {
         }
       }
       catch(error){
-        console.log(error);
+        console.log("No se ha importado la lista");
         return;
       }
     }
@@ -1054,7 +1071,7 @@ export default function AllLists () {
           </MenuTrigger> 
             <MenuOptions optionsContainerStyle={{width:150,height:40}}>
               <MenuOption onSelect={() => duplicarLista(item)}
-                style={{marginLeft: 30, marginTop: 0}}
+                style={{marginLeft: 10, marginTop: 0}}
                 text={"Duplicar lista"} />
 
             </MenuOptions>
@@ -1092,13 +1109,13 @@ export default function AllLists () {
                     style={styles.button11}>
                     <MaterialIcons name="menu" size={30} color="black" />
                   </MenuTrigger>
-                    <MenuOptions optionsContainerStyle={{width:200,height:80}}>
+                    <MenuOptions optionsContainerStyle={{width:200,height:70}}>
                       <MenuOption value={1}
-                        style={{marginLeft: 30, marginTop: 0}}
+                        style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => abrirFondo()}
                         text="Añadir fondo de pantalla" />
                       <MenuOption value={2} 
-                        style={{marginLeft: 30, marginTop: 3}}
+                        style={{marginLeft: 10, marginTop: 3}}
                         onSelect={() => eliminarListas()}
                         text="Eliminar listas"/>
                     </MenuOptions>
@@ -1189,35 +1206,37 @@ export default function AllLists () {
             </View>
 
             <View style={{ flexDirection: 'row', marginTop: 10, right: 50, top: 35}}>
-              <View style={styles.button3}>
-              <TouchableOpacity onPress={importarLista}>
-                <Image
-                  source={datosIm[14].image}
-                  style={styles.imagen}
-                />
-              </TouchableOpacity>
+              <View style={styles.botonImportarLista}>
+                <TouchableOpacity onPress={importarLista}>
+                  <Image
+                    source={datosIm[22].image}
+                    style={styles.imagen5}
+                  />
+                </TouchableOpacity>
               </View>
-              <View style={styles.button3}>
-              <TouchableOpacity onPress={showEmail}>
-                <Image
-                  source={datosIm[15].image}
-                  style={styles.imagen}
-                />
-              </TouchableOpacity>
+              <View style={styles.botonEmail}>
+                <TouchableOpacity onPress={abrirEmail}>
+                  <Image
+                    source={datosIm[15].image}
+                    style={styles.imagen}
+                  />
+                </TouchableOpacity>
               </View>
-              <View style={styles.button2}>
-              <TouchableOpacity onPress={openYoutubeApp}>
-                <Image
-                  source={datosIm[16].image}
-                  style={styles.imagen}
-                />
-              </TouchableOpacity>
+              <View style={styles.botonYoutube}>
+                <TouchableOpacity onPress={abrirYoutube}>
+                  <Image
+                    source={datosIm[16].image}
+                    style={styles.imagen}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.viewLeft}>
               </View>
             </View>
-            <View style={styles.button4}>
-              <TouchableOpacity onPress={newList}>
+            <View style={styles.botonNuevaLista}>
+              <TouchableOpacity onPress={nuevaLista} style={{bottom: 17}}>
                 <Image
-                  source={datosIm[17].image}
+                  source={datosIm[23].image}
                   style={styles.imagen3}
                 />
               </TouchableOpacity>
@@ -1331,27 +1350,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
     alignItems: 'center',
   },
-  button2: {
+  botonYoutube: {
     //backgroundColor: '#1B4B95',
     padding: 0,
     marginBottom: 30,
     borderRadius: 400/2,
     height: 35,
-    width: width - 230,
+    width: 35,
   },
-  button3: {
+  viewLeft: {
+    width: width-245,
+  },
+  botonEmail: {
     //backgroundColor: '#1B4B95',
     padding: 0,
     marginBottom: 30,
     borderRadius: 400/2,
     height: 35,
   },
-  button4: {
+  botonNuevaLista: {
     //backgroundColor: '#1B4B95',
-    bottom: 0,
-    borderRadius: 400/2,
+    top: 10,
+    borderRadius: 1000,
     justifyContent: 'flex-end',
+    backgroundColor: '#9dcfd4',
+    height: 78,
+    width: 77,
     alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   button8: {
     backgroundColor: '#214ca3',
@@ -1386,6 +1419,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  botonImportarLista: {
+    backgroundColor: '#9dcfd4',
+    borderRadius: 1000,
+    height: 48,
+    width: 47,
+    justifyContent: "center",
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
   bottom: {
     backgroundColor: '#FAFAFF',
     justifyContent: 'flex-end',
@@ -1416,14 +1465,20 @@ const styles = StyleSheet.create({
     borderRadius: 400/2,
   },
   imagen3: {
-    height: 70,
-    width: 70,
-    borderRadius: 400/2,
+    height: 75,
+    width: 75,
+    borderRadius: 1000,
     top: 15,
   },
   imagen4: {
     flex: 1,
     justifyContent: "center",
+  },
+  imagen5: {
+    height: 45,
+    width: 45,
+    borderRadius: 400/2,
+    marginTop: 0,
   },
   border: {
     marginTop: 2,

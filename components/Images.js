@@ -46,6 +46,8 @@ export const Imagenes = {
     cuarentaycinco: require('../assets/fitness\\pexels-gym-9.jpeg'),
     cuarentayseis: require('../assets/fitness\\pexels-gym-10.jpeg'),
     cuarentaysiete: require('../assets/fitness\\garbage.png'),
+    cuarentayocho: require('../assets/fitness\\import_list.png'),
+    cuarentaynueve: require('../assets/fitness\\crear_lista.png'),
 }
 
 /*
