@@ -48,6 +48,7 @@ export const Imagenes = {
     cuarentaysiete: require('../assets/fitness\\garbage.png'),
     cuarentayocho: require('../assets/fitness\\import_list.png'),
     cuarentaynueve: require('../assets/fitness\\crear_lista.png'),
+    cincuenta: require('../assets/fitness\\icono_sin_fondo.png'),
 }
 
 /*

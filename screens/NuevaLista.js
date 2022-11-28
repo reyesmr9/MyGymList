@@ -26,7 +26,6 @@ import * as WebBrowser from 'expo-web-browser';
 import { StackRouter } from 'react-navigation';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {List, ListItem, Divider} from '@ui-kitten/components';
-import { Input, Icon } from 'react-native-elements';
 import { Imagenes } from '../components/Images';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons'; 
@@ -152,8 +151,7 @@ export default function NuevaLista () {
       ]);
     }
     else {
-      isMounted = false;
-      const vid = AsyncStorage.getItem("VIDEOS");
+      const vid = AsyncStorage.getItem("EJERCICIOS");
       //const v = vid ? JSON.parse(vid) : [];
       const varray = [vid];
       var f=varray;
@@ -161,11 +159,26 @@ export default function NuevaLista () {
       setFlagVideo(false);
       setVideos(f);        
       //convertimos el array de listas 'l' en un string usando JSON.stringify(l) y lo pasamos a AllLists.js
-      AsyncStorage.setItem("VIDEOS", JSON.stringify(f));
+      AsyncStorage.setItem("EJERCICIOS", JSON.stringify(f));
+      if(selectedImage !== null){
+        setSelectedImage({localUri: 'https://cdn.pixabay.com/photo/2017/01/25/17/35/picture-2008484_960_720.png'});
+      }
+      if(im !== ""){
+        setIm(imagenInicial[2].image);
+      }
       //setSelectedImage(null);
       //setIm("");
       setTitulo("");
       //setEmail('');
+      isMounted = false;
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'AllLists'
+          },
+        ],
+      })
       navigation.navigate('AllLists');
       }
     return true;
@@ -188,7 +201,7 @@ export default function NuevaLista () {
         AsyncStorage.setItem("VIDEOS", JSON.stringify('f6TXEnHT_Mk'))
           .then((videos) => {setVideos(JSON.parse(videos))});
         */       
-        await AsyncStorage.getItem("VIDEOS").then((videos) => {
+        await AsyncStorage.getItem("EJERCICIOS").then((videos) => {
           setVideos(JSON.parse(videos));    //guardamos cada video en formato string en videos     
         });
         await AsyncStorage.getItem("DATOS").then((datos) => {
@@ -292,7 +305,7 @@ export default function NuevaLista () {
         if((videos.length > 0) && (videos !== undefined) && (videos !== null)){
           const valorListas = await AsyncStorage.getItem("LISTAS");
           const l = valorListas ? JSON.parse(valorListas) : [];
-          const valorVideos = await AsyncStorage.getItem("VIDEOS");
+          const valorVideos = await AsyncStorage.getItem("EJERCICIOS");
           const video = valorVideos ? JSON.parse(valorVideos) : [];
           let videoarray = [video];
           var lista = {};
@@ -401,7 +414,7 @@ export default function NuevaLista () {
               //setVideos(a); 
               const listarray = [l];
               console.log('SE HA AÑADIDO LA LISTA: ', l)
-              const vid = await AsyncStorage.getItem("VIDEOS");
+              const vid = await AsyncStorage.getItem("EJERCICIOS");
               const v = vid ? JSON.parse(vid) : [];
               const varray = [v];
               var f=varray;
@@ -409,9 +422,19 @@ export default function NuevaLista () {
               console.log('Al vaciar array videos el resultado es: ', f)  
               setVideos(f);        
               //convertimos el array de listas 'l' en un string usando JSON.stringify(l) y lo pasamos a AllLists.js
-              await AsyncStorage.setItem("VIDEOS", JSON.stringify(f));
+              await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(f));
               await AsyncStorage.setItem("LISTAS", JSON.stringify(l))
-                  .then(() => navigation.navigate("AllLists"));
+                  .then(() => {
+                    navigation.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'AllLists'
+                        },
+                      ],
+                    })
+                    navigation.navigate("AllLists")
+                  });
               setTitulo("");
               //setEmail("");
               //setSeries("");
@@ -427,17 +450,17 @@ export default function NuevaLista () {
               //console.log('array de array = ', newVideos)
             }
             else {
-              Alert.alert("Inserte una imagen o un icono");
+              Alert.alert("Inserta una imagen o un icono");
             }
           }
           catch(error){
             console.log(error);
-            Alert.alert("Error. Inserte una imagen o un icono");
+            Alert.alert("Error. Inserta una imagen o un icono");
           }
         }
 
         else {
-          Alert.alert("Inserte un link de Youtube en la lista");
+          Alert.alert("Inserta un link de Youtube en el ejercicio");
         }
     }
 
@@ -501,7 +524,7 @@ export default function NuevaLista () {
       if ((videos !== undefined) && (videos !== null)){
         console.log('Se ha pulsado guardar Video si videos existe')
         try{
-          const vid = await AsyncStorage.getItem("VIDEOS");
+          const vid = await AsyncStorage.getItem("EJERCICIOS");
           const v = vid ? JSON.parse(vid) : [];
           //const varray = [v];
           console.log('Valor de videos en asyncstorage', v)
@@ -526,9 +549,9 @@ export default function NuevaLista () {
           var jsonLista = JSON.stringify(lista);
           v.push(jsonLista);
           //convertimos el array de videos 'v' en un string usando JSON.stringify(v)
-          await AsyncStorage.setItem("VIDEOS", JSON.stringify(v));
+          await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(v));
           //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          const vi = await AsyncStorage.getItem("VIDEOS");
+          const vi = await AsyncStorage.getItem("EJERCICIOS");
           const vd = vi ? JSON.parse(vi) : [];
 
           setLink("");
@@ -581,8 +604,8 @@ export default function NuevaLista () {
         //convertimos el array de videos 'v' en un string usando JSON.stringify(v)
         //await AsyncStorage.setItem("VIDEOS", JSON.stringify(v));
 
-        await AsyncStorage.setItem("VIDEOS", jsonList);
-        const vid = await AsyncStorage.getItem("VIDEOS");    
+        await AsyncStorage.setItem("EJERCICIOS", jsonList);
+        const vid = await AsyncStorage.getItem("EJERCICIOS");    
         const v = vid ? JSON.parse(vid) : [];
 
         setLink("");
@@ -725,7 +748,7 @@ export default function NuevaLista () {
 
     const eliminarVideos = async () => {
       const newListas = await videos.filter((video) => video === 'f6TXEnHT_Mk');  //creamos un nuevo array con todas las listas que no coinciden con el parametro singleList de las listas usando array.filter
-      await AsyncStorage.setItem("VIDEOS", JSON.stringify(newListas));  //nos quedamos solo con las listas que no coinciden con singleList
+      await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(newListas));  //nos quedamos solo con las listas que no coinciden con singleList
       //'kHd-8DZeHCQ'
     }
 
@@ -884,18 +907,19 @@ try{
                 selectionColor='#515759'
               />
               </View>
-              <View style={styles.button4}>
+              <View style={styles.botonYoutube}>
                 <TouchableOpacity onPress={abrirYoutube}>
                   <Image
                     source={datosIm[16].image}
-                    style={styles.imagen2}
+                    style={styles.imagenYoutube}
                   />
                 </TouchableOpacity>
               </View>
             </View>
           <Button
             title="Guardar vídeo"
-            onPress={guardarVideo}>
+            onPress={guardarVideo}
+            style={styles.botonGuardar}>
             <Text>Guardar</Text>                                  
           </Button>
       </View>);
@@ -910,13 +934,21 @@ try{
     console.log(error)
   }
      
-    let pressFlagVideo = () => {
+    let añadirEjercicio = () => {
       setFlagVideo(true);
     }
     
 
       return (
         <View style={styles.container}>
+          <TouchableOpacity
+            style={styles.botonAtras}
+            onPress={() => backAction()}>
+            <Image
+              source={datosIm[5].image}
+              style={{height: 35, width: 35}}
+            />
+          </TouchableOpacity>
           <Text style={styles.title} category="h1">
 				    Nueva Lista
 			    </Text>
@@ -925,29 +957,30 @@ try{
             animationType='fade' 
             transparent={true}>
             <View style={styles.modalStyle}>
-            <FlatList 
-              data={datos}
-              keyExtractor={( item , index) => index.toString()}
-              renderItem={({ item, index }) => (
-              <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity
-                onPress={() => {
-                  setIm(item.image);    //setIm(item.image)
-                  setFlag(false);
-                  //var i = Imagenes[index];
-                  console.log('la uri de la imagen seleccionada es: ', im);
-                  console.log('el item seleccionado es: ', item);
-                  setModalVisible(!modalVisible);
-                  }}>
-                  <Image
-                    //source={{uri: 'https://picsum.photos/200/200'}}
-                    source={item.image}
-                    style={{height: 50, width: 50}}
-                  />
-              </TouchableOpacity>
-              </View>
-              )}
-            />  
+              <Text style={styles.textoIcono}> Selecciona un icono: </Text>
+              <FlatList 
+                data={datos}
+                keyExtractor={( item , index) => index.toString()}
+                renderItem={({ item, index }) => (
+                <View style={{flexDirection: 'row'}}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setIm(item.image);    //setIm(item.image)
+                    setFlag(false);
+                    //var i = Imagenes[index];
+                    console.log('la uri de la imagen seleccionada es: ', im);
+                    console.log('el item seleccionado es: ', item);
+                    setModalVisible(!modalVisible);
+                    }}>
+                    <Image
+                      //source={{uri: 'https://picsum.photos/200/200'}}
+                      source={item.image}
+                      style={{height: 50, width: 50}}
+                    />
+                </TouchableOpacity>
+                </View>
+                )}
+              />  
             </View> 
           </Modal>
           <TouchableOpacity
@@ -979,16 +1012,16 @@ try{
             <View style={{ flexDirection: 'row' }}>
               <View style={styles.botonb}>
                 <Button
-                  title="Añadir vídeo"
-                  style={{backgroundColor: '#5683F3'}}
-                  onPress={pressFlagVideo}>
-                  <Text>Añadir vídeo</Text>                                  
+                  title="Añadir ejercicio"
+                  style={styles.botonAñadirEjercicio}
+                  onPress={añadirEjercicio}>
+                  <Text>Añadir ejercicio</Text>                                  
                 </Button>
               </View>
             </View>
             <Button
               title="Crear Lista"
-              style={{marginTop: 10, height: 60, width: 140}}
+              style={styles.botonCrearLista}
               onPress={crearLista}>
               <Text>CREAR LISTA</Text>                                  
             </Button>
@@ -1114,17 +1147,51 @@ const styles = StyleSheet.create({
     borderRadius: 400/2,
     height: 35,
   },
-  button4: {
-    //backgroundColor: '#1B4B95',
+  botonYoutube: {
     position: 'absolute',
     padding: 0,
     marginLeft: 0,
     marginRight: 0,
     marginBottom: 0,
     borderRadius: 400/2,
-    height: 35,
+    height: 40,
     right: 0,
     top: 4,
+  },
+  botonGuardar: {
+    backgroundColor: '#1d89db',
+    borderWidth: 1,
+    borderColor: '#1979c2',
+    borderRadius: 100,
+    padding: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 50,
+  },
+  botonAñadirEjercicio: {
+    backgroundColor: '#48BEEA',
+    borderWidth: 1,
+    borderColor: '#48BEEA',
+    borderRadius: 100,
+    padding: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 50,
+  },
+  botonCrearLista: {
+    backgroundColor: '#2d65c4',
+    borderWidth: 1,
+    borderColor: '#2a5db5',
+    borderRadius: 100,
+    padding: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: 10, 
+    height: 60, 
+    width: 140,
   },
   botonModal: {
     backgroundColor: '#1B4B95',
@@ -1138,10 +1205,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  botonAtras: {
+    borderRadius: 1000,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 35,
+    position: 'absolute',
+    bottom: 10,
+    top: 35,
+    right: 340,
+  },
   bottom: {
     flex: 1,
     justifyContent: 'flex-end',
     marginBottom: 0,
+  },
+  textoIcono: {
+    color: '#000',
+    fontSize: 16,
+    marginBottom: 10,
+    marginTop: 10,
   },
   input: {
     textAlignVertical: 'top',
@@ -1191,7 +1275,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     borderRadius: 400/2,
   },
-  imagen2: {
+  imagenYoutube: {
     height: 40,
     width: 40,
     left: 0,
@@ -1212,11 +1296,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 9,
     width: width-30,
-    height: Dimensions.get("window").height-400,
+    height: Dimensions.get("window").height-380,
     marginLeft: 15,
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#79aad1',
+    backgroundColor: '#95bddb',
   },
   viewSeries: {
     alignItems: 'center',

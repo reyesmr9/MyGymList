@@ -40,16 +40,16 @@ import {
 import {ApplicationProvider, BottomNavigation, BottomNavigationTab} from '@ui-kitten/components';
 
 
-export default function Historial ({route}) {
+export default function HistorialEjercicio ({route}) {
 
     const navigation = useNavigation();
-    const {listHistorial, itemIdHistorial} = route.params;
+    const {ejercicioHistorial, ejercicioIdHistorial, lista} = route.params;
 
-    const [modalVisibleHistorial, setModalVisibleHistorial] = useState(false);
-    const [listActualH, setListActualH] = useState([]);
-    const [flagListActual, setFlagListActual] = useState(false);
     const videoLocalReference = useRef(null);
     const [statusVideoR, setStatusVideoR] = useState({});
+
+    let previewVideoPlay = null;
+    let youtubeVideoPlay = null;
  
     let isMounted = true;
        
@@ -65,24 +65,29 @@ export default function Historial ({route}) {
         ]);
       }
       else {
-        let listH = listActualH;
-        if(modalVisibleHistorial===false){
-          isMounted = false;
+        if(statusVideoR.isPlaying){
+          if(videoLocalReference !== null && videoLocalReference.current !== null) {
+            videoLocalReference.current.pauseAsync();
+          }
         }
+        console.log('saliendo de historialejercicio')
+        isMounted = false;    
+        /*         
         navigation.reset({
           index: 0,
           routes: [
             {
-              name: 'Lista',
-              params: { singleList: listHistorial,
-                        itemId: JSON.parse(listHistorial).listaid,
+              name: 'Historial',
+              params: { listHistorial: lista,
+                        itemIdHistorial: JSON.parse(lista).idlista,
                       },
             },
           ],
         })
-        navigation.navigate("Lista", {
-          singleList: ((listH.length!==0) ? listActualH : listHistorial),
-          itemId: JSON.parse(listHistorial).listaid,
+        */
+        navigation.navigate("Historial", {
+          listHistorial: lista,
+          itemIdHistorial: JSON.parse(lista).idlista,
         });
       }
       return true;
@@ -96,87 +101,107 @@ export default function Historial ({route}) {
       //getLista();
       BackHandler.addEventListener('hardwareBackPress', backAction);
     }
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    //const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => {
-      backHandler.remove();
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
       isMounted = false;
       //setListH('');
     };
       
     }, []));
 
-    const borrarHistorial = async() => {    
-      const valorListas = await AsyncStorage.getItem("LISTAS");
-      const l = valorListas ? JSON.parse(valorListas) : [];
-
-      let newLists = '';
-      let listaAhoraH = JSON.parse(listHistorial);
-      listaAhoraH.historial = '';
-
-      newLists = l.filter((lista) => lista !== listHistorial); 
-
-      newLists.push(JSON.stringify(listaAhoraH));
-
-      await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
-
-      await AsyncStorage.getItem("LISTAS").then((listas) => {
-        console.log('Las lista historial tras borrar el historial es: ', listaAhoraH)
-        setListActualH(JSON.stringify(listaAhoraH));
-        setFlagListActual(true);                          
-      })
-      .catch(()=>{
-        console.log('No existe la lista')
-      });
-      
-      console.log('Se ha borrado el historial')
-    }
-
   
-
+/*
   const renderItem = ({ item, index }) => {
     try {
       if (item !== undefined || item !== null){
-        //let duracion = (JSON.parse(item).titulo).length * 135;
           return (
             <View>        
-            <View style={styles.textHistorial2}>     
-            <ListItem
-              title={() => 
-                <Text 
-                style={styles.tituloLista}>
-                  {"fecha:   " + JSON.parse(item).fechaRealizado + "\n\n"}
-                  {"tiempo total:   " + JSON.parse(item).tiempoTotal + "\n"}
-                </Text>}
-                onPress={async() => {
-                try{
-                  //setModalVisibleHistorial(true);
-                  let listH = listActualH;
-                  navigation.reset({
-                    index: 0,
-                    routes: [
-                      {
-                        name: 'HistorialEjercicio',
-                        params: { ejercicioHistorial: item,
-                                  ejercicioIdHistorial: JSON.parse(item).idHistorial,
-                                  lista: ((listH.length!==0) ? listActualH : listHistorial)
-                                },
-                      },
-                    ],
-                  })
-                  navigation.navigate("HistorialEjercicio", {
-                    ejercicioHistorial: item,
-                    ejercicioIdHistorial: JSON.parse(item).idHistorial,
-                    lista: ((listH.length!==0) ? listActualH : listHistorial)
-                  });
-                } catch(error){
-                  console.log(error)
-                }
-                }
-  
-              }
-              style={styles.border2}
-            />
+            <View style={styles.modalStyle3}>
+              <FlatList 
+                data={(listHistorial !== '') ? JSON.parse(item).tiemposEjercicios : []}
+                keyExtractor={( item , index) => index.toString()}
+                renderItem={({ item, index }) => (
+                <View style={styles.border3}>
+                  <View style={styles.textHistorial}>
+                    <Text>
+                      {"id: " + JSON.parse(item).id + "\n"}
+                    </Text>
+                  </View>
+                  <View style={styles.textHistorial}>
+                    <Text>
+                      {JSON.parse(item).series + "\n"}
+                    </Text>
+                  </View>
+                  <View style={styles.textHistorial}>
+                    <Text>
+                      {JSON.parse(item).repeticiones + "\n"}
+                    </Text>
+                  </View>
+                  <View style={styles.textHistorial}>
+                    <Text>
+                      {"tiempo de realización: " + JSON.parse(item).tiempoRealizacion + "\n"}
+                    </Text>
+                  </View>
+                  <View style={styles.textHistorial}>
+                    <Text>
+                      {"tiempo de descanso: " + JSON.parse(item).tiempoDescanso + "\n"}
+                    </Text>
+                  </View> 
+                  {((JSON.parse(item).video).includes("file")) ? 
+                  (
+                    <Video
+                      ref={videoLocalReference}
+                      source={{ uri: JSON.parse(item).video }}
+                      useNativeControls
+                      resizeMode="contain"
+                      isLooping={false}
+                      isMuted={false}
+                      style={styles.videoPlayer2}
+                      onPlaybackStatusUpdate={status => setStatusVideoR(() => status)}
+                    />
+                  ) : 
+                  (
+                  <YoutubePlayer
+                    height={280}
+                    width={280}
+                    play={false}
+                    videoId={JSON.parse(item).video}
+                  />   
+                  )}                               
+                </View>
+                )}
+               />
+              <View style={{marginTop: 10, height: 70}}>
+                <TouchableOpacity style={styles.botonAtrasModal}
+                  onPress={() => {
+                    //setModalVisibleHistorial(!modalVisibleHistorial);
+                    if(statusVideoR.isPlaying){
+                      if(videoLocalReference !== null) {
+                        videoLocalReference.current.pauseAsync();
+                      }
+                    }
+                    isMounted = false;       
+                    navigation.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'Historial',
+                          params: { listHistorial: lista,
+                                    itemIdHistorial: JSON.parse(lista).idlista,
+                                  },
+                        },
+                      ],
+                    })
+                    navigation.navigate("Historial", {
+                      listHistorial: lista,
+                      itemIdHistorial: JSON.parse(lista).idlista,
+                    });
+                  }}>
+                  <Text>Atrás</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
           );
@@ -188,73 +213,89 @@ export default function Historial ({route}) {
       console.log(error)
     }
   }
+*/
+
+  const renderItemHistorial = ({item, index}) => {
+    try{
+    if ((item !== undefined) && (item !== null) && (JSON.parse(item).video !== undefined)){
+    if((JSON.parse(item).video).includes("file") && isMounted==true){
+      previewVideoPlay = JSON.parse(item).video;
+    }
+    else {
+      youtubeVideoPlay = JSON.parse(item).video;
+    }
+    return (
+      <View style={styles.border3}>
+      <View style={styles.textHistorial}>
+        <Text style={styles.textoEjercicio}>
+          {JSON.parse(item).series + "\n"}
+        </Text>
+      </View>
+      <View style={styles.textHistorial}>
+        <Text style={styles.textoEjercicio}>
+          {JSON.parse(item).repeticiones + "\n"}
+        </Text>
+      </View>
+      <View style={styles.textHistorial}>
+        <Text style={styles.textoEjercicio}>
+          {"tiempo de realización:   " + JSON.parse(item).tiempoRealizacion + "\n"}
+        </Text>
+      </View>
+      <View style={styles.textHistorial}>
+        <Text style={styles.textoEjercicio}>
+          {(JSON.parse(item).tiempoDescanso !== '') ?
+            ("tiempo de descanso:   " + JSON.parse(item).tiempoDescanso + "\n") 
+            : ('')
+            }
+        </Text>
+      </View> 
+        {previewVideoPlay &&
+              <Video
+                ref={videoLocalReference}
+                source={{ uri: previewVideoPlay }}
+                useNativeControls
+                resizeMode="contain"
+                isLooping={false}
+                isMuted={false}
+                style={styles.videoPlayer2}
+                onPlaybackStatusUpdate={status => setStatusVideoR(() => status)}
+              />
+        }
+          {youtubeVideoPlay &&
+            <YoutubePlayer
+              height={280}
+              width={280}
+              play={false}
+              videoId={youtubeVideoPlay}
+            />   
+          }                               
+      </View>
+    )
+   }
+   else{
+    return;
+  }
+  } catch(error){
+    console.log(error)
+  }
+  }
 
   return (
     <View style={styles.container}>
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
-        <Text style={styles.title} category="h1"> 
-          Historial
-        </Text>
-        {(flagListActual===false && (JSON.parse(listHistorial).historial !== '')) ? 
-        (<View style={{backgroundColor: '#fafafd', flex:1, marginTop: -5}}>
-          <List
-            style={{width: Dimensions.get("window").width, marginBottom: 40}}
-            data={JSON.parse(listHistorial).historial}
-            renderItem={renderItem}
-          />
-          <Button style={styles.botonBorrarHistorial}
-            onPress={() => {
-            Alert.alert('Borrar historial',
-              "¿Está seguro de borrar el historial?", [
-              {
-                text: 'No',
-                onPress: () => null,
-                style:"cancel"
-              },
-              {text: "Sí", onPress: () => {borrarHistorial();}}
-              ]
-            );                 
-          }}>
-            <Text>Borrar historial</Text>
+      <View style={styles.modalStyle3}>
+        <FlatList 
+          data={(ejercicioHistorial !== '') ? JSON.parse(ejercicioHistorial).tiemposEjercicios : []}
+          keyExtractor={( item , index) => index.toString()}
+          renderItem={renderItemHistorial}
+        />
+        <View style={{marginTop: 10, height: 70}}>
+          <Button style={styles.botonAtrasModal}
+            onPress={() => backAction()}>
+              <Text>Atrás</Text>
           </Button>
         </View>
-        ) :
-        (<View style={{backgroundColor: '#fafafd', flex:1, width: Dimensions.get("window").width, 
-        alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={styles.textoH}>El historial está vacío</Text>
-        </View>
-        )}
-        <View style={{backgroundColor: '#fafafd', width: Dimensions.get("window").width, 
-          alignItems: 'center', justifyContent: 'center'}}>    
-        <Button
-          title="Atrás"
-          style={styles.botonAtras}
-          onPress={() => {
-            let listH = listActualH;
-            console.log('VOLVEMOS A LA LISTA DESDE EL HISTORIAL')
-            if(modalVisibleHistorial === false){
-              isMounted = false;
-            }
-            navigation.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'Lista',
-                  params: { singleList: listHistorial,
-                            itemId: JSON.parse(listHistorial).listaid,
-                          },
-                },
-              ],
-            })
-            navigation.navigate("Lista", {
-              singleList: ((listH.length!==0) ? listActualH : listHistorial),
-              itemId: JSON.parse(listHistorial).listaid,
-            });
-            
-          }}>
-            <Text>Atrás</Text>
-        </Button>
-        </View>
+      </View>
       </View>
     </View>
   );
@@ -296,18 +337,18 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     width: width-30,
     height: 150,
-    backgroundColor: '#b3d0e6',
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
   border3: {
     marginTop: 30,
-    marginLeft: 0,
+    marginBottom: 20,
     borderColor: '#949699',
     borderWidth: 1,
     borderRadius: 9,
     width: width-30,
-    height: 600,
+    height: 550,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
@@ -532,23 +573,16 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   textHistorial: {
-    //backgroundColor: '#1B4B95',
     padding: 10,
-    marginRight: 30,
-    fontSize: 16,
-    backgroundColor:'rgba(52, 52, 52, 0.010)',
-  },
-  textHistorial2: {
-    //backgroundColor: '#79aad1',
-    padding: 0,
-    marginRight: 30,
-    fontSize: 16,
     backgroundColor:'rgba(52, 52, 52, 0.010)',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  textoEjercicio: {
+    fontSize: 17,
+  },
   tituloLista: {
-    fontSize: 18,
+    fontSize: 16,
     marginLeft: 10,
   },
   imagen: {
@@ -721,7 +755,7 @@ const styles = StyleSheet.create({
     height: Dimensions.get("window").height,
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#79aad1',
+    backgroundColor: '#b3d0e6',
   },
   modalStyleEm: {
     borderColor: '#949699',

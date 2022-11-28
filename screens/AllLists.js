@@ -174,9 +174,9 @@ export default function AllLists () {
           { text: 'Sí', onPress: () => {BackHandler.exitApp()}},
         ]);
       }
-      else {
-        isMounted = false;
+      else {       
         setOpened(false);
+        isMounted = false;
         navigation.goBack();
       }
      
@@ -378,38 +378,14 @@ export default function AllLists () {
         "",
         "Crear Lista", [
           {text: "Cancelar", onPress: () => {return;}, style:"cancel"},
-          {text: "Añadir videos en local", onPress: () => navigation.navigate('NuevaListaLocal')},
+          {text: "Añadir vídeos en local", onPress: () => navigation.navigate('NuevaListaLocal')},
           {
-            text: 'Añadir videos de Youtube',
+            text: 'Añadir vídeos de Youtube',
             onPress: () => navigation.navigate('NuevaLista')
           },
         ]
       );
     
-
-    const eliminarLista = async () => {
-      Alert.alert(
-        "Eliminar lista",
-        "¿Está seguro de eliminar la lista?", [
-            {
-            text: 'No',
-            onPress: () => null,
-            style:"cancel"
-            },
-            {text: "Sí", onPress: async() => {
-
-              isMounted = false;
-              BackHandler.removeEventListener('hardwareBackPress', backAction);
-              const valorListas = await AsyncStorage.getItem("LISTAS");
-              const l = valorListas ? JSON.parse(valorListas) : [];
-              const newListas = l.filter((lista) => lista !== singleList);
-              const nuevasListas = newListas.filter((lista) => lista !== jsonListIni);      //creamos un nuevo array con todas las listas que no coinciden con el parametro singleList de las listas usando array.filter
-              await AsyncStorage.setItem("LISTAS", JSON.stringify(nuevasListas))             //nos quedamos solo con las listas que no coinciden con singleList
-                  .then(() => navigation.navigate("AllLists"));             
-            }
-          }
-        ])
-      }
 
     /*
     const renderItem = () => {
@@ -471,13 +447,13 @@ export default function AllLists () {
                   style={styles.tituloLista}>
                     {JSON.parse(item).titulo}
                   </Text>}
-                onPress={async() => {
-                  isMounted = false;
+                onPress={async() => {                 
                   //BackHandler.removeEventListener('hardwareBackPress', backAction);
                   //Cada Lista está en formato JSON string
                   const valorModo = await AsyncStorage.getItem("MODO");
                   const m = valorModo ? JSON.parse(valorModo) : [];
                   console.log('MODO es: ', m)
+                  isMounted = false;
                   try{
                     if (JSON.parse(m).tipo === "Entrenamiento"){
                       navigation.reset({
@@ -1050,18 +1026,6 @@ export default function AllLists () {
     
 */
 
-    const eliminarListasMes = async(value) => {
-      var mes = new Date().getMonth() + 1; //To get the Current Month
-
-      const valorListas = await AsyncStorage.getItem("LISTAS");
-      const l = valorListas ? JSON.parse(valorListas) : [];
-      const listMonth = l.filter((lista) => JSON.parse(lista).fechacreacion.split('-')[1] < (mes-value));  
-      await AsyncStorage.setItem("LISTAS", JSON.stringify(listMonth));    
-      //const newListas = l.filter((lista) => lista.fechacreacion == singleList);
-      //const nuevasListas = newListas.filter((lista) => lista !== jsonListIni);
-      console.log('Se han eliminado los elementos posteriores a x meses2 ', mes)
-    }
-
 
     const menuLista = (item) => {
       return (
@@ -1128,11 +1092,11 @@ export default function AllLists () {
             animationType='fade' 
             transparent={true}>
             <View style={styles.modalStyle}>
-            <View style={{ flexDirection: 'row'}}>
-                <View style={{left: 70}}>
-                  <Text>Eliminar elementos creados hace más de </Text>
+            <View style={{flexDirection: 'column'}}>
+                <View>
+                  <Text style={{fontSize: 16}}>Eliminar elementos creados hace más de: </Text>
                 </View>
-                <View style={{ flexDirection: 'row'}}>
+                <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
                   <View style={styles.pickerStyle3}>
                     <DropDownPicker
                       placeholder='Selecciona un número'
@@ -1145,18 +1109,18 @@ export default function AllLists () {
                       onChangeValue={(value) => {
                         setListValueNumber(value);
                       }}
-                      theme="DARK"
+                      theme="LIGHT"
                       mode="BADGE"
-                      badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                      badgeColors={["#95bddb"]}
+                      style={{
+                        backgroundColor: '#5a9ed1'
+                      }}
                     />
                   </View>
-                  <View style={{justifyContent: 'center', right: 110, top: 10}}>
+                  <View style={{marginTop: 95}}>
                     <Text>Meses</Text>
                   </View>
-
                 </View>
-                
-
             </View>
 
     
@@ -1179,13 +1143,13 @@ export default function AllLists () {
               setModalVisible(false);
               }
             }
-              style={styles.button8}>
+              style={styles.botonGuardar}>
                 <Text>Guardar</Text>
             </Button>
             <Button onPress={() => {
               setModalVisible(false);
               }}
-              style={styles.button9}>
+              style={styles.botonCancelar}>
               <Text>Cancelar</Text>
             </Button>
             </View>
@@ -1386,20 +1350,28 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  button8: {
-    backgroundColor: '#214ca3',
+  botonGuardar: {
+    backgroundColor: '#2d65c4',
     borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#2a5db5',
     height: 45,
     width: 100,
-    marginLeft: 0,
-    bottom: 0,
+    top: 200,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  button9: {
-    backgroundColor: '#214ca3',
+  botonCancelar: {
+    backgroundColor: '#d1453d',
     borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#bd3c35',
     height: 45,
     width: 100,
-    marginTop: 20,
+    top: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button10: {
     backgroundColor: '#cbd1d4',
@@ -1500,7 +1472,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#79aad1',
+    backgroundColor: '#95bddb',
   },
   pickerStyle: {
     padding: 8,
@@ -1521,8 +1493,8 @@ const styles = StyleSheet.create({
   pickerStyle3: {
     padding: 0,
     marginBottom: 45,
-    marginTop: 70,
-    right: 150,
+    marginTop: 82,
+    right: 0,
     borderRadius: 5,
     width: 100,
   },

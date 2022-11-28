@@ -26,7 +26,6 @@ import * as WebBrowser from 'expo-web-browser';
 import { StackRouter } from 'react-navigation';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {List, ListItem, Divider} from '@ui-kitten/components';
-import { Input, Icon } from 'react-native-elements';
 import { Imagenes } from '../components/Images';
 import { Video, AVPlaybackStatus } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,7 +33,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import {Picker} from '@react-native-picker/picker';
 import {IconPicker} from '@grassper/react-native-icon-picker';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { Button } from '@ui-kitten/components'
+import { Button, Icon } from '@ui-kitten/components'
 
 
 export default function NuevaListaLocal () {
@@ -54,8 +53,10 @@ export default function NuevaListaLocal () {
     const [flag, setFlag] = useState(false);
     const [flagVideo, setFlagVideo] = useState(false);
     const videoLocalRef = useRef(null);
+    const videoLocalAddRef = useRef(null);
     const [videoLocal, setVideoLocal] = useState(null);
     const [statusVideo, setStatusVideo] = useState({});
+    const [statusVideoAdd, setStatusVideoAdd] = useState({});
 
     const [openListTiempo, setOpenListTiempo] = useState(false);
     const [valuelistTiempo, setvaluelistTiempo] = useState([]);
@@ -143,6 +144,18 @@ export default function NuevaListaLocal () {
       }, [])
     );
 */
+//let videoLocalRef = () => {return React.useRef(null);} 
+const iconRef = React.useRef();
+
+const iconoImportarVideo = (props) => (
+  <Icon
+    {...props}
+    ref={iconRef}
+    name='video-outline'
+  />
+);
+
+
   const backAction = () => {
     if(!navigation.canGoBack()){
       Alert.alert('', '¿Seguro que quieres salir de la app?', [
@@ -154,9 +167,8 @@ export default function NuevaListaLocal () {
         { text: 'Sí', onPress: () => {BackHandler.exitApp()}},
       ]);
     }
-    else {
-      isMounted = false;
-      const vid = AsyncStorage.getItem("VIDEOS");
+    else {     
+      const vid = AsyncStorage.getItem("EJERCICIOS");
       //const v = vid ? JSON.parse(vid) : [];
       const varray = [vid];
       var f=varray;
@@ -164,11 +176,38 @@ export default function NuevaListaLocal () {
       setFlagVideo(false);
       setVideos(f);        
       //convertimos el array de listas 'l' en un string usando JSON.stringify(l) y lo pasamos a AllLists.js
-      AsyncStorage.setItem("VIDEOS", JSON.stringify(f));
+      AsyncStorage.setItem("EJERCICIOS", JSON.stringify(f));
+      if(selectedImage !== null){
+        setSelectedImage({localUri: 'https://cdn.pixabay.com/photo/2017/01/25/17/35/picture-2008484_960_720.png'});
+      }
+      if(im !== ""){
+        setIm(imagenInicial[2].image);
+      }
+
+      if(statusVideoAdd.isPlaying){
+        if(videoLocalAddRef !== null && videoLocalAddRef.current !== null) {
+        videoLocalAddRef.current.pauseAsync();
+        }
+      }
+      if(statusVideo.isPlaying){
+        if(videoLocalRef !== null && videoLocalRef.current !== null) {
+          videoLocalRef.current.pauseAsync();
+        }
+      }
       //setSelectedImage(null);
       //setIm("");
       setTitulo("");
+      setVideoLocal(null);
       //setEmail('');
+      isMounted = false;
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'AllLists'
+          },
+        ],
+      })
       navigation.navigate('AllLists');
       }
     return true;
@@ -191,7 +230,7 @@ export default function NuevaListaLocal () {
         AsyncStorage.setItem("VIDEOS", JSON.stringify('f6TXEnHT_Mk'))
           .then((videos) => {setVideos(JSON.parse(videos))});
         */       
-        await AsyncStorage.getItem("VIDEOS").then((videos) => {
+        await AsyncStorage.getItem("EJERCICIOS").then((videos) => {
           setVideos(JSON.parse(videos));    //guardamos cada video en formato string en videos     
         });
         await AsyncStorage.getItem("DATOS").then((datos) => {
@@ -295,7 +334,7 @@ export default function NuevaListaLocal () {
         if((videos.length > 0) && (videos !== undefined) && (videos !== null)){
           const valorListas = await AsyncStorage.getItem("LISTAS");
           const l = valorListas ? JSON.parse(valorListas) : [];
-          const valorVideos = await AsyncStorage.getItem("VIDEOS");
+          const valorVideos = await AsyncStorage.getItem("EJERCICIOS");
           const video = valorVideos ? JSON.parse(valorVideos) : [];
           let videoarray = [video];
           var lista = {};
@@ -401,7 +440,7 @@ export default function NuevaListaLocal () {
               //setVideos(a); 
               const listarray = [l];
               console.log('SE HA AÑADIDO LA LISTA: ', l)
-              const vid = await AsyncStorage.getItem("VIDEOS");
+              const vid = await AsyncStorage.getItem("EJERCICIOS");
               const v = vid ? JSON.parse(vid) : [];
               const varray = [v];
               var f=varray;
@@ -409,9 +448,19 @@ export default function NuevaListaLocal () {
               console.log('Al vaciar array videos el resultado es: ', f)  
               setVideos(f);        
               //convertimos el array de listas 'l' en un string usando JSON.stringify(l) y lo pasamos a AllLists.js
-              await AsyncStorage.setItem("VIDEOS", JSON.stringify(f));
+              await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(f));
               await AsyncStorage.setItem("LISTAS", JSON.stringify(l))
-                  .then(() => navigation.navigate("AllLists"));
+                  .then(() => {
+                    navigation.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'AllLists'
+                        },
+                      ],
+                    })
+                    navigation.navigate("AllLists")
+                  });
               setTitulo("");
               //setEmail("");
               //setSeries("");
@@ -427,17 +476,17 @@ export default function NuevaListaLocal () {
               //console.log('array de array = ', newVideos)
             }
             else {
-              Alert.alert("Inserte una imagen o un icono");
+              Alert.alert("Inserta una imagen o un icono");
             }
           }
           catch(error){
             console.log(error);
-            Alert.alert("Error. Inserte una imagen o un icono");
+            Alert.alert("Error. Inserta una imagen o un icono");
           }
         }
 
         else {
-          Alert.alert("Inserte un link de Youtube en la lista");
+          Alert.alert("Inserta un vídeo en la lista");
         }
     }
 
@@ -474,7 +523,8 @@ export default function NuevaListaLocal () {
 
             <Button
               title="Guardar vídeo"
-              onPress={guardarVideo}>
+              onPress={guardarVideo}
+              style={styles.botonGuardar}>
               <Text>Guardar</Text>                                  
             </Button>
   
@@ -487,7 +537,11 @@ export default function NuevaListaLocal () {
       if ((videos !== undefined) && (videos !== null)){
         console.log('Se ha pulsado guardar Video si videos existe')
         try{
-          const vid = await AsyncStorage.getItem("VIDEOS");
+          if(videoLocal === null){
+            Alert.alert("Inserta un vídeo");
+          }
+          else {
+          const vid = await AsyncStorage.getItem("EJERCICIOS");
           const v = vid ? JSON.parse(vid) : [];
           //const varray = [v];
           console.log('Valor de videos en asyncstorage', v)
@@ -512,9 +566,9 @@ export default function NuevaListaLocal () {
           var jsonLista = JSON.stringify(lista);
           v.push(jsonLista);
           //convertimos el array de videos 'v' en un string usando JSON.stringify(v)
-          await AsyncStorage.setItem("VIDEOS", JSON.stringify(v));
+          await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(v));
           //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          const vi = await AsyncStorage.getItem("VIDEOS");
+          const vi = await AsyncStorage.getItem("EJERCICIOS");
           const vd = vi ? JSON.parse(vi) : [];
 
           setLink("");
@@ -524,8 +578,10 @@ export default function NuevaListaLocal () {
           setVideos(vd);
           setFlagVideo(false);
           setDat(!dat);
+          setVideoLocal(null);
           console.log('Valor de videos es1', videos)
           console.log('si video NO es null, objeto de videos obtenido de asyncstorage: ', vd)
+          }
       }
       catch(error){
         console.log(error);
@@ -535,6 +591,10 @@ export default function NuevaListaLocal () {
     else {
       console.log('Se ha pulsado guardar Video si videos no existe')
       try{
+        if(videoLocal === null){
+          Alert.alert("Inserta un vídeo");
+        }
+        else {
         setDat(!dat);
         var lista = {};
         lista.series = series + " series";
@@ -568,8 +628,8 @@ export default function NuevaListaLocal () {
         //convertimos el array de videos 'v' en un string usando JSON.stringify(v)
         //await AsyncStorage.setItem("VIDEOS", JSON.stringify(v));
 
-        await AsyncStorage.setItem("VIDEOS", jsonList);
-        const vid = await AsyncStorage.getItem("VIDEOS");    
+        await AsyncStorage.setItem("EJERCICIOS", jsonList);
+        const vid = await AsyncStorage.getItem("EJERCICIOS");    
         const v = vid ? JSON.parse(vid) : [];
 
         setLink("");
@@ -579,9 +639,11 @@ export default function NuevaListaLocal () {
         setVideos(v);
         setFlagVideo(false);
         setDat(!dat);
+        setVideoLocal(null);
         //console.log('si video === null, array de videos obtenido de asyncstorage: ', varray)
         console.log('si video === null, objeto de videos obtenido de asyncstorage: ', v)
         console.log('Valor de videos es2', videos)
+        }
       }
       catch(error){
         console.log(error);
@@ -718,7 +780,7 @@ export default function NuevaListaLocal () {
 
     const eliminarVideos = async () => {
       const newListas = await videos.filter((video) => video === 'f6TXEnHT_Mk');  //creamos un nuevo array con todas las listas que no coinciden con el parametro singleList de las listas usando array.filter
-      await AsyncStorage.setItem("VIDEOS", JSON.stringify(newListas));  //nos quedamos solo con las listas que no coinciden con singleList
+      await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(newListas));  //nos quedamos solo con las listas que no coinciden con singleList
       //'kHd-8DZeHCQ'
     }
 
@@ -898,15 +960,33 @@ try{
               />
             </View>
           </View>
+          {(videoLocal !== null) ? (
+            <View>
+              <Video
+                  ref={videoLocalAddRef}
+                  source={{ uri: videoLocal }}
+                  useNativeControls
+                  resizeMode="contain"
+                  isLooping={false}
+                  isMuted={false}
+                  style={styles.videoPlayerAdd}
+                  onPlaybackStatusUpdate={status => setStatusVideoAdd(() => status)}
+                  />
+            </View>
+          ) : (
+            <View>
+            </View>
+          )}
           <Button
-            title="Abrir vídeo"
-            style={styles.button5}
+            title="Importar vídeo"
+            style={styles.botonAbrirVideo}
+            accessoryRight={iconoImportarVideo}
             onPress={importarVideo}>
             <Text>Abrir vídeo</Text>                                  
           </Button>
           <Button
             title="Guardar vídeo"
-            style={styles.button6}
+            style={styles.botonGuardar}
             onPress={guardarVideo}>
             <Text>Guardar</Text>                                  
           </Button>
@@ -922,13 +1002,21 @@ try{
     console.log(error)
   }
      
-    let pressFlagVideo = () => {
+    let añadirEjercicio = () => {
       setFlagVideo(true);
     }
     
 
       return (
         <View style={styles.container}>
+          <TouchableOpacity
+            style={styles.botonAtras}
+            onPress={() => backAction()}>
+            <Image
+              source={datosIm[5].image}
+              style={{height: 35, width: 35}}
+            />
+          </TouchableOpacity>
           <Text style={styles.title} category="h1">
 				    Nueva Lista Local
 			    </Text>
@@ -991,16 +1079,16 @@ try{
             <View style={{ flexDirection: 'row' }}>
               <View style={styles.botonb}>
                 <Button
-                  title="Añadir vídeo"
-                  style={{backgroundColor: '#5683F3'}}
-                  onPress={pressFlagVideo}>
-                  <Text>Añadir vídeo</Text>                                  
+                  title="Añadir ejercicio"
+                  style={styles.botonAñadirEjercicio}
+                  onPress={añadirEjercicio}>
+                  <Text>Añadir ejercicio</Text>                                  
                 </Button>
               </View>
             </View>
             <Button
               title="Crear Lista"
-              style={{marginTop: 10, height: 60, width: 140}}
+              style={styles.botonCrearLista}
               onPress={crearLista}>
               <Text>CREAR LISTA</Text>                                  
             </Button>
@@ -1138,16 +1226,18 @@ const styles = StyleSheet.create({
     right: 4,
     top: 4,
   },
-  button5: {
-    //backgroundColor: '#1B4B95',
+  botonAbrirVideo: {
     marginBottom: 10, 
-    marginTop: 10, 
-    marginLeft: 57,
-    backgroundColor: '#7284b5', 
-    borderColor: '#7284b5',
+    marginTop: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    width: width - 250,
+    alignSelf: 'center',
+    backgroundColor: '#af88db',
+    borderWidth: 1,
+    borderColor: '#b18dd9',
+    borderRadius: 100,
+    padding: 10, 
+    height: 50,
   },
   button6: {
     //backgroundColor: '#1B4B95',
@@ -1160,6 +1250,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: width - 250,
   },
+  botonGuardar: {
+    backgroundColor: '#1d89db',
+    borderWidth: 1,
+    borderColor: '#1979c2',
+    borderRadius: 100,
+    padding: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 50,
+  },
+  botonAñadirEjercicio: {
+    backgroundColor: '#48BEEA',
+    borderWidth: 1,
+    borderColor: '#48BEEA',
+    borderRadius: 100,
+    padding: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 50,
+  },
+  botonCrearLista: {
+    backgroundColor: '#2d65c4',
+    borderWidth: 1,
+    borderColor: '#2a5db5',
+    borderRadius: 100,
+    padding: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: 10, 
+    height: 60, 
+    width: 140,
+  },
   botonModal: {
     backgroundColor: '#1B4B95',
     color: 'black',
@@ -1171,6 +1296,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  botonAtras: {
+    borderRadius: 1000,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 35,
+    position: 'absolute',
+    bottom: 10,
+    top: 35,
+    right: 340,
   },
   bottom: {
     flex: 1,
@@ -1244,6 +1380,11 @@ const styles = StyleSheet.create({
   videoPlayer: {
     alignSelf: 'center',
     width: 320,
+    height: 200,
+  },
+  videoPlayerAdd: {
+    alignSelf: 'center',
+    width: 220,
     height: 200,
   },
   modalStyle: {

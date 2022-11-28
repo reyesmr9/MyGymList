@@ -172,6 +172,7 @@ export default function Lista ({route}) {
       { label: '10', value: '10' },
       { label: '15', value: '15' },
       { label: '30', value: '30' },
+      { label: '60', value: '60' },
     ]);
 
     const [openListRep, setOpenListRep] = useState(false);
@@ -321,14 +322,13 @@ export default function Lista ({route}) {
     }
     */
 
-    const pulseIconRef = React.useRef();
+    const iconoEntrenamientoRef = React.useRef();
     const iconRef = React.useRef();
 
-    const renderPulseIcon = (props) => (
+    const iconoEntrenamiento = (props) => (
       <Icon
         {...props}
-        ref={pulseIconRef}
-        animation='pulse'
+        ref={iconoEntrenamientoRef}
         name='play-circle-outline'
       />
     );
@@ -479,6 +479,11 @@ export default function Lista ({route}) {
       else{
         setOpened(false);
         setOpenedMenu(false);
+        if(statusVideo.isPlaying){
+          if(videoLocalRef !== null && videoLocalRef.current !== null) {
+            videoLocalRef.current.pauseAsync();
+          }
+        }
         setEdit(false); 
         isMounted = false;
         setFlag(false);
@@ -519,7 +524,7 @@ export default function Lista ({route}) {
         }  
         */
         //setIm("");
-        const vid = AsyncStorage.getItem("VIDEOS");
+        const vid = AsyncStorage.getItem("EJERCICIOS");
         //const v = vid ? JSON.parse(vid) : [];
         const varray = [vid];
         var f=varray;
@@ -527,7 +532,7 @@ export default function Lista ({route}) {
   
         setVideos(varray);
         setListTiempo(varray);
-        AsyncStorage.setItem("VIDEOS", JSON.stringify(varray));
+        AsyncStorage.setItem("EJERCICIOS", JSON.stringify(varray));
         AsyncStorage.setItem("TIEMPO", JSON.stringify(varray));
       
         //setDat(false);
@@ -778,7 +783,7 @@ export default function Lista ({route}) {
       AsyncStorage.setItem("VIDEOS", JSON.stringify('f6TXEnHT_Mk'))
         .then((videos) => {setVideos(JSON.parse(videos))});
       */       
-      await AsyncStorage.getItem("VIDEOS").then((videos) => {
+      await AsyncStorage.getItem("EJERCICIOS").then((videos) => {
         setVideos(JSON.parse(videos));    //guardamos cada video en formato string en videos     
       });
       console.log('El array de videos de la lista es: ', videos);     
@@ -800,7 +805,6 @@ export default function Lista ({route}) {
         easing: Easing.linear,
       }).start();
     };
-
 
     useFocusEffect(
       React.useCallback(() => {
@@ -848,7 +852,7 @@ export default function Lista ({route}) {
           if(currentSectionIndex!==0 && seconds == 0 && minutes == 0 && hours == 0){
             setCurrentSectionIndex(currentSectionIndex-currentSectionIndex);
           }
-          if(JSON.parse(singleList).historial !== ''){
+
             //buscamos la lista con el historial actualizado
             for(let i=0; i<(JSON.parse(listasIniciales)).length; i++){
               let listaActualizada = (JSON.parse(listasIniciales))[i];
@@ -865,7 +869,7 @@ export default function Lista ({route}) {
             }
             console.log('Se ha actualizado el historial, ahora la lista es: ', JSON.parse(listaConHistorial))
 
-          }
+          
           console.log('La NUEVA LIST es si flag=FALSE: ', list)
           console.log('La NUEVA datLIST es si flag=FALSE: ', datList)
         }
@@ -881,6 +885,30 @@ export default function Lista ({route}) {
           if(flag === false && itemFlag === false && fotoFlag === false && flagTitle === false && videoFlag === false 
             && flagFondo === false && flagSaveTime === false){
               console.log('se ha abierto la lista')
+              let listasIniciales = '';
+              let listaConHistorial = '';
+              await AsyncStorage.getItem("LISTAS").then((listas) => {
+                console.log('el valor de listas es: ', listas)
+                //guardamos el valor de "LISTAS" en listasIniciales
+                listasIniciales = listas;
+              });             
+              if(JSON.parse(singleList).historial !== ''){
+                //buscamos la lista con el historial actualizado
+                for(let i=0; i<(JSON.parse(listasIniciales)).length; i++){
+                  let listaActualizada = (JSON.parse(listasIniciales))[i];
+                  if(JSON.parse(listaActualizada).idlista == JSON.parse(singleList).idlista){
+                    listaConHistorial = listaActualizada;
+                  }
+                }
+                //establecemos la lista, que contiene el historial actualizado
+                if(listaConHistorial !== ''){
+                  setListaHistorialL(listaConHistorial);
+                }
+                else{
+                  setListaHistorialL(singleList);
+                }
+                console.log('Se ha actualizado el historial, ahora la lista es: ', JSON.parse(listaConHistorial))
+              }
             }
             else {
             console.log('Se ha borrado el elemento de la lista2: ', listmenusplice)
@@ -2101,7 +2129,7 @@ export default function Lista ({route}) {
                         
                         }}>
                         <Image
-                          style={{marginLeft: 20, marginTop: 10, height: 40, width: 40}}
+                          style={{marginTop: 10, height: 40, width: 40}}
                           //source={{uri: 'https://picsum.photos/200/200'}}
                           source={item.image}
                         />                      
@@ -2116,7 +2144,8 @@ export default function Lista ({route}) {
                         //setFlagList(!flagList);
                         abrirEm(imFlag);
                         setModalVisibleEmoticon(!modalVisibleEmoticon)
-                      }}>
+                      }}
+                      style={styles.botonEmoticono}>
                       <Text>Añadir emoticono</Text>
                     </Button>
                 </View>
@@ -2192,10 +2221,11 @@ export default function Lista ({route}) {
                     //setFlagList(!flagList);                        
                     abrirFotoModal(itemFotoFlag);
                     setModalVisiblePreview(!modalVisiblePreview)
-                    }}>
+                    }}
+                    style={styles.botonAñadirFoto}>
                     <Text>Añadir foto</Text>
                   </Button>  
-                  <Button style={{marginTop: 20}}
+                  <Button style={styles.botonRepetirFoto}
                     onPress={() => setModalVisibleFoto(true)}>
                     <Text>Repetir foto</Text>
                   </Button>
@@ -3079,101 +3109,6 @@ export default function Lista ({route}) {
     }, []);
 
 
-    const abrirTiempo = () => {
-      setModalVisibleTiempo(true);
-    }
-
-    const guardarVideo = async () => {
-      if ((videos !== undefined) && (videos !== null)){
-        console.log('Se ha pulsado guardar Video si videos existe')
-        try{
-          const valorListas = await AsyncStorage.getItem("LISTAS");
-          const l = valorListas ? JSON.parse(valorListas) : [];
-          const vid = await AsyncStorage.getItem("VIDEOS");
-          const v = vid ? JSON.parse(vid) : [];
-          const varray = [v];
-          let videoarray = [video];
-          console.log('Valor de videos en asyncstorage', v)
-          //varray.push(video(link));
-          
-          const id = (Math.round(Math.random() * 1000)).toString();
-          var lista = {};
-          lista.series = series;
-          lista.repeticiones = repeticiones;
-          lista.tiempo = tiempo;
-          if(previewVideo){
-            lista.videos = videoLocal;
-          }
-          if(youtubeVideo){
-            lista.videos = video(link);
-          }
-          
-          let idVideos = "";
-        
-          idVideos = (Math.round(Math.random() * 1000)).toString();
-
-          lista.id = idVideos;
-          lista.realizado = "no";
-          lista.imagenRealizado = datosIm[7].image;
-          lista.emoticono = '';
-          lista.foto = '';
-          var jsonLista = JSON.stringify(lista);
-          //v.push(jsonLista);
-          //convertimos el array de videos 'v' en un string usando JSON.stringify(v)
-          await AsyncStorage.setItem("VIDEOS", JSON.stringify(lista));
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          const vi = await AsyncStorage.getItem("VIDEOS");
-          const vd = vi ? JSON.parse(vi) : [];
-
-          let jsonListaFinal = null;
-
-          let miLista = null;
-          if(listaActual != '' && listaActual != undefined){
-            miLista = JSON.parse(listaActual);
-          }
-          else {
-            miLista = listaInicial;
-          }
-
-          jsonListaFinal = miLista.videolista;
-          jsonListaFinal.push(vi);
-          console.log('jsonlistafinal es: ', jsonListaFinal)
-          miLista.videolista = jsonListaFinal;
-          let listaNueva = JSON.stringify(miLista);
-          l.push(listaNueva);
-          const newListas = l.filter((lista) => lista !== singleList);
-          const newLists = newListas.filter((lista) => lista !== listaActual);
-          await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
-
-          setLink("");
-          setSeries("");
-          setRepeticiones("");
-          setTiempo("");
-          var f=varray;
-          varray.length=0;
-          console.log('Al vaciar array videos el resultado es: ', f)  
-          setVideos(f);
-
-          await AsyncStorage.setItem("VIDEOS", JSON.stringify(f));
-          console.log('Objeto de videos obtenido de asyncstorage es: ', vd)
-
-          setDatList(miLista.videolista);
-          setList(miLista.videolista);
-          setVideoFlag(true);
-
-          await AsyncStorage.getItem("LISTAS").then((listas) => {
-            //setListas(JSON.parse(listas));  
-            setListaActual(listaNueva);             
-            setFlagList(!flagList);            
-          });
-          setModalVisibleVideo(false);
-          setModalVisibleLocalVideo(false);
-      }
-      catch(error){
-        console.log(error);
-      }
-    }
-  }
 
 /*
     const showAlert = () =>
@@ -4083,13 +4018,26 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                         style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => {
                           setOpened(false);
-                          isMounted = false;
-                          
+                                                    
                           if(listaActual==''){
                             setFlagHistorial(!flagHistorial);
                           }
                           
                           console.log("VAMOS AL HISTORIAL")
+                          isMounted = false;
+                          navigation.reset({
+                            index: 0,
+                            routes: [
+                              {
+                                name: 'Historial',
+                                params: { listHistorial: ((listaActual !== '') ? ((listaHistorialL !== '' ) ? (listaHistorialL) :
+                                          listaActual) : 
+                                          singleList),
+                                          itemIdHistorial: JSON.parse(singleList).idlista,
+                                        },
+                              },
+                            ],
+                          })
                           navigation.navigate("Historial", {
                             listHistorial: ((listaActual !== '') ? ((listaHistorialL !== '' ) ? (listaHistorialL) :
                             listaActual) : 
@@ -4133,7 +4081,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
               <View style={{ flexDirection: 'row'}}>
                   <View style={styles.pickerStyle3}>
                     <DropDownPicker
-                      placeholder='Añadir aviso'
+                      placeholder='Selecciona un número'
                       open={openList}
                       value={valuelist}
                       items={numeros}
@@ -4143,9 +4091,15 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       onChangeValue={(value) => {
                         setListValueNumber(value);
                       }}
-                      theme="DARK"
+                      theme="LIGHT"
                       mode="BADGE"
-                      badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                      badgeColors={["#95bddb"]}
+                      style={{
+                        backgroundColor: '#5a9ed1',
+                      }}
+                      dropDownContainerStyle={{
+                        height: 160,
+                      }}
                     />
                   </View>
                   <View style={{justifyContent: 'center', bottom: 75}}>
@@ -4154,9 +4108,9 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                 </View>
                 </View>
                 <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{bottom: 180}}>Fecha Seleccionada:    {(date) ? 
+                <Text style={{bottom: 170}}>Fecha Seleccionada:    {(date) ? 
                   (date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()) : ''} </Text>
-                <Text style={{right: 20, bottom: 180}}>Hora Seleccionada:      {(date) ? 
+                <Text style={{right: 20, bottom: 170}}>Hora Seleccionada:      {(date) ? 
                   (((date.getHours()<10) ? ('0'+ date.getHours()) : date.getHours()) + ':' + 
                    ((date.getMinutes()<10) ? ('0'+ date.getMinutes()) : date.getMinutes())
                   ) : ''} 
@@ -4205,6 +4159,17 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                         }
                         if(listValueNumber==30){
                           minutosml = horaml-(30*60000);
+                          if(hora == 0){
+                            hora = 23;
+                          }
+                          else {
+                            hora = tiempo.getHours() - 1;
+                          }      
+                          segundos = (((tiempo.getHours() - 1)*3600) + (((minutosml/(60000))+60)*60));
+                        }
+                        
+                        if(listValueNumber==60){
+                          minutosml = horaml-(60*60000);
                           if(hora == 0){
                             hora = 23;
                           }
@@ -4373,10 +4338,16 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                 <Button
                   status='success'
                   style={{backgroundColor: '#48BEEA', borderColor: '#48BEEA'}}
-                  accessoryRight={renderPulseIcon}
+                  accessoryRight={iconoEntrenamiento}
                   onPress={() => {
-                    pulseIconRef.current.startAnimation()                  
+                    //pulseIconRef.current.startAnimation()                  
                     //setModalVisiblePlay(true);
+                    if(statusVideo.isPlaying){
+                      if(videoLocalRef !== null && videoLocalRef.current !== null) {
+                        videoLocalRef.current.pauseAsync();
+                      }
+                    }
+                    isMounted = false;
                     navigation.reset({
                       index: 0,
                       routes: [
@@ -4786,7 +4757,7 @@ const styles = StyleSheet.create({
     height: 45,
     width: 100,
     marginLeft: 140,
-    bottom: 160,
+    bottom: 155,
   },
   botonCancelarFecha: {
     backgroundColor: '#d1453d',
@@ -4796,7 +4767,39 @@ const styles = StyleSheet.create({
     height: 45,
     width: 100,
     marginLeft: 140,
-    bottom: 150,
+    bottom: 145,
+  },
+  botonEmoticono: {
+    backgroundColor: '#2d65c4',
+    borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#2a5db5',
+    height: 45,
+    bottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  botonAñadirFoto: {
+    backgroundColor: '#2d65c4',
+    borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#2a5db5',
+    height: 45,
+    bottom: 10,
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  botonRepetirFoto: {
+    backgroundColor: '#c28248',
+    borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#9e724a',
+    height: 45,
+    bottom: 10,
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button10: {
     backgroundColor: '#214ca3',
@@ -5022,7 +5025,6 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 400/2,
-    marginBottom: 0,
   },
   imagenEnviarLista: {
     height: 52,
@@ -5046,7 +5048,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#79aad1',
+    backgroundColor: '#95bddb',
   },
   modalStyle2: {
     borderColor: '#949699',
@@ -5056,7 +5058,7 @@ const styles = StyleSheet.create({
     height: Dimensions.get("window").height,
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#79aad1',
+    backgroundColor: '#95bddb',
   },
   modalStyleEm: {
     borderColor: '#949699',
@@ -5067,7 +5069,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#79aad1',
+    backgroundColor: '#95bddb',
   },
   input2: {
     textAlignVertical: 'top',

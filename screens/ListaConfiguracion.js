@@ -135,9 +135,11 @@ export default function ListaConfiguracion ({route}) {
     const [listaActual, setListaActual] = useState('');
     const [menuVisible, setMenuVisible] = useState(false);
     const videoLocalRef = useRef(null);
+    const videoLocalAddRef = useRef(null);
     let cameraRef = useRef();
     const [videoLocal, setVideoLocal] = useState(null);
     const [statusVideo, setStatusVideo] = useState({});
+    const [statusVideoAdd, setStatusVideoAdd] = useState({});
 
     const [openList, setOpenList] = useState(false);
     const [valuelist, setvaluelist] = useState([]);
@@ -162,8 +164,8 @@ export default function ListaConfiguracion ({route}) {
     const [valuelistTiempo, setvaluelistTiempo] = useState([]);
     const [ listValueNumberTiempo, setListValueNumberTiempo] = useState('');
     const [numerosTiempo, setNumerosTiempo] = useState([
-      { label: 'Minutos', value: 'Minutos' },
-      { label: 'Horas', value: 'Horas' },
+      { label: 'minutos', value: 'minutos' },
+      { label: 'horas', value: 'horas' },
     ]);
 
     const [modalVisibleVideo, setModalVisibleVideo] = useState(false);
@@ -213,6 +215,16 @@ export default function ListaConfiguracion ({route}) {
     function close() {
       pickerRef.current.blur();
     }
+
+    const iconRef = React.useRef();
+
+    const iconoImportarVideo = (props) => (
+      <Icon
+        {...props}
+        ref={iconRef}
+        name='video-outline'
+      />
+    );
 
     //const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -355,10 +367,14 @@ export default function ListaConfiguracion ({route}) {
         ]);
       }
       else{
+        if(statusVideo.isPlaying){
+          if(videoLocalRef !== null && videoLocalRef.current !== null) {
+            videoLocalRef.current.pauseAsync();
+          }
+        }
         setOpened(false);
         setOpenedMenu(false);
         setEdit(false); 
-        isMounted = false;
         setFlag(false);
         setFlagEdit(false);
         setList('');
@@ -376,14 +392,14 @@ export default function ListaConfiguracion ({route}) {
         setFlagLocalVideoConf(false);
         setTiempoRealizacion('');
         //setIm("");
-        const vid = AsyncStorage.getItem("VIDEOS");
+        const vid = AsyncStorage.getItem("EJERCICIOS");
         //const v = vid ? JSON.parse(vid) : [];
         const varray = [vid];
         var f=varray;
         varray.length=0;
   
         setVideos(f);
-        AsyncStorage.setItem("VIDEOS", JSON.stringify(f));
+        AsyncStorage.setItem("EJERCICIOS", JSON.stringify(f));
       
         //setDat(false);
         /*
@@ -393,7 +409,15 @@ export default function ListaConfiguracion ({route}) {
         }
         */
         //setDat(false);
-        
+        isMounted = false;
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'AllLists'
+            },
+          ],
+        })
         navigation.navigate('AllLists');
       
       }
@@ -602,7 +626,7 @@ export default function ListaConfiguracion ({route}) {
       AsyncStorage.setItem("VIDEOS", JSON.stringify('f6TXEnHT_Mk'))
         .then((videos) => {setVideos(JSON.parse(videos))});
       */       
-      await AsyncStorage.getItem("VIDEOS").then((videos) => {
+      await AsyncStorage.getItem("EJERCICIOS").then((videos) => {
         setVideos(JSON.parse(videos));    //guardamos cada video en formato string en videos     
       });
       console.log('El array de videos de la lista es: ', videos);     
@@ -717,7 +741,6 @@ export default function ListaConfiguracion ({route}) {
                 */
               }
               if (list.length < 1) {
-                isMounted = false;
                 setFlag(false);
                 let listini = listaInicial;
                 listini.videolista = datList;
@@ -728,8 +751,19 @@ export default function ListaConfiguracion ({route}) {
   
                 const nuevasListas = l.filter((lista) => lista !== singleList); 
                 const newLists = nuevasListas.filter((lista) => lista !== jsonListIni); //no hace nada
+                isMounted = false;
                 await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists))
-                  .then(() => navigation.navigate("AllLists"));
+                  .then(() => {
+                    navigation.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'AllLists'
+                        },
+                      ],
+                    })
+                    navigation.navigate("AllLists")
+                  });
                 console.log('NUEVASLISTAS es al final2: ', nuevasListas)
               }
               
@@ -793,8 +827,7 @@ export default function ListaConfiguracion ({route}) {
               let listini = listaInicial;
               listini.videolista = datList;
               let jsonListIni = JSON.stringify(listini);
-
-              isMounted = false;
+            
               setFlag(false);
               setList('');
               setDatList('');
@@ -805,8 +838,19 @@ export default function ListaConfiguracion ({route}) {
               const l = valorListas ? JSON.parse(valorListas) : [];
               const newListas = l.filter((lista) => lista !== singleList);
               const nuevasListas = newListas.filter((lista) => lista !== jsonListIni);  //creamos un nuevo array con todas las listas que no coinciden con el parametro singleList de las listas usando array.filter
+              isMounted = false;
               await AsyncStorage.setItem("LISTAS", JSON.stringify(nuevasListas))  //nos quedamos solo con las listas que no coinciden con singleList
-                  .then(() => navigation.navigate("AllLists"));
+                  .then(() => {
+                    navigation.reset({
+                      index: 0,
+                      routes: [
+                        {
+                          name: 'AllLists'
+                        },
+                      ],
+                    })
+                    navigation.navigate("AllLists")
+                  });
               //setDat(true);
 
             }
@@ -1079,7 +1123,7 @@ export default function ListaConfiguracion ({route}) {
       setOpened(false);
     }
     
-    const añadirVideo = async() => {
+    const añadirEjercicio = async() => {
       setOpened(false);
       if(previewVideo){
         setModalVisibleLocalVideo(true);
@@ -1224,8 +1268,17 @@ export default function ListaConfiguracion ({route}) {
                             const l = valorListas ? JSON.parse(valorListas) : [];
                             const newListas = l.filter((lista) => lista !== singleList)
                             const nuevasListas = newListas.filter((lista) => lista !== jsonListIni);  //creamos un nuevo array con todas las listas que no coinciden con el parametro singleList de las listas usando array.filter
-                            await AsyncStorage.setItem("LISTAS", JSON.stringify(nuevasListas)).then(() => 
-                              navigation.navigate("AllLists"));                              
+                            await AsyncStorage.setItem("LISTAS", JSON.stringify(nuevasListas)).then(() => {
+                              navigation.reset({
+                                index: 0,
+                                routes: [
+                                  {
+                                    name: 'AllLists'
+                                  },
+                                ],
+                              })
+                              navigation.navigate("AllLists")
+                            });                              
                           }
                           if((datList.length == 0)) {
                             let listini = '';
@@ -1365,13 +1418,22 @@ export default function ListaConfiguracion ({route}) {
       setModalVisibleTiempo(true);
     }
 
-    const guardarVideo = async () => {
+    const guardarEjercicio = async () => {
       if ((videos !== undefined) && (videos !== null)){
         console.log('Se ha pulsado guardar Video si videos existe')
         try{
+          if(videoLocal === null){
+            Alert.alert("Inserta un vídeo");
+          }
+          if(statusVideoAdd.isPlaying){
+            if(videoLocalAddRef !== null && videoLocalAddRef.current !== null) {
+            videoLocalAddRef.current.pauseAsync();
+            }
+          }
+          else{
           const valorListas = await AsyncStorage.getItem("LISTAS");
           const l = valorListas ? JSON.parse(valorListas) : [];
-          const vid = await AsyncStorage.getItem("VIDEOS");
+          const vid = await AsyncStorage.getItem("EJERCICIOS");
           const v = vid ? JSON.parse(vid) : [];
           const varray = [v];
           let videoarray = [video];
@@ -1380,9 +1442,9 @@ export default function ListaConfiguracion ({route}) {
           
           const id = (Math.round(Math.random() * 1000)).toString();
           var lista = {};
-          lista.series = series;
-          lista.repeticiones = repeticiones;
-          lista.tiempo = tiempo;
+          lista.series = series + " series";
+          lista.repeticiones = repeticiones + " repeticiones";
+          lista.tiempo = tiempo + " " + listValueNumberTiempo;
           if(previewVideo){
             lista.videos = videoLocal;
           }
@@ -1392,7 +1454,7 @@ export default function ListaConfiguracion ({route}) {
           
           let idVideos = "";
         
-          idVideos = (Math.round(Math.random() * 1000)).toString();
+          idVideos = id;
 
           lista.id = idVideos;
           lista.realizado = "no";
@@ -1402,9 +1464,9 @@ export default function ListaConfiguracion ({route}) {
           var jsonLista = JSON.stringify(lista);
           //v.push(jsonLista);
           //convertimos el array de videos 'v' en un string usando JSON.stringify(v)
-          await AsyncStorage.setItem("VIDEOS", JSON.stringify(lista));
+          await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(lista));
           //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          const vi = await AsyncStorage.getItem("VIDEOS");
+          const vi = await AsyncStorage.getItem("EJERCICIOS");
           const vd = vi ? JSON.parse(vi) : [];
 
           let jsonListaFinal = null;
@@ -1436,12 +1498,13 @@ export default function ListaConfiguracion ({route}) {
           console.log('Al vaciar array videos el resultado es: ', f)  
           setVideos(f);
 
-          await AsyncStorage.setItem("VIDEOS", JSON.stringify(f));
+          await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(f));
           console.log('Objeto de videos obtenido de asyncstorage es: ', vd)
 
           setDatList(miLista.videolista);
           setList(miLista.videolista);
           setVideoFlag(true);
+          setVideoLocal(null);
 
           await AsyncStorage.getItem("LISTAS").then((listas) => {
             setListas(JSON.parse(listas));  
@@ -1450,6 +1513,7 @@ export default function ListaConfiguracion ({route}) {
           });
           setModalVisibleVideo(false);
           setModalVisibleLocalVideo(false);
+        }
       }
       catch(error){
         console.log(error);
@@ -2307,8 +2371,8 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                     <MenuOptions optionsContainerStyle={{width:200,height:80}}>
                       <MenuOption value={1} 
                         style={{marginLeft: 10, marginTop: 3}}
-                        onSelect={() => añadirVideo()}
-                        text="Añadir video"/>
+                        onSelect={() => añadirEjercicio()}
+                        text="Añadir ejercicio"/>
                       <MenuOption value={2}
                         style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => abrirFondo()}
@@ -2323,7 +2387,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                   animationType='fade' 
                   transparent={true}>
                   <View style={styles.modalStyle}>
-                    <Text style={styles.titleVideo}>Añadir Vídeo</Text>                 
+                    <Text style={styles.titleVideo}>Añadir ejercicio</Text>                 
                     <TextInput
                       placeholder="Series"
                       value={series}
@@ -2368,12 +2432,14 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       </View>
                     </View>                                                
                   </View>
-                  <Button onPress={guardarVideo} 
-                  style={styles.botonGuardarVideo}>
+                  <Button onPress={guardarEjercicio} 
+                  style={styles.botonGuardarEjercicio}>
                     <Text>Guardar</Text>
                   </Button>      
-                  <Button onPress={() => {setModalVisibleVideo(false);}} 
-                  style={styles.botonCancelarVideo}>
+                  <Button onPress={() => {
+                    setModalVisibleVideo(false);
+                  }} 
+                  style={styles.botonCancelarEjercicio}>
                     <Text>Cancelar</Text>
                   </Button>         
                 </Modal>
@@ -2383,52 +2449,119 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                   animationType='fade' 
                   transparent={true}>
                   <View style={styles.modalStyle}>
-                    <Text style={styles.titleVideo}>Añadir Vídeo</Text>                 
-                    <TextInput
-                      placeholder="Series"
-                      value={series}
-                      onChangeText={setSeries}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <TextInput
-                      placeholder="Repeticiones"
-                      value={repeticiones}
-                      onChangeText={setRepeticiones}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <TextInput
-                      placeholder="Tiempo"
-                      value={tiempo}
-                      onChangeText={setTiempo}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <View style={{ marginTop: 10, alignItems: 'center', justifyContent: 'center' }}>
-                      <Button
-                        title="Abrir vídeo"
-                        style={styles.botonAbrirVideo}
-                        onPress={importarVideo}>
-                        <Text>Abrir vídeo</Text>                                  
-                      </Button>
+                    <Text style={styles.titleVideo}>Añadir ejercicio</Text>                 
+                    <View style={{ flexDirection: 'row', right: 22}}>
+                    <View>
+                      <TextInput
+                        placeholder="Series"
+                        value={series}
+                        onChangeText={setSeries}
+                        style={styles.input2}
+                        multiline={true}
+                        selectionColor='#515759'
+                        returnKeyType="done"
+                        keyboardType='number-pad'
+                      />
+                    </View>
+                    <View>
+                      <Text style={{marginLeft: 20, top: 10, fontSize: 17}}>series</Text>
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: 'row', left: 1}}>
+                    <View>
+                      <TextInput
+                        placeholder="Repeticiones"
+                        value={repeticiones}
+                        onChangeText={setRepeticiones}
+                        style={styles.input2}
+                        multiline={true}
+                        selectionColor='#515759'
+                        returnKeyType="done"
+                        keyboardType='number-pad'
+                      /> 
+                    </View>
+                    <View>
+                      <Text style={{marginLeft: 20, top: 10, fontSize: 17}}>repeticiones</Text>
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: 'row'}}>
+                    <View>
+                      <TextInput
+                        placeholder="Tiempo"
+                        value={tiempo}
+                        onChangeText={setTiempo}
+                        style={styles.input2}
+                        multiline={true}
+                        selectionColor='#515759'
+                        returnKeyType="done"
+                        keyboardType='number-pad'
+                      />
+                    </View>
+                    <View style={styles.pickerStyle5}>
+                      <DropDownPicker
+                        placeholder='tiempo'
+                        open={openListTiempo}
+                        value={valuelistTiempo}
+                        items={numerosTiempo}
+                        setOpen={setOpenListTiempo}
+                        setValue={setvaluelistTiempo}
+                        setItems={setNumerosTiempo}
+                        onChangeValue={(value) => {
+                          setListValueNumberTiempo(value);
+                        }}
+                        theme="DARK"
+                        mode="BADGE"
+                        badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                      />
+                    </View>
+                    </View>
+                    {(videoLocal !== null) ? (
+                      <View style={{top: 40}}>
+                        <Video
+                            ref={videoLocalAddRef}
+                            source={{ uri: videoLocal }}
+                            useNativeControls
+                            resizeMode="contain"
+                            isLooping={false}
+                            isMuted={false}
+                            style={styles.videoPlayerAdd}
+                            onPlaybackStatusUpdate={status => setStatusVideoAdd(() => status)}
+                            />
+                      </View>
+                    ) : (
+                      <View>
+                      </View>
+                    )}
+                    <View style={{ marginTop: 10, alignItems: 'center', justifyContent: 'center', top: 50, right: 0 }}>
+                    <Button
+                      title="Importar vídeo"
+                      style={styles.botonAbrirVideo}
+                      accessoryRight={iconoImportarVideo}
+                      onPress={importarVideo}>
+                      <Text>Abrir vídeo</Text>                                  
+                    </Button>
                     </View>
                                                
                   </View>   
-                  <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    <Button onPress={guardarVideo} 
-                    style={styles.botonGuardarVideo}>
+                  <View style={{ alignItems: 'center', justifyContent: 'center', top: 30 }}>
+                    <Button onPress={guardarEjercicio} 
+                    style={styles.botonGuardarEjercicio}>
                       <Text>Guardar</Text>
                     </Button> 
                   </View>
-                  <View style={{ alignItems: 'center', justifyContent: 'center' }}>     
-                    <Button onPress={() => {setModalVisibleLocalVideo(false);}} 
-                    style={styles.botonCancelarVideo}>
+                  <View style={{ alignItems: 'center', justifyContent: 'center', top: 30 }}>     
+                    <Button onPress={() => {
+                      if(statusVideoAdd.isPlaying){
+                        if(videoLocalAddRef !== null && videoLocalAddRef.current !== null) {
+                        videoLocalAddRef.current.pauseAsync();
+                        }
+                      }
+                      setModalVisibleLocalVideo(false);
+                    }} 
+                    style={styles.botonCancelarEjercicio}>
                       <Text>Cancelar</Text>
                     </Button>
+
                   </View>   
                 </Modal>
 
@@ -2775,7 +2908,7 @@ const styles = StyleSheet.create({
     marginLeft: 140,
     bottom: 145,
   },
-  botonGuardarVideo: {
+  botonGuardarEjercicio: {
     backgroundColor: '#2d65c4',
     borderRadius: 400/2,
     borderWidth: 1,
@@ -2783,17 +2916,17 @@ const styles = StyleSheet.create({
     borderRadius: 400/2,
     height: 45,
     width: 100,
-    marginBottom: 20,
+    marginBottom: 10,
     bottom: 140,
   },
-  botonCancelarVideo: {
+  botonCancelarEjercicio: {
     backgroundColor: '#d1453d',
     borderRadius: 400/2,
     borderWidth: 1,
     borderColor: '#bd3c35',
     height: 45,
     width: 100,
-    marginBottom: 20,
+    marginBottom: 30,
     bottom: 140,
   },
   button11: {
@@ -2818,11 +2951,16 @@ const styles = StyleSheet.create({
   },
   botonAbrirVideo: {
     marginBottom: 10, 
-    marginTop: 10, 
-    backgroundColor: '#7284b5', 
-    borderColor: '#7284b5',
-    alignItems: 'center',
+    marginTop: 10,
     justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#af88db',
+    borderWidth: 1,
+    borderColor: '#b18dd9',
+    borderRadius: 100,
+    padding: 10, 
+    height: 50,
   },
   foto2: {
     height: 150,
@@ -2874,9 +3012,9 @@ const styles = StyleSheet.create({
   },
   titleVideo: {
     textAlign: 'center',
-    fontSize: 16,
-    marginBottom: 20,
+    bottom: 120,
     color: 'black',
+    fontSize: 18,
   },
   imagen: {
     height: 52,
@@ -3019,7 +3157,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     alignItems: 'center', 
     justifyContent: 'center',
-    backgroundColor: '#79aad1',
+    backgroundColor: '#95bddb',
   },
   modalStyle2: {
     borderColor: '#949699',
@@ -3050,8 +3188,9 @@ const styles = StyleSheet.create({
     height: 40,
     padding: 10,
     margin: 3,
+    marginBottom: 10,
     fontSize: 16,
-    width: width - 100,
+    width: width - 250,
   },
   input3: {
     textAlignVertical: 'top',
@@ -3097,14 +3236,19 @@ const styles = StyleSheet.create({
   pickerStyle5: {
     padding: 0,
     marginBottom: 5,
-    top: 35,
-    left: 10,
+    top: 0,
+    left: 18,
     borderRadius: 5,
     width: 110,
   },
   videoPlayer: {
     alignSelf: 'center',
     width: 320,
+    height: 200,
+  },
+  videoPlayerAdd: {
+    alignSelf: 'center',
+    width: 220,
     height: 200,
   },
 });

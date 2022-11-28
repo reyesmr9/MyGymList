@@ -1,12 +1,13 @@
 import * as eva from "@eva-design/eva";
 import 'react-native-gesture-handler';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import Constants from 'expo-constants';
 
 import * as Sharing from 'expo-sharing';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, TextInput, View, BackHandler, Image, TouchableOpacity, Dimensions, Alert, Platform, ScrollView} from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Imagenes } from '../components/Images';
 import * as SQLite from 'expo-sqlite';
 import * as ImagePicker from 'expo-image-picker';
 import * as MailComposer from 'expo-mail-composer';
@@ -17,7 +18,7 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import {createStackNavigator} from '@react-navigation/stack';
-import {List, ListItem, Divider, Text, Button} from '@ui-kitten/components';
+import {List, ListItem, Divider, Icon, Input, Text, Button} from '@ui-kitten/components';
 import * as FileSystem from 'expo-file-system';
 import NativeModules from "react-native";
 import {startActivityAsync, ActivityAction} from 'expo-intent-launcher';
@@ -46,6 +47,51 @@ export default function LogIn () {
     const [datos, setDatos] = useState([]);  //guardamos los datos del usuario en un array con nombre: datos[0] y email: datos[1]
     const [nombre, setNombre] = useState("");
     const [email, setEmail] = useState("");
+
+    const [datosIm, setDatosIm] = useState([
+      { id: '23', image: Imagenes.veintitres },
+      { id: '24', image: Imagenes.veinticuatro },
+      { id: '25', image: Imagenes.veinticinco },
+      { id: '26', image: Imagenes.veintiseis },
+      { id: '27', image: Imagenes.veintisiete },
+      { id: '30', image: Imagenes.treinta },
+      { id: '33', image: Imagenes.treintaytres },   //datosIm[6]
+      { id: '34', image: Imagenes.treintaycuatro },
+      { id: '35', image: Imagenes.treintaycinco },
+      { id: '36', image: Imagenes.treintayseis },
+      { id: '38', image: Imagenes.treintayocho },
+      { id: '43', image: Imagenes.cuarentaytres },
+      { id: '44', image: Imagenes.cuarentaycuatro },
+      { id: '45', image: Imagenes.cuarentaycinco },
+      { id: '28', image: Imagenes.veintiocho },
+      { id: '31', image: Imagenes.treintayuno },
+      { id: '32', image: Imagenes.treintaydos },    //datosIm[16]
+      { id: '37', image: Imagenes.treintaysiete },
+      { id: '29', image: Imagenes.veintinueve },   
+      { id: '32', image: Imagenes.treintaydos },
+      { id: '46', image: Imagenes.cuarentayseis },  //datosIm[20]
+      { id: '47', image: Imagenes.cuarentaysiete },
+      { id: '48', image: Imagenes.cuarentayocho },
+      { id: '49', image: Imagenes.cuarentaynueve },
+      { id: '50', image: Imagenes.cincuenta },
+    ]);
+
+    const nombreRef = React.useRef();
+    const emailRef = React.useRef();
+
+    const nombreIcon = (props) => (
+      <Icon {...props}
+        ref={nombreRef}
+        name='person-outline'
+      />
+    );
+
+    const emailIcon = (props) => (
+      <Icon {...props}
+        ref={emailRef}
+        name='email-outline'
+      />
+    );
 
 
     const backAction = () => {
@@ -109,46 +155,58 @@ export default function LogIn () {
 
   return (
     <View style={styles.container}>
-      <View>
-          <Text style={styles.title}>
-            Login
-          </Text>
-      </View>
-      <View>
-          <TextInput
-              placeholder="Nombre"
-              value={nombre}
-              onChangeText={setNombre}
-              style={styles.input}
-              multiline={false}
-              selectionColor='#fff'
+      <View style={{alignItems: 'center', justifyContent: 'center'}}>
+        <View>
+            <Text style={styles.title} category="h1">
+              Login
+            </Text>
+        </View>
+        <View style={styles.iconoAppView}>
+          <Image
+            source={datosIm[24].image}
+            style={styles.imagenApp}
           />
-          <TextInput
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              style={styles.input}
-              multiline={false}
-              selectionColor='#fff'
-          />  
-          <Button
-              title="Guardar datos"
-              style={styles.button}
-              onPress={guardarDatos}>
-                <Text>Login</Text>
-          </Button>
+        </View>
+        <View>
+            <Input
+                label="Nombre"
+                placeholder="NOMBRE"
+                value={nombre}
+                onChangeText={nombreSiguiente => setNombre(nombreSiguiente)}
+                style={styles.inputEmail}
+                accessoryLeft={nombreIcon}
+                multiline={false}
+                selectionColor='#000'
+            />
+            <Input
+                label="Email"
+                placeholder="CORREO ELECTRÓNICO"
+                value={email}
+                onChangeText={email => setEmail(email)}
+                style={styles.inputNombre}
+                accessoryLeft={emailIcon}
+                multiline={false}
+                selectionColor='#000'
+            />  
+            <Button
+                title="Guardar datos"
+                style={styles.botonLogin}
+                onPress={guardarDatos}>
+                  <Text>Iniciar Sesión</Text>
+            </Button>
+        </View>
       </View>
-
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: "white",
+    width: Dimensions.get("window").width
   },
   button: {
     backgroundColor: '#1B4B95',
@@ -169,21 +227,62 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    fontSize: 30,
-    marginTop: 30,
-    left: 10,
-    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 26,
+    bottom: 130,
+    color: 'black',
   },
-  input: {
+  inputNombre: {
     textAlignVertical: 'top',
     borderColor: "#4630eb",
     borderRadius: 4,
     borderWidth: 1,
-    height: 40,
+    height: 60,
     padding: 10,
     margin: 3,
     fontSize: 16,
-    width: width - 20,
+    width: width - 40,
+    marginBottom: 10,
+    bottom: 40,
+  },
+  inputEmail: {
+    textAlignVertical: 'top',
+    borderColor: "#4630eb",
+    borderRadius: 4,
+    borderWidth: 1,
+    height: 60,
+    padding: 10,
+    margin: 3,
+    fontSize: 16,
+    width: width - 40,
+    marginBottom: 10,
+    bottom: 40,
+  },
+  imagenApp: {
+    height: 150,
+    width: 150,
+  },
+  botonLogin: {
+    backgroundColor: '#48BEEA',
+    borderWidth: 1,
+    borderColor: '#48BEEA',
+    borderRadius: 100,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 50,
+    width: width - 60,
+    bottom: 10,
+    marginTop: 20,
+  },
+  iconoAppView: {
+    marginTop: 5,
+    width: 150,
+    height: 150,
+    bottom: 110,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bottomtext: {
     color: 'white',

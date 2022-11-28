@@ -65,6 +65,7 @@ export default function Entrenamiento ({route}) {
     const [tiempoTotal, setTiempoTotal] = useState("");
     //const [itemPlay, setItemPlay] = useState(false);
     const [statusVideo, setStatusVideo] = useState({});
+    const [paused, setpaused] = useState(true);
     let previewVideoPlay = null;
     let youtubeVideoPlay = null;
     let videoGuardar = false;
@@ -147,8 +148,15 @@ export default function Entrenamiento ({route}) {
         ]);
       }
       else {
-        isMounted = false;
-        let listaf = listT;
+        /*
+        if(statusVideo.isPlaying){
+          if(videoLocalRef !== null) {
+            videoLocalRef.current.pauseAsync();
+          }
+        }
+        */
+        
+        let listaf = listT;     
         listaf.length=0;
         setListT(listaf);
         setFlagTiempo(false);
@@ -178,6 +186,7 @@ export default function Entrenamiento ({route}) {
         varray.length=0;
 
         AsyncStorage.setItem("TIEMPO", JSON.stringify(f));
+        isMounted = false;
         navigation.reset({
           index: 0,
           routes: [
@@ -412,6 +421,10 @@ export default function Entrenamiento ({route}) {
   }
 
   const renderItemPlay = ({ item, index }) => {
+    
+    //const videoLocalRefEn = useRef(null);
+    //const [statusVideoEn, setStatusVideoEn] = useState({});
+
     if((JSON.parse(item).videos).includes("file") && isMounted==true){
       previewVideoPlay = JSON.parse(item).videos;
     }
@@ -422,14 +435,14 @@ export default function Entrenamiento ({route}) {
     if (currentSectionIndex >= ((listaActualT !== '') ? 
       (JSON.parse(listaActualT).videolista.length-1) : (listaInicialT.videolista.length-1))) {
       videoGuardar = true;
-      console.log('SE HA PULSADO VIDEOGUARDAR')
+      //console.log('SE HA PULSADO VIDEOGUARDAR')
     }
     else {
       videoSiguiente = true;
-      console.log('SE HA PULSADO VIDEOSIGUIENTE')
+      //console.log('SE HA PULSADO VIDEOSIGUIENTE')
     }
     return(
-      <View style={styles.container2}>
+      <View style={styles.container2}>       
         <View style={{marginBottom: 15, alignItems: 'center', justifyContent: 'center'}}>
           <Text style={styles.textTimer}>
             {(hours < 10) ? ("0" + hours) : hours}
@@ -457,8 +470,9 @@ export default function Entrenamiento ({route}) {
         </View>
         <View style={{marginTop: 20, marginLeft: 22, alignItems: 'center', justifyContent: 'center'}}>
         {previewVideoPlay &&
-          <Video
+          (<Video
             ref={videoLocalRef}
+            shouldPlay={false}
             source={{ uri: previewVideoPlay }}
             useNativeControls
             resizeMode="contain"
@@ -466,21 +480,26 @@ export default function Entrenamiento ({route}) {
             isMuted={false}
             style={styles.videoPlayer2}
             onPlaybackStatusUpdate={status => setStatusVideo(() => status)}
-        />}
+          />)}
         </View>
         {videoGuardar &&
         ((flagButton === false) ?
-        (<TouchableOpacity
+        (<Button
           style={styles.botonComenzar}
           onPress={() => {tiempoVideoDescanso(item)}}>
           <Text style={styles.buttonText}>Comenzar ejercicio</Text>
-        </TouchableOpacity>) : 
+        </Button>) : 
         (<View style={{marginLeft: 20, alignItems: 'center', justifyContent: 'center'}}>
           <Button style={styles.botonGuardar}
             onPress={() => {
             console.log('se ha guardado play')
             //guardarTiempoVideo(item);
-            //clear();              
+            //clear();
+            if(statusVideo.isPlaying){
+              if(videoLocalRef !== null && videoLocalRef.current !== null) {
+                videoLocalRef.current.pauseAsync();
+              }
+            }             
             tiempoEjerciciosRealizados(item);             
             setFlagTiempoGuardar(true);
             setFlagTiempoPress(true);
@@ -516,7 +535,15 @@ export default function Entrenamiento ({route}) {
           style={styles.botonSiguiente}
           status='success'
           accessoryRight={siguienteIcon}
-          onPress={() => {tiempoVideoRealizado(item)}}>
+          onPress={() => {{
+            if(statusVideo.isPlaying){
+              if(videoLocalRef !== null && videoLocalRef.current !== null) {
+                videoLocalRef.current.pauseAsync();
+                console.log('se ha pausado video y se ha dado a siguiente')
+              }
+            }
+            tiempoVideoRealizado(item);
+            }}}>
           Siguiente
         </Button>)
         )}
@@ -530,6 +557,11 @@ export default function Entrenamiento ({route}) {
       console.log('he llegado al final de la lista')
       setFlagButtonGuardar(true);
       setCurrentSectionIndex(0);
+      if(statusVideo.isPlaying){
+        if(videoLocalRef !== null && videoLocalRef.current !== null) {
+          videoLocalRef.current.pauseAsync();
+        }
+      }
       flatListRef.current.scrollToIndex({
         index: currentSectionIndex,
       });        
@@ -550,6 +582,11 @@ export default function Entrenamiento ({route}) {
         console.log('he llegado al final de la lista2')
         setFlagButtonGuardar(true);
         setCurrentSectionIndex(0);
+        if(statusVideo.isPlaying){
+          if(videoLocalRef !== null && videoLocalRef.current !== null) {
+            videoLocalRef.current.pauseAsync();
+          }
+        }
         flatListRef.current.scrollToIndex({
           index: currentSectionIndex,
         });
@@ -564,7 +601,11 @@ export default function Entrenamiento ({route}) {
         return;
       }
       else {
-        
+        if(statusVideo.isPlaying){
+          if(videoLocalRef !== null && videoLocalRef.current !== null) {
+            videoLocalRef.current.pauseAsync();
+          }
+        }
         flatListRef.current.scrollToIndex({
           index: currentSectionIndex + 1,
         });
@@ -734,12 +775,9 @@ export default function Entrenamiento ({route}) {
 
       //l.push(JSON.stringify(listaH));
 
-      if(listaActualT !== '') {
-        newLists = l.filter((lista) => lista !== listaActualT);
-      }
-      else {
-        newLists = l.filter((lista) => lista !== listPlay);
-      }
+
+      newLists = l.filter((lista) => JSON.parse(lista).idlista !== JSON.parse(listPlay).idlista);
+
       console.log('NEWVIDEOLIST ES: ', newVideoList)
 
       newLists.push(JSON.stringify(listaH));
@@ -821,7 +859,7 @@ export default function Entrenamiento ({route}) {
 
       const valorTiempo = await AsyncStorage.getItem("TIEMPO");
       const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-           
+
       if(t.length==0){
         //let listArray = t;
         //let jsonListArray = '';
@@ -881,7 +919,7 @@ export default function Entrenamiento ({route}) {
         await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo6));
 
         await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-          console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A SIGUIENTE: ', tiempo)
+          console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A GUARDAR: ', tiempo)
           //setListTiempo(tiempo);
         });
 
@@ -1004,7 +1042,7 @@ export default function Entrenamiento ({route}) {
         await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo1));
 
         await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-          console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A SIGUIENTE: ', tiempo)
+          console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A GUARDAR: ', tiempo)
           //setListTiempo(tiempo);
         });
 
@@ -1162,7 +1200,13 @@ export default function Entrenamiento ({route}) {
 
       const valorTiempo = await AsyncStorage.getItem("TIEMPO");
       const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-           
+      /*
+      if(statusVideo.isPlaying){
+        if(videoLocalRef !== null) {
+          videoLocalRef.current.pauseAsync();
+        }
+      }
+      */
       if(t.length==0){
         //let listArray = t;
         //let jsonListArray = '';
@@ -1247,9 +1291,11 @@ export default function Entrenamiento ({route}) {
           let listArray = t;
           let listVideo = '';
           let videoArray = '';
+          let numVideo = '';
 
           for (let i = 0; i < listaInicialT.videolista.length; i++){
             if((JSON.parse(item).id) == (JSON.parse(listaInicialT.videolista[i]).id)){
+              numVideo = i;
               let tiempoEjInicial = tiempoInicio;
               let horasInicial = (tiempoEjInicial.split(":")[0]) * 3600;
               let minutosInicial = tiempoEjInicial.split(":")[1] * 60;
@@ -1310,7 +1356,7 @@ export default function Entrenamiento ({route}) {
             listaTiempo.tiempoRealizacion = listVideo.tiempoRealizacion;
           }
           else{
-            listaTiempo.tiempoRealizacion = '';
+            listaTiempo.tiempoRealizacion = JSON.parse(item).tiempoRealizacion;
           }
           listaTiempo.tiempoDescanso = '';
           listaTiempo.video = JSON.parse(item).videos;
@@ -1333,7 +1379,7 @@ export default function Entrenamiento ({route}) {
 
         if(videoArray !== ''){
           //listFilterVideos.push(JSON.stringify(listVideo));
-          newTiempo4 = t.filter((lista) => lista !== videoArray);
+          newTiempo4 = t.filter((lista) => lista !== listArray[numVideo]);
           //t.push(JSON.stringify(listVideo))
         }
 
@@ -1365,174 +1411,6 @@ export default function Entrenamiento ({route}) {
         }
       }
 
-      /*
-      if(hours === 0 && minutes === 0 && seconds === 0){
-      const valorTiempo = await AsyncStorage.getItem("TIEMPO");
-      const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-
-      let jsonListTiempo = null;
-      let jsonListTiempoVideos = '';
-      let listFilterVideos = t;
-      let listArray = t;
-
-      if (listaActualT !== '' && listaActualT !== undefined) {              
-        jsonListTiempo = JSON.parse(listaActualT);                 
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-      else {              
-        jsonListTiempo = listaInicialT;  //listaEm
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-
-      jsonListTiempoVideos = jsonListTiempo.videolista;
-
-      for (let i = 0; i < jsonListTiempo.videolista.length; i++){
-        if((JSON.parse(item).id) == (JSON.parse(jsonListTiempoVideos[i]).id)){
-          listFilterVideos = jsonListTiempo.videolista.filter((lista) => ((JSON.parse(lista).id) !== 
-            (JSON.parse(jsonListTiempoVideos[i]).id)));
-          let videoItem = JSON.parse(item);
-
-          videoItem.tiempoRealizacion = JSON.parse(item).tiempoRealizacion;
-          
-          for (let i = 0; i < listArray.length; i++){
-            if((JSON.parse(listArray[i]).id) == (JSON.parse(jsonListTiempoVideos[i]).id)){
-              let tiempoEjRealizado = JSON.parse(listArray[i]).tiempoRealizacion;
-              let horaRealizado = tiempoEjRealizado.split(":")[0]
-              JSON.parse(listArray[i]).tiempoDescanso = 0;
-            }
-          }
-          
-          if(listFilterVideos){
-            listFilterVideos.push(JSON.stringify(videoItem));
-            //t.push(JSON.stringify(videoItem))
-          }
-          //await AsyncStorage.setItem("TIEMPO", JSON.stringify(listFilterVideos));
-          await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-            console.log('EL TIEMPO AHORA ES SIN GUARDAR Y DARLE A SIGUIENTE: ', tiempo)
-            //setListTiempo(tiempo);
-          });
-          console.log('no se ha guardado el tiempo de realización tiempovideopress')
-          console.log('La lista de tiempos es si no se ha guardado el tiempovideopress: ', listFilterVideos)
-          setFlagButton(false);
-          if(flagOneVideo === false){
-            setFlagTiempoInicial(true);
-          }
-          setFlagTiempo(!flagTiempo);
-        }
-      }
-      }
-      else {
-      const valorTiempo = await AsyncStorage.getItem("TIEMPO");
-      const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-
-      let jsonListTiempo = null;
-      let jsonListTiempoVideos = '';
-      let listFilterVideos = t;
-      let listArray = t;
-      let jsonListArray = '';
-
-      if (listaActualT !== '' && listaActualT !== undefined) {              
-        jsonListTiempo = JSON.parse(listaActualT);                 
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-      else {              
-        jsonListTiempo = listaInicialT;  //listaEm
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-
-      jsonListTiempoVideos = jsonListTiempo.videolista;
-
-      for (let i = 0; i < jsonListTiempo.videolista.length; i++){
-        if((JSON.parse(item).id) == (JSON.parse(jsonListTiempoVideos[i]).id)){
-          listFilterVideos = jsonListTiempo.videolista.filter((lista) => ((JSON.parse(lista).id) !== 
-            (JSON.parse(jsonListTiempoVideos[i]).id)));
-          let videoItem = JSON.parse(item);
-          let horas = '';
-          let minutos = '';
-          let segundos = '';
-          if(hours<10){
-            horas = "0" + hours;             
-          }
-          else {
-            horas = hours;
-          }
-          if(minutes<10){
-            minutos = "0" + minutes;             
-          }
-          else {
-            minutos = minutes;
-          }
-          if(seconds<10){
-            segundos = "0" + seconds;             
-          }
-          else {
-            segundos = seconds;
-          }
-
-          videoItem.tiempoRealizacion = horas + ":" + minutos + ":" + segundos;
-
-          for (let i = 0; i < listArray.length; i++){
-            if((JSON.parse(item).id) == (JSON.parse(listArray[i]).id)){
-              let tiempoEjRealizado = JSON.parse(listArray[i]).tiempoRealizacion;
-              let horasRealizado = (tiempoEjRealizado.split(":")[0]) * 3600;
-              let minutosRealizado = tiempoEjRealizado.split(":")[1] * 60;
-              let segundosRealizado = tiempoEjRealizado.split(":")[2];
-
-              let segundosTotalActual = (horas * 3600) + (minutos * 60) + (segundos * 60);
-              let segundosTotalRealizado = horasRealizado + minutosRealizado + segundosRealizado;
-              
-              let segundosFinal = segundosTotalActual - segundosTotalRealizado;
-
-              let horasDescanso = segundosFinal/3600;
-              let minutosDescanso = segundosFinal % 3600;
-              let segundosDescanso = segundosFinal % 60;
-
-              let listVideo = JSON.parse(listArray[i]);
-              listVideo.tiempoDescanso = horasDescanso + ":" + minutosDescanso + ":" + segundosDescanso;
-
-              jsonListArray = JSON.stringify(listVideo);
-              console.log('El tiempo de descanso final es: ', JSON.parse(listArray[i]).tiempoDescanso)
-              break;
-            }
-          }
-
-          if(listFilterVideos){
-            listFilterVideos.push(JSON.stringify(videoItem));
-            //t.push(JSON.stringify(videoItem))
-          }
-
-          let newTime = t.filter((lista) => ((JSON.parse(lista).id) !== 
-          (JSON.parse(jsonListTiempoVideos[i]).id)));
-          newTime.push(jsonListArray);
-
-          await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTime));
-          await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-            console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A SIGUIENTE: ', tiempo)
-            //setListTiempo(tiempo);
-          });
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          //const ti = await AsyncStorage.getItem("TIEMPO");
-          //const td = ti ? JSON.parse(ti) : [];
-          //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videopress: ')
-          console.log('El tiempo de realización FINAL del video es videopress: ', videoItem.tiempoRealizacion)
-          console.log('La lista de tiempos es videopress: ', t)
-          let it = item;
-          setItemPlay(it);
-          if(flagOneVideo === false){
-            setFlagTiempoInicial(true);
-          }
-          setFlagButton(false);
-          setFlagTiempo(!flagTiempo);
-        }              
-      }        
-
-      }
-      */
     } catch(error){
       console.log(error)
     }
@@ -1550,6 +1428,35 @@ export default function Entrenamiento ({route}) {
         comenzarTimer();
         setFlagSaveTime(true);
         setFlagButton(true);
+
+        var listaTiempo = {};
+        listaTiempo.id = JSON.parse(item).id;
+        listaTiempo.series = JSON.parse(item).series;
+        listaTiempo.repeticiones = JSON.parse(item).repeticiones;
+        listaTiempo.tiempoRealizacion = '';
+        listaTiempo.tiempoDescanso = '';
+        listaTiempo.video = JSON.parse(item).videos;
+
+        let jsonList = JSON.stringify(listaTiempo);
+        let jsonListTiempo = '';
+        if (listaActualT !== '' && listaActualT !== undefined) {              
+          jsonListTiempo = JSON.parse(listaActualT);                 
+        }
+        else {              
+          jsonListTiempo = listaInicialT;
+        }
+
+        let newTiempo = [];
+
+        //var jsonLista = JSON.stringify(listaTiempo);       
+
+        newTiempo.push(jsonList);
+        await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo));
+
+        await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
+          console.log('EL TIEMPO AHORA ES CUANDO NO EXISTE ITEM "TIEMPOS": ', tiempo)
+        });
+        
       }
       else {
         if(tiempoFinal !== ""){
@@ -1558,10 +1465,12 @@ export default function Entrenamiento ({route}) {
           let jsonListArray = '';
           let listVideo = '';
           let videoArray = '';
+          let numLista = '';
 
           for (let i = 0; i < listaInicialT.videolista.length; i++){
             if(listaActualT == ''){
               if((JSON.parse(item).id) == (JSON.parse(listaInicialT.videolista[i]).id)){
+                numLista = i;
                 let tiempoEjFinal = tiempoFinal;
                 let horasFinal = (tiempoEjFinal.split(":")[0]) * 3600;
                 let minutosFinal = (tiempoEjFinal.split(":")[1]) * 60;
@@ -1600,6 +1509,7 @@ export default function Entrenamiento ({route}) {
             }
             else {
               if((JSON.parse(item).id) == (JSON.parse((JSON.parse(listaActualT)).videolista[i]).id)){
+                numLista = i;
                 let tiempoEjFinal = tiempoFinal;
                 let horasFinal = (tiempoEjFinal.split(":")[0]) * 3600;
                 let minutosFinal = tiempoEjFinal.split(":")[1] * 60;
@@ -1662,11 +1572,13 @@ export default function Entrenamiento ({route}) {
           listaTiempo.tiempoRealizacion = JSON.parse(jsonListArray).tiempoRealizacion;
           if(jsonListArray !== ''){
             listaTiempo.tiempoDescanso = JSON.parse(jsonListArray).tiempoDescanso;
+            listaTiempo.video = JSON.parse(jsonListArray).video;
           }
           else {
             listaTiempo.tiempoDescanso = '';
+            listaTiempo.video = JSON.parse(item).videos;
           }
-          listaTiempo.video = JSON.parse(item).videos;
+          
 
           let jsonListTiempo = null;
           let jsonListTiempoVideos = '';
@@ -1684,8 +1596,14 @@ export default function Entrenamiento ({route}) {
           let newTiempo5 = '';
 
           if(listVideo !== ''){
-            //listFilterVideos.push(JSON.stringify(listVideo));
-            newTiempo5 = t.filter((lista) => lista !== videoArray);
+            if(numLista !== 1){
+              newTiempo5 = t.filter((lista) => lista !== listArray[numLista-1]);
+            }
+            else{
+              newTiempo5 = t;
+              newTiempo5.length=0;
+            }
+            console.log('newTiempo5 es: ', newTiempo5)
             //t.push(JSON.stringify(listVideo))
           }
 
@@ -1861,9 +1779,14 @@ export default function Entrenamiento ({route}) {
 
   const cancelarEntrenamiento = async() => {
     console.log('se ha cancelado el entrenamiento')
-      
-    setFlagPlay(!flagPlay);
-    isMounted = false;
+    
+    if(statusVideo.isPlaying){
+      if(videoLocalRef !== null && videoLocalRef.current !== null) {
+        videoLocalRef.current.pauseAsync();
+      }
+    }
+    
+    setFlagPlay(!flagPlay);  
     let listaf = listT;
     listaf.length=0;
     setListT(listaf);
@@ -1893,6 +1816,7 @@ export default function Entrenamiento ({route}) {
     varray.length=0;
     
     AsyncStorage.setItem("TIEMPO", JSON.stringify(f));
+    isMounted = false;
     navigation.reset({
       index: 0,
       routes: [
@@ -1910,15 +1834,13 @@ export default function Entrenamiento ({route}) {
     });
   }
 
-
-
   return (
     <View style={styles.container}>
       <View style={styles.modalStyle2}>
         <FlatList
           ref={flatListRef}
           pagingEnabled
-          horizontal
+          horizontal          
           scrollEnabled={false}
           initialScrollIndex={0}
           extraData={flagButtonGuardar}
@@ -1930,7 +1852,7 @@ export default function Entrenamiento ({route}) {
         <Button style={styles.botonCancelar}
           onPress={() => {
             Alert.alert('',
-            "¿Está seguro de cancelar el entrenamiento?", [
+            "¿Estás seguro de cancelar el entrenamiento?", [
                 {
                 text: 'No',
                 onPress: () => null,
@@ -1948,6 +1870,15 @@ export default function Entrenamiento ({route}) {
 }
 
 /*
+<VisibilitySensor onChange={(isVisible) => {
+              console.log('El video está VISIBLE')
+              if(isVisible) {
+                videoLocalRef.current.playAsync();
+              }
+              else{
+                videoLocalRef.current.pauseAsync();
+              }
+          }}>
         <View style={styles.buttonContainer}>
           <Button title="start"
             onPress={startTimer}>
@@ -1999,26 +1930,27 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'center',
   },
   botonGuardar: {
-    backgroundColor: '#1B4B95',
+    backgroundColor: '#2d65c4',
     borderWidth: 1,
-    borderColor: '#4973b3',
+    borderColor: '#2a5db5',
     padding: 8,
     marginBottom: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 15,
+    marginLeft: 8,
+    justifyContent: 'center',
   },
   botonSiguiente: {
     backgroundColor: '#1dc28d',
     borderWidth: 1,
     borderColor: '#24b385',
     borderRadius: 10,
-    marginLeft: 20, 
+    marginLeft: 22, 
     alignItems: 'center', 
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   button2: {
     //backgroundColor: '#1B4B95',
@@ -2182,16 +2114,16 @@ const styles = StyleSheet.create({
     marginBottom: 36,
   },
   botonComenzar: {
-    backgroundColor: '#3f6cb0',
+    backgroundColor: '#1d89db',
     borderWidth: 1,
-    borderColor: '#4973b3',
+    borderColor: '#1979c2',
     borderRadius: 10,
-    marginLeft: 20, 
+    marginLeft: 22,
+    padding: 10, 
     alignItems: 'center', 
     justifyContent: 'center',
     alignSelf: 'center',
     height: 50,
-    width: 150,
   },
   title: {
     textAlign: 'center',

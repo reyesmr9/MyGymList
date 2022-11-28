@@ -11,6 +11,7 @@ import Lista from './screens/Lista';
 import ListaConfiguracion from './screens/ListaConfiguracion';
 import Entrenamiento from './screens/Entrenamiento';
 import Historial from './screens/Historial';
+import HistorialEjercicio from './screens/HistorialEjercicio'
 
 import {StyleSheet, View, BackHandler, Image, TouchableOpacity, 
   Dimensions, Alert, Button } from 'react-native';
@@ -165,6 +166,13 @@ const BottomTabBar = ({navigation, state}) => (
             tabBarButton: () => <HideTabBar />
           })}
         />
+        <Screen name="HistorialEjercicio" component={HistorialEjercicio}
+          options={({navigation})=> ({
+            headerShown: false, 
+            tabBarStyle: { display: 'none', height: 0 }, 
+            tabBarButton: () => <HideTabBar />
+          })}
+        />
         <Screen name="NuevaLista" component={NuevaLista} 
           options={({navigation})=> ({
             headerShown: false, 
@@ -226,6 +234,13 @@ const BottomTabBar = ({navigation, state}) => (
           })}
         />
         <Screen name="Historial" component={Historial}
+          options={({navigation})=> ({
+            headerShown: false, 
+            tabBarStyle: { display: 'none', height: 0 }, 
+            tabBarButton: () => <HideTabBar />
+          })}
+        />
+        <Screen name="HistorialEjercicio" component={HistorialEjercicio}
           options={({navigation})=> ({
             headerShown: false, 
             tabBarStyle: { display: 'none', height: 0 }, 
@@ -369,7 +384,7 @@ export default function App () {
     //const [isLoggedIn, setIsLoggedIn] = useState();                  
     return (
       <Stack.Navigator style = {styles.bottom}>
-        {(isLoggedIn!='') ? (
+        {(isLoggedIn!=='') ? (
         // Screens for logged in users
         <Stack.Group>
           <Stack.Screen name={'Home'} options={{headerShown: false}} component={Home}/>
@@ -393,13 +408,14 @@ export default function App () {
   const getDatos = async() => {
     /*
     var f = [''];
+    var t = '';
     f.length=0;
     console.log('Al vaciar array videos el resultado es: ', f)  
-    setLoginDatos(f);
-    setIsLoggedIn(f);        
+    setLoginDatos(t);
+    setIsLoggedIn(t);        
     //convertimos el array de listas 'l' en un string usando JSON.stringify(l) y lo pasamos a AllLists.js
     await AsyncStorage.setItem("DATOS", JSON.stringify(f));
-    */
+    
     
     var f = [''];
     f.length=0;
@@ -407,19 +423,12 @@ export default function App () {
     setIsModo('');
     setDatosModo(f);        
     await AsyncStorage.setItem("MODO", JSON.stringify(f));   
+    */
     
     await AsyncStorage.getItem("DATOS").then((datos) => {
       setLoginDatos(JSON.parse(datos));    //guardamos cada lista en formato string en listas
       setIsLoggedIn(datos);
     });
-    /*
-    await AsyncStorage.getItem("USUARIO").then((datos) => {
-      setDatosUsuario(JSON.parse(datos));    //guardamos cada lista en formato string en listas
-      setIsUsuario(datos);
-    });
-
-    console.log('Los DATOS que tenemos son: ', loginDatos)
-    */
     
   }
       
@@ -439,7 +448,7 @@ export default function App () {
       //const subscription = AppState.addEventListener("change", _handleAppStateChange);
       return () => {
         backHandler.remove();
-        isMounted = false;
+        //isMounted = false;
         //subscription.remove();
       };
         
