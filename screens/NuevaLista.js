@@ -170,7 +170,6 @@ export default function NuevaLista () {
       //setIm("");
       setTitulo("");
       //setEmail('');
-      isMounted = false;
       navigation.reset({
         index: 0,
         routes: [
@@ -180,6 +179,7 @@ export default function NuevaLista () {
         ],
       })
       navigation.navigate('AllLists');
+      isMounted = false;
       }
     return true;
   };
@@ -302,7 +302,8 @@ export default function NuevaLista () {
           video !== videos[i];
         }});
         */
-        if((videos.length > 0) && (videos !== undefined) && (videos !== null)){
+        if(titulo !== ""){
+        if(selectedImage.localUri !== 'https://cdn.pixabay.com/photo/2017/01/25/17/35/picture-2008484_960_720.png' || im !== imagenInicial[2].image){
           const valorListas = await AsyncStorage.getItem("LISTAS");
           const l = valorListas ? JSON.parse(valorListas) : [];
           const valorVideos = await AsyncStorage.getItem("EJERCICIOS");
@@ -314,9 +315,10 @@ export default function NuevaLista () {
           var mes = new Date().getMonth() + 1; //To get the Current Month
           var año = new Date().getFullYear(); //To get the Current Year
           var fecha = dia + '-' + mes + '-' + año;
-
+          
           try{
-            if (selectedImage.localUri !== 'https://cdn.pixabay.com/photo/2017/01/25/17/35/picture-2008484_960_720.png' || im !== imagenInicial[2].image){
+            
+            if ((videos.length > 0) && (videos !== undefined) && (videos !== null)){
               if ((selectedImage.localUri !== null) && (selectedImage.localUri !== undefined) && (selectedImage.localUri !== "") && (flag === true)){
 
                 lista.imagen = selectedImage.localUri;
@@ -425,6 +427,9 @@ export default function NuevaLista () {
               await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(f));
               await AsyncStorage.setItem("LISTAS", JSON.stringify(l))
                   .then(() => {
+                    setTitulo("");
+                    setSelectedImage(null);
+                    setIm("");
                     navigation.reset({
                       index: 0,
                       routes: [
@@ -433,36 +438,34 @@ export default function NuevaLista () {
                         },
                       ],
                     })
-                    navigation.navigate("AllLists")
+                    navigation.navigate("AllLists");
+                    isMounted = false;
                   });
-              setTitulo("");
-              //setEmail("");
-              //setSeries("");
-              //setRepeticiones("");
-              //setTiempo("");
-              setSelectedImage(null);
-              setIm("");
-
-              //setVideos(array);
 
               console.log('array de listas es = ', l)
               console.log('array de videos final = ', videos)
               //console.log('array de array = ', newVideos)
             }
             else {
-              Alert.alert("Inserta una imagen o un icono");
+              Alert.alert("Inserta un link de Youtube en el ejercicio");
             }
+          
+
           }
           catch(error){
             console.log(error);
             Alert.alert("Error. Inserta una imagen o un icono");
           }
         }
-
+        
         else {
-          Alert.alert("Inserta un link de Youtube en el ejercicio");
+          Alert.alert("Inserta una imagen o un icono");
         }
+    } 
+    else {
+      Alert.alert("Inserta un título");
     }
+  }
 
     const addVideoLink = () => {
 
@@ -520,11 +523,13 @@ export default function NuevaLista () {
    
   }
 
-    const guardarVideo = async () => {
-      if ((videos !== undefined) && (videos !== null)){
-        console.log('Se ha pulsado guardar Video si videos existe')
-        try{
-          const vid = await AsyncStorage.getItem("EJERCICIOS");
+  const guardarVideo = async () => {
+    if ((videos !== undefined) && (videos !== null)){
+      console.log('Se ha pulsado guardar Video si videos existe')
+      try{
+        if(link!==''){
+          if((link.includes('youtu.be')) || (link.includes('youtube.com'))){
+            const vid = await AsyncStorage.getItem("EJERCICIOS");
           const v = vid ? JSON.parse(vid) : [];
           //const varray = [v];
           console.log('Valor de videos en asyncstorage', v)
@@ -532,9 +537,24 @@ export default function NuevaLista () {
           
           const id = (Math.round(Math.random() * 1000)).toString();
           var lista = {};
-          lista.series = series + " series";
-          lista.repeticiones = repeticiones + " repeticiones";
-          lista.tiempo = tiempo + " " + listValueNumberTiempo;
+          if(series == "") {
+            lista.series = series;
+          }
+          else {
+            lista.series = series + " series";
+          }
+          if(repeticiones == "") {
+            lista.repeticiones = repeticiones;
+          }
+          else {
+            lista.repeticiones = repeticiones + " repeticiones";
+          }
+          if(tiempo == "") {
+            lista.tiempo = tiempo;
+          }
+          else {
+            lista.tiempo = tiempo + " " + listValueNumberTiempo;
+          }
           lista.videos = video(link); //añadir un alert(introduce un link válido) si el link no es válido
 
           let idVideos = "";
@@ -563,6 +583,12 @@ export default function NuevaLista () {
           setDat(!dat);
           console.log('Valor de videos es1', videos)
           console.log('si video NO es null, objeto de videos obtenido de asyncstorage: ', vd)
+          setOpenListTiempo(false);
+        }
+        else {
+          Alert.alert('Introduce un link válido')
+        }
+        }
       }
       catch(error){
         console.log(error);
@@ -572,11 +598,28 @@ export default function NuevaLista () {
     else {
       console.log('Se ha pulsado guardar Video si videos no existe')
       try{
+        if(link!==''){
+          if((link.includes('youtu.be')) || (link.includes('youtube.com'))){
         setDat(!dat);
         var lista = {};
-        lista.series = series + " series";
-        lista.repeticiones = repeticiones + " repeticiones";
-        lista.tiempo = tiempo + listValueNumberTiempo;
+        if(series == "") {
+          lista.series = series;
+        }
+        else {
+          lista.series = series + " series";
+        }
+        if(repeticiones == "") {
+          lista.repeticiones = repeticiones;
+        }
+        else {
+          lista.repeticiones = repeticiones + " repeticiones";
+        }
+        if(tiempo == "") {
+          lista.tiempo = tiempo;
+        }
+        else {
+          lista.tiempo = tiempo + " " + listValueNumberTiempo;
+        }
         lista.videos = video(link);
 
         const idItem = (Math.round(Math.random() * 1000)).toString();
@@ -618,12 +661,17 @@ export default function NuevaLista () {
         //console.log('si video === null, array de videos obtenido de asyncstorage: ', varray)
         console.log('si video === null, objeto de videos obtenido de asyncstorage: ', v)
         console.log('Valor de videos es2', videos)
+          }
+            else {
+              Alert.alert('Introduce un link válido')
+            }
       }
+    }
       catch(error){
         console.log(error);
       }
-    }
-  }
+    
+  }}
 
   /*
     const videoList = () => {

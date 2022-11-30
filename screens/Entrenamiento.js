@@ -71,7 +71,7 @@ export default function Entrenamiento ({route}) {
     let videoGuardar = false;
     let videoSiguiente = false;
     let listaAhora = listPlay;
-    const videoLocalRef = useRef(null);
+    const videoLocalRef = useRef([]);
 
     const [seconds, setSeconds] = useState(0);
     const [minutes, setMinutes] = useState(0);
@@ -186,7 +186,7 @@ export default function Entrenamiento ({route}) {
         varray.length=0;
 
         AsyncStorage.setItem("TIEMPO", JSON.stringify(f));
-        isMounted = false;
+        
         navigation.reset({
           index: 0,
           routes: [
@@ -202,6 +202,7 @@ export default function Entrenamiento ({route}) {
           singleList: ((listaActualT !== '') ? listaActualT : listPlay),
           itemId: JSON.parse(listPlay).listaid,
         });
+        isMounted = false;
       }
       return true;
     };
@@ -401,7 +402,7 @@ export default function Entrenamiento ({route}) {
       let listaf = listT;
       listaf.length=0;
       setListT(listaf);
-      isMounted=false;
+      
       navigation.reset({
         index: 0,
         routes: [
@@ -417,7 +418,7 @@ export default function Entrenamiento ({route}) {
         singleList: ((listaFinal !== '') ? listaFinal : listPlay),
         itemId: JSON.parse(listPlay).listaid,
       });
-
+      isMounted=false;
   }
 
   const renderItemPlay = ({ item, index }) => {
@@ -471,7 +472,7 @@ export default function Entrenamiento ({route}) {
         <View style={{marginTop: 20, marginLeft: 22, alignItems: 'center', justifyContent: 'center'}}>
         {previewVideoPlay &&
           (<Video
-            ref={videoLocalRef}
+            ref={ref => (videoLocalRef.current[index] = ref)}
             shouldPlay={false}
             source={{ uri: previewVideoPlay }}
             useNativeControls
@@ -496,8 +497,10 @@ export default function Entrenamiento ({route}) {
             //guardarTiempoVideo(item);
             //clear();
             if(statusVideo.isPlaying){
-              if(videoLocalRef !== null && videoLocalRef.current !== null) {
-                videoLocalRef.current.pauseAsync();
+              if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+                for(let i = 0; i<videoLocalRef.current.length; i++){
+                  videoLocalRef.current[i].pauseAsync();
+                }
               }
             }             
             tiempoEjerciciosRealizados(item);             
@@ -537,10 +540,12 @@ export default function Entrenamiento ({route}) {
           accessoryRight={siguienteIcon}
           onPress={() => {{
             if(statusVideo.isPlaying){
-              if(videoLocalRef !== null && videoLocalRef.current !== null) {
-                videoLocalRef.current.pauseAsync();
-                console.log('se ha pausado video y se ha dado a siguiente')
-              }
+                if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+                  for(let i = 0; i<videoLocalRef.current.length; i++){
+                    videoLocalRef.current[i].pauseAsync();
+                  }
+                }
+                console.log('se ha pausado video y se ha dado a siguiente')             
             }
             tiempoVideoRealizado(item);
             }}}>
@@ -558,8 +563,10 @@ export default function Entrenamiento ({route}) {
       setFlagButtonGuardar(true);
       setCurrentSectionIndex(0);
       if(statusVideo.isPlaying){
-        if(videoLocalRef !== null && videoLocalRef.current !== null) {
-          videoLocalRef.current.pauseAsync();
+        if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+          for(let i = 0; i<videoLocalRef.current.length; i++){
+            videoLocalRef.current[i].pauseAsync();
+          }
         }
       }
       flatListRef.current.scrollToIndex({
@@ -583,8 +590,10 @@ export default function Entrenamiento ({route}) {
         setFlagButtonGuardar(true);
         setCurrentSectionIndex(0);
         if(statusVideo.isPlaying){
-          if(videoLocalRef !== null && videoLocalRef.current !== null) {
-            videoLocalRef.current.pauseAsync();
+          if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+            for(let i = 0; i<videoLocalRef.current.length; i++){
+              videoLocalRef.current[i].pauseAsync();
+            }
           }
         }
         flatListRef.current.scrollToIndex({
@@ -602,8 +611,10 @@ export default function Entrenamiento ({route}) {
       }
       else {
         if(statusVideo.isPlaying){
-          if(videoLocalRef !== null && videoLocalRef.current !== null) {
-            videoLocalRef.current.pauseAsync();
+          if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+            for(let i = 0; i<videoLocalRef.current.length; i++){
+              videoLocalRef.current[i].pauseAsync();
+            }
           }
         }
         flatListRef.current.scrollToIndex({
@@ -813,7 +824,7 @@ export default function Entrenamiento ({route}) {
         let listaf = listT;
         listaf.length=0;
         setListT(listaf);
-        isMounted=false;
+        
         setCurrentSectionIndex(0);
         if(customInterval){
           clearInterval(customInterval);
@@ -836,7 +847,7 @@ export default function Entrenamiento ({route}) {
           singleList: ((listaFinal !== '') ? listaFinal : listPlay),
           itemId: JSON.parse(listPlay).listaid,
         });
-        //setFlagList(!flagList);                           
+        isMounted=false;                        
       });
       
     }
@@ -1781,8 +1792,10 @@ export default function Entrenamiento ({route}) {
     console.log('se ha cancelado el entrenamiento')
     
     if(statusVideo.isPlaying){
-      if(videoLocalRef !== null && videoLocalRef.current !== null) {
-        videoLocalRef.current.pauseAsync();
+      if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+        for(let i = 0; i<videoLocalRef.current.length; i++){
+          videoLocalRef.current[i].pauseAsync();
+        }
       }
     }
     
@@ -1815,8 +1828,7 @@ export default function Entrenamiento ({route}) {
     var f=varray;
     varray.length=0;
     
-    AsyncStorage.setItem("TIEMPO", JSON.stringify(f));
-    isMounted = false;
+    AsyncStorage.setItem("TIEMPO", JSON.stringify(f)); 
     navigation.reset({
       index: 0,
       routes: [
@@ -1832,6 +1844,7 @@ export default function Entrenamiento ({route}) {
       singleList: ((listaActualT !== '') ? listaActualT : listPlay),
       itemId: JSON.parse(listPlay).listaid,
     });
+    isMounted = false;
   }
 
   return (

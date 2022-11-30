@@ -40,12 +40,12 @@ import {
 import {ApplicationProvider, BottomNavigation, BottomNavigationTab} from '@ui-kitten/components';
 
 
-export default function HistorialEjercicio ({route}) {
+export default function HistorialEntrenamiento ({route}) {
 
     const navigation = useNavigation();
     const {ejercicioHistorial, ejercicioIdHistorial, lista} = route.params;
 
-    const videoLocalReference = useRef(null);
+    const videoLocalReference = useRef([]);
     const [statusVideoR, setStatusVideoR] = useState({});
 
     let previewVideoPlay = null;
@@ -65,13 +65,16 @@ export default function HistorialEjercicio ({route}) {
         ]);
       }
       else {
-        if(statusVideoR.isPlaying){
-          if(videoLocalReference !== null && videoLocalReference.current !== null) {
-            videoLocalReference.current.pauseAsync();
+        if(statusVideoR.isPlaying || !statusVideoR.showVideo){
+          if(videoLocalReference !== null && videoLocalReference.length !== 0) {
+            for(let i = 0; i<videoLocalReference.current.length; i++){
+              videoLocalReference.current[i].pauseAsync();
+              console.log('SE HA PAUSADO EL VIDEO HISTORIALENTRENAMIENTO1')
+            }
           }
-        }
-        console.log('saliendo de historialejercicio')
-        isMounted = false;    
+        }  
+        console.log('saliendo de historialentrenamiento')
+            
         /*         
         navigation.reset({
           index: 0,
@@ -89,6 +92,7 @@ export default function HistorialEjercicio ({route}) {
           listHistorial: lista,
           itemIdHistorial: JSON.parse(lista).idlista,
         });
+        isMounted = false;
       }
       return true;
     };
@@ -101,10 +105,11 @@ export default function HistorialEjercicio ({route}) {
       //getLista();
       BackHandler.addEventListener('hardwareBackPress', backAction);
     }
-    //const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', backAction);
+      //BackHandler.removeEventListener('hardwareBackPress', backAction);
+      backHandler.remove();
       isMounted = false;
       //setListH('');
     };
@@ -251,7 +256,7 @@ export default function HistorialEjercicio ({route}) {
       </View> 
         {previewVideoPlay &&
               <Video
-                ref={videoLocalReference}
+                ref={ref => (videoLocalReference.current[index] = ref)}
                 source={{ uri: previewVideoPlay }}
                 useNativeControls
                 resizeMode="contain"

@@ -198,8 +198,7 @@ const iconoImportarVideo = (props) => (
       //setIm("");
       setTitulo("");
       setVideoLocal(null);
-      //setEmail('');
-      isMounted = false;
+      //setEmail('');     
       navigation.reset({
         index: 0,
         routes: [
@@ -210,6 +209,7 @@ const iconoImportarVideo = (props) => (
       })
       navigation.navigate('AllLists');
       }
+      isMounted = false;
     return true;
   };
 
@@ -331,7 +331,8 @@ const iconoImportarVideo = (props) => (
           video !== videos[i];
         }});
         */
-        if((videos.length > 0) && (videos !== undefined) && (videos !== null)){
+        if(titulo !== ""){
+        if(selectedImage.localUri !== 'https://cdn.pixabay.com/photo/2017/01/25/17/35/picture-2008484_960_720.png' || im !== imagenInicial[2].image){
           const valorListas = await AsyncStorage.getItem("LISTAS");
           const l = valorListas ? JSON.parse(valorListas) : [];
           const valorVideos = await AsyncStorage.getItem("EJERCICIOS");
@@ -345,7 +346,7 @@ const iconoImportarVideo = (props) => (
           var fecha = dia + '-' + mes + '-' + año;
 
           try{
-            if (selectedImage.localUri !== 'https://cdn.pixabay.com/photo/2017/01/25/17/35/picture-2008484_960_720.png' || im !== imagenInicial[2].image){
+            if ((videos.length > 0) && (videos !== undefined) && (videos !== null)){
               if ((selectedImage.localUri !== null) && (selectedImage.localUri !== undefined) && (selectedImage.localUri !== "") && (flag === true)){
 
                 lista.imagen = selectedImage.localUri;
@@ -451,6 +452,9 @@ const iconoImportarVideo = (props) => (
               await AsyncStorage.setItem("EJERCICIOS", JSON.stringify(f));
               await AsyncStorage.setItem("LISTAS", JSON.stringify(l))
                   .then(() => {
+                    setTitulo("");
+                    setSelectedImage(null);
+                    setIm("");
                     navigation.reset({
                       index: 0,
                       routes: [
@@ -459,25 +463,18 @@ const iconoImportarVideo = (props) => (
                         },
                       ],
                     })
-                    navigation.navigate("AllLists")
+                    navigation.navigate("AllLists");
+                    isMounted = false;
                   });
-              setTitulo("");
-              //setEmail("");
-              //setSeries("");
-              //setRepeticiones("");
-              //setTiempo("");
-              setSelectedImage(null);
-              setIm("");
-
-              //setVideos(array);
 
               console.log('array de listas es = ', l)
               console.log('array de videos final = ', videos)
               //console.log('array de array = ', newVideos)
             }
             else {
-              Alert.alert("Inserta una imagen o un icono");
+              Alert.alert("Inserta un vídeo en la lista");
             }
+          
           }
           catch(error){
             console.log(error);
@@ -486,9 +483,13 @@ const iconoImportarVideo = (props) => (
         }
 
         else {
-          Alert.alert("Inserta un vídeo en la lista");
+          Alert.alert("Inserta una imagen o un icono");
         }
     }
+    else {
+      Alert.alert("Inserta un título");
+    }
+  }
 
     const addVideoLink = () => {
 
@@ -549,9 +550,24 @@ const iconoImportarVideo = (props) => (
           
           const id = (Math.round(Math.random() * 1000)).toString();
           var lista = {};
-          lista.series = series + " series";
-          lista.repeticiones = repeticiones + " repeticiones";
-          lista.tiempo = tiempo + " " + listValueNumberTiempo;
+          if(series == "") {
+            lista.series = series;
+          }
+          else {
+            lista.series = series + " series";
+          }
+          if(repeticiones == "") {
+            lista.repeticiones = repeticiones;
+          }
+          else {
+            lista.repeticiones = repeticiones + " repeticiones";
+          }
+          if(tiempo == "") {
+            lista.tiempo = tiempo;
+          }
+          else {
+            lista.tiempo = tiempo + " " + listValueNumberTiempo;
+          }
           lista.videos = videoLocal;
 
           let idVideos = "";
@@ -581,6 +597,7 @@ const iconoImportarVideo = (props) => (
           setVideoLocal(null);
           console.log('Valor de videos es1', videos)
           console.log('si video NO es null, objeto de videos obtenido de asyncstorage: ', vd)
+          setOpenListTiempo(false);
           }
       }
       catch(error){
@@ -597,9 +614,24 @@ const iconoImportarVideo = (props) => (
         else {
         setDat(!dat);
         var lista = {};
-        lista.series = series + " series";
-        lista.repeticiones = repeticiones + " repeticiones";
-        lista.tiempo = tiempo + " " + listValueNumberTiempo;
+        if(series == "") {
+          lista.series = series;
+        }
+        else {
+          lista.series = series + " series";
+        }
+        if(repeticiones == "") {
+          lista.repeticiones = repeticiones;
+        }
+        else {
+          lista.repeticiones = repeticiones + " repeticiones";
+        }
+        if(tiempo == "") {
+          lista.tiempo = tiempo;
+        }
+        else {
+          lista.tiempo = tiempo + " " + listValueNumberTiempo;
+        }
         lista.videos = videoLocal;
         //lista.videos = video(link);
 
@@ -821,7 +853,7 @@ const iconoImportarVideo = (props) => (
       }
       
       setVideoLocal(pickerResult.uri);  //de esta forma, estaria actualizado el estado
-      setFlag(false);
+      //setFlag(false);
       
     };
 

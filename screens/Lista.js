@@ -159,7 +159,7 @@ export default function Lista ({route}) {
     const [listaActual, setListaActual] = useState('');
     const [listaHistorialL, setListaHistorialL] = useState('');
     const [menuVisible, setMenuVisible] = useState(false);
-    const videoLocalRef = useRef(null);
+    const videoLocalRef = useRef([]);
     let cameraRef = useRef();
     const [videoLocal, setVideoLocal] = useState(null);
     const [statusVideo, setStatusVideo] = useState({});
@@ -480,12 +480,13 @@ export default function Lista ({route}) {
         setOpened(false);
         setOpenedMenu(false);
         if(statusVideo.isPlaying){
-          if(videoLocalRef !== null && videoLocalRef.current !== null) {
-            videoLocalRef.current.pauseAsync();
+          if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+            for(let i = 0; i<videoLocalRef.current.length; i++){
+              videoLocalRef.current[i].pauseAsync();
+            }
           }
         }
         setEdit(false); 
-        isMounted = false;
         setFlag(false);
         setFlagEdit(false);
         let listaf = list;
@@ -553,7 +554,7 @@ export default function Lista ({route}) {
           ],
         })
         navigation.navigate('AllLists');
-      
+        isMounted = false;
       }
       return true;
     };
@@ -1057,8 +1058,7 @@ export default function Lista ({route}) {
               let listini = listaInicial;
               listini.videolista = datList;
               let jsonListIni = JSON.stringify(listini);
-
-              isMounted = false;
+             
               setFlag(false);
               let listaf = list;
               listaf.length=0;
@@ -1083,6 +1083,7 @@ export default function Lista ({route}) {
                     })
                     navigation.navigate("AllLists")
                   });
+                isMounted = false;
               //setDat(true);
 
             }
@@ -1639,6 +1640,13 @@ export default function Lista ({route}) {
 
     const añadirRecordatorio = () => {
       setOpened(false);
+      if(statusVideo.isPlaying){
+        if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+          for(let i = 0; i<videoLocalRef.current.length; i++){
+            videoLocalRef.current[i].pauseAsync();
+          }
+        }
+      }  
       setModalVisibleRecordatorio(true);
     }
 
@@ -1902,8 +1910,10 @@ export default function Lista ({route}) {
       if(flagEm === true){
         guardarEmoticono(item);
       }
-      
-      
+      else{
+        return;
+      }
+           
     }
 
     const guardarEmoticono = async (item) => {
@@ -2074,7 +2084,7 @@ export default function Lista ({route}) {
       try {
         if ((item !== undefined) && (item !== null) && (JSON.parse(item).videos !== undefined)){
 
-          if(JSON.parse(item).videos.includes("file")){
+          if(JSON.parse(item).videos.includes("file") && isMounted==true){
             if(previewVideo === null){
               setFlagLocalVideo(true);
             }
@@ -2273,7 +2283,7 @@ export default function Lista ({route}) {
               <View style={{alignItems: 'center'}}>
                 {previewVideo &&
                   <Video
-                      ref={videoLocalRef}
+                      ref={ref => (videoLocalRef.current[index] = ref)}
                       source={{ uri: previewVideo }}
                       useNativeControls
                       resizeMode="contain"
@@ -3755,6 +3765,13 @@ let abrirFondo = async() => {
   }
   */
   setOpened(false);
+  if(statusVideo.isPlaying){
+    if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+      for(let i = 0; i<videoLocalRef.current.length; i++){
+        videoLocalRef.current[i].pauseAsync();
+      }
+    }
+  } 
   let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
   
   //si el usuario ha denegado el permiso para acceder a su galeria, entonces sale una alerta
@@ -4021,10 +4038,15 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                                                     
                           if(listaActual==''){
                             setFlagHistorial(!flagHistorial);
-                          }
-                          
+                          }                         
                           console.log("VAMOS AL HISTORIAL")
-                          isMounted = false;
+                          if(statusVideo.isPlaying){
+                            if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+                              for(let i = 0; i<videoLocalRef.current.length; i++){
+                                videoLocalRef.current[i].pauseAsync();
+                              }
+                            }
+                          }                        
                           navigation.reset({
                             index: 0,
                             routes: [
@@ -4044,6 +4066,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                             singleList),
                             itemIdHistorial: JSON.parse(singleList).idlista,
                           });
+                          isMounted = false;
                         }}
                         text="Abrir Historial" />
                     </MenuOptions>
@@ -4315,7 +4338,9 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
             
 
             {component}
-            
+            <Text style={{bottom: 5, fontSize: 14}}>
+              {JSON.parse(singleList).email}
+            </Text>
             <FlatList 
               data={(list.length !== 0) ? list : listaInicial.videolista}
               extraData={flagList}
@@ -4343,11 +4368,12 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                     //pulseIconRef.current.startAnimation()                  
                     //setModalVisiblePlay(true);
                     if(statusVideo.isPlaying){
-                      if(videoLocalRef !== null && videoLocalRef.current !== null) {
-                        videoLocalRef.current.pauseAsync();
+                      if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+                        for(let i = 0; i<videoLocalRef.current.length; i++){
+                          videoLocalRef.current[i].pauseAsync();
+                        }
                       }
-                    }
-                    isMounted = false;
+                    }                   
                     navigation.reset({
                       index: 0,
                       routes: [
@@ -4363,6 +4389,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       listPlay: ((listaActual !== '') ? listaActual : singleList),
                       itemIdPlay: JSON.parse(singleList).idlista,
                     });
+                    isMounted = false;
                     }}>
                   INICIAR{'\n'}ENTRENAMIENTO
                 </Button>
@@ -5113,7 +5140,7 @@ const styles = StyleSheet.create({
     bottom: 70,
     right: 40,
     borderRadius: 5,
-    width: 100,
+    width: 140,
   },
   pickerStyle4: {
     padding: 0,

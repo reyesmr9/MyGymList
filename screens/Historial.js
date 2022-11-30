@@ -66,9 +66,6 @@ export default function Historial ({route}) {
       }
       else {
         let listH = listActualH;
-        if(modalVisibleHistorial===false){
-          isMounted = false;
-        }
         navigation.reset({
           index: 0,
           routes: [
@@ -84,6 +81,9 @@ export default function Historial ({route}) {
           singleList: ((listH.length!==0) ? listActualH : listHistorial),
           itemId: JSON.parse(listHistorial).listaid,
         });
+        if(modalVisibleHistorial===false){
+          isMounted = false;
+        }
       }
       return true;
     };
@@ -156,7 +156,7 @@ export default function Historial ({route}) {
                     index: 0,
                     routes: [
                       {
-                        name: 'HistorialEjercicio',
+                        name: 'HistorialEntrenamiento',
                         params: { ejercicioHistorial: item,
                                   ejercicioIdHistorial: JSON.parse(item).idHistorial,
                                   lista: ((listH.length!==0) ? listActualH : listHistorial)
@@ -164,7 +164,7 @@ export default function Historial ({route}) {
                       },
                     ],
                   })
-                  navigation.navigate("HistorialEjercicio", {
+                  navigation.navigate("HistorialEntrenamiento", {
                     ejercicioHistorial: item,
                     ejercicioIdHistorial: JSON.parse(item).idHistorial,
                     lista: ((listH.length!==0) ? listActualH : listHistorial)
@@ -232,9 +232,6 @@ export default function Historial ({route}) {
           onPress={() => {
             let listH = listActualH;
             console.log('VOLVEMOS A LA LISTA DESDE EL HISTORIAL')
-            if(modalVisibleHistorial === false){
-              isMounted = false;
-            }
             navigation.reset({
               index: 0,
               routes: [
@@ -250,7 +247,9 @@ export default function Historial ({route}) {
               singleList: ((listH.length!==0) ? listActualH : listHistorial),
               itemId: JSON.parse(listHistorial).listaid,
             });
-            
+            if(modalVisibleHistorial === false){
+              isMounted = false;
+            }
           }}>
             <Text>Atrás</Text>
         </Button>

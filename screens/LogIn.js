@@ -127,7 +127,7 @@ export default function LogIn () {
       }, []);
 
 
-    const guardarDatos = async() => {
+  const guardarDatos = async() => {
         /*
         var f = [''];
         f.length=0;
@@ -136,22 +136,47 @@ export default function LogIn () {
 
         await AsyncStorage.setItem("DATOS", JSON.stringify(f));
         */
-
+    if(nombre!==""){
+      if(email !=="") {
         var listaDatos = {};
         listaDatos.nombre = nombre;
-        listaDatos.email = email;
-        var jsonDatos = JSON.stringify(listaDatos);
+        if((email.includes('@'))){
+          try{
+            listaDatos.email = email;
+            var jsonDatos = JSON.stringify(listaDatos);
 
-        await AsyncStorage.setItem("DATOS", JSON.stringify(jsonDatos));
+            await AsyncStorage.setItem("DATOS", JSON.stringify(jsonDatos));
 
-        AsyncStorage.getItem("DATOS").then((datos) => {
-          setDatos(JSON.parse(datos));    //guardamos cada lista en formato string en listas
-          navigation.navigate("Modo");
-        });
+            AsyncStorage.getItem("DATOS").then((datos) => {
+              setDatos(JSON.parse(datos));    //guardamos cada lista en formato string en listas
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'Modo'
+                  },
+                ],
+              })
+              navigation.navigate("Modo");
+            });
 
-        console.log('Los datos que tenemos son: ', datos)
-
+            console.log('Los datos que tenemos son: ', datos)
+          } catch (error){
+            console.log(error)
+          }
+        }
+        else{
+          Alert.alert('Introduce un correo electrónico válido')
+        }
+      }
+      else{
+        Alert.alert('Introduce tu correo electrónico')
+      }
     }
+    else{
+      Alert.alert('Introduce tu nombre')
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -173,7 +198,7 @@ export default function LogIn () {
                 placeholder="NOMBRE"
                 value={nombre}
                 onChangeText={nombreSiguiente => setNombre(nombreSiguiente)}
-                style={styles.inputEmail}
+                style={styles.inputNombre}
                 accessoryLeft={nombreIcon}
                 multiline={false}
                 selectionColor='#000'
@@ -183,7 +208,7 @@ export default function LogIn () {
                 placeholder="CORREO ELECTRÓNICO"
                 value={email}
                 onChangeText={email => setEmail(email)}
-                style={styles.inputNombre}
+                style={styles.inputEmail}
                 accessoryLeft={emailIcon}
                 multiline={false}
                 selectionColor='#000'
@@ -233,7 +258,7 @@ const styles = StyleSheet.create({
     bottom: 130,
     color: 'black',
   },
-  inputNombre: {
+  inputEmail: {
     textAlignVertical: 'top',
     borderColor: "#4630eb",
     borderRadius: 4,
@@ -246,7 +271,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     bottom: 40,
   },
-  inputEmail: {
+  inputNombre: {
     textAlignVertical: 'top',
     borderColor: "#4630eb",
     borderRadius: 4,

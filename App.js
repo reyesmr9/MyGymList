@@ -11,7 +11,7 @@ import Lista from './screens/Lista';
 import ListaConfiguracion from './screens/ListaConfiguracion';
 import Entrenamiento from './screens/Entrenamiento';
 import Historial from './screens/Historial';
-import HistorialEjercicio from './screens/HistorialEjercicio'
+import HistorialEntrenamiento from './screens/HistorialEntrenamiento'
 
 import {StyleSheet, View, BackHandler, Image, TouchableOpacity, 
   Dimensions, Alert, Button } from 'react-native';
@@ -166,7 +166,7 @@ const BottomTabBar = ({navigation, state}) => (
             tabBarButton: () => <HideTabBar />
           })}
         />
-        <Screen name="HistorialEjercicio" component={HistorialEjercicio}
+        <Screen name="HistorialEntrenamiento" component={HistorialEntrenamiento}
           options={({navigation})=> ({
             headerShown: false, 
             tabBarStyle: { display: 'none', height: 0 }, 
@@ -226,6 +226,13 @@ const BottomTabBar = ({navigation, state}) => (
             tabBarButton: () => <HideTabBar />
           })} 
         />
+        <Screen name={"LogIn"}
+          component={LogIn} 
+          options={{
+            headerShown: false, 
+            tabBarStyle: { display: 'none', height: 0 }, 
+            tabBarButton: () => <HideTabBar />}} 
+        />
         <Screen name="Entrenamiento" component={Entrenamiento}
           options={({navigation})=> ({
             headerShown: false, 
@@ -240,7 +247,7 @@ const BottomTabBar = ({navigation, state}) => (
             tabBarButton: () => <HideTabBar />
           })}
         />
-        <Screen name="HistorialEjercicio" component={HistorialEjercicio}
+        <Screen name="HistorialEntrenamiento" component={HistorialEntrenamiento}
           options={({navigation})=> ({
             headerShown: false, 
             tabBarStyle: { display: 'none', height: 0 }, 
@@ -429,6 +436,7 @@ export default function App () {
       setLoginDatos(JSON.parse(datos));    //guardamos cada lista en formato string en listas
       setIsLoggedIn(datos);
     });
+    
     
   }
       

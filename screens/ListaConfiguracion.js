@@ -52,7 +52,7 @@ import { ListItem, Divider} from 'react-native-elements'
 import {TooltipMenu} from 'react-native-tooltip-menu';
 //import {PopoverTooltip} from 'react-native-popover-tooltip';
 //import RNPopover from 'react-native-popover-menu';
-import { Button, Icon, Text } from "@ui-kitten/components";
+import { Button, Icon, Text, Input } from "@ui-kitten/components";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { MenuProvider } from 'react-native-popup-menu';
 import {
@@ -134,7 +134,7 @@ export default function ListaConfiguracion ({route}) {
     const [list, setList] = useState([]);
     const [listaActual, setListaActual] = useState('');
     const [menuVisible, setMenuVisible] = useState(false);
-    const videoLocalRef = useRef(null);
+    const videoLocalRef = useRef([]);
     const videoLocalAddRef = useRef(null);
     let cameraRef = useRef();
     const [videoLocal, setVideoLocal] = useState(null);
@@ -174,6 +174,7 @@ export default function ListaConfiguracion ({route}) {
     const [modalVisiblePreview, setModalVisiblePreview] = useState(false);
     const [modalVisibleLocalVideo, setModalVisibleLocalVideo] = useState(false);
     const [modalVisibleTiempo, setModalVisibleTiempo] = useState(false);
+    const [modalEmail, setModalEmail] = useState(false);
     const [cameraPermission, setCameraPermission] = useState();
     const [type, setType] = useState(Camera.Constants.Type.back);
     const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
@@ -189,6 +190,7 @@ export default function ListaConfiguracion ({route}) {
     const [repeticiones, setRepeticiones] = useState("");
     const [tiempo, setTiempo] = useState("");
     const [email, setEmail] = useState("");
+    const [emailNuevo, setEmailNuevo] = useState("");
     const [tiempoRealizacion, setTiempoRealizacion] = useState("");
     const [link, setLink] = useState('');
     const [im, setIm] = useState("");
@@ -368,8 +370,10 @@ export default function ListaConfiguracion ({route}) {
       }
       else{
         if(statusVideo.isPlaying){
-          if(videoLocalRef !== null && videoLocalRef.current !== null) {
-            videoLocalRef.current.pauseAsync();
+          if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+            for(let i = 0; i<videoLocalRef.current.length; i++){
+              videoLocalRef.current[i].pauseAsync();
+            }
           }
         }
         setOpened(false);
@@ -381,6 +385,7 @@ export default function ListaConfiguracion ({route}) {
         setDatList('');
         setListaActual('');
         setTitle('');
+        setEmailNuevo("");
         setFlagEm(false);
         setItemFlag(false);
         setVideoFlag(false);
@@ -408,8 +413,7 @@ export default function ListaConfiguracion ({route}) {
           AsyncStorage.setItem("LISTAS", JSON.stringify(newListas));
         }
         */
-        //setDat(false);
-        isMounted = false;
+        //setDat(false);        
         navigation.reset({
           index: 0,
           routes: [
@@ -419,7 +423,7 @@ export default function ListaConfiguracion ({route}) {
           ],
         })
         navigation.navigate('AllLists');
-      
+        isMounted = false;
       }
       return true;
     };
@@ -751,7 +755,7 @@ export default function ListaConfiguracion ({route}) {
   
                 const nuevasListas = l.filter((lista) => lista !== singleList); 
                 const newLists = nuevasListas.filter((lista) => lista !== jsonListIni); //no hace nada
-                isMounted = false;
+                
                 await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists))
                   .then(() => {
                     navigation.reset({
@@ -764,6 +768,7 @@ export default function ListaConfiguracion ({route}) {
                     })
                     navigation.navigate("AllLists")
                   });
+                  isMounted = false;
                 console.log('NUEVASLISTAS es al final2: ', nuevasListas)
               }
               
@@ -838,7 +843,7 @@ export default function ListaConfiguracion ({route}) {
               const l = valorListas ? JSON.parse(valorListas) : [];
               const newListas = l.filter((lista) => lista !== singleList);
               const nuevasListas = newListas.filter((lista) => lista !== jsonListIni);  //creamos un nuevo array con todas las listas que no coinciden con el parametro singleList de las listas usando array.filter
-              isMounted = false;
+              
               await AsyncStorage.setItem("LISTAS", JSON.stringify(nuevasListas))  //nos quedamos solo con las listas que no coinciden con singleList
                   .then(() => {
                     navigation.reset({
@@ -851,6 +856,7 @@ export default function ListaConfiguracion ({route}) {
                     })
                     navigation.navigate("AllLists")
                   });
+                  isMounted = false;
               //setDat(true);
 
             }
@@ -1126,6 +1132,13 @@ export default function ListaConfiguracion ({route}) {
     const añadirEjercicio = async() => {
       setOpened(false);
       if(previewVideo){
+        if(statusVideo.isPlaying){
+          if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+            for(let i = 0; i<videoLocalRef.current.length; i++){
+              videoLocalRef.current[i].pauseAsync();
+            }
+          }
+        }  
         setModalVisibleLocalVideo(true);
       }
       if(youtubeVideo){       
@@ -1136,7 +1149,7 @@ export default function ListaConfiguracion ({route}) {
     const renderItem = ({ item, index }) => {
       try {
         if (item !== undefined && item !== null){
-          if(JSON.parse(item).videos.includes("file")){
+          if(JSON.parse(item).videos.includes("file") && isMounted==true){
             if(previewVideo === null){
               setFlagLocalVideoConf(true);
             }
@@ -1278,7 +1291,8 @@ export default function ListaConfiguracion ({route}) {
                                 ],
                               })
                               navigation.navigate("AllLists")
-                            });                              
+                            });     
+                            isMounted = false;                         
                           }
                           if((datList.length == 0)) {
                             let listini = '';
@@ -1335,7 +1349,7 @@ export default function ListaConfiguracion ({route}) {
               <View style={{alignItems: 'center'}}>
                 {previewVideo &&
                   <Video
-                      ref={videoLocalRef}
+                      ref={ref => (videoLocalRef.current[index] = ref)}
                       source={{ uri: previewVideo }}
                       useNativeControls
                       resizeMode="contain"
@@ -1414,21 +1428,86 @@ export default function ListaConfiguracion ({route}) {
       }
     }
 
-    const abrirTiempo = () => {
-      setModalVisibleTiempo(true);
+    const guardarEmail = async () => {
+      if (emailNuevo !== ""){
+        if((emailNuevo.includes('@'))){
+        console.log('Se ha pulsado guardar Email')
+        try{          
+          setModalEmail(false);
+          const valorListas = await AsyncStorage.getItem("LISTAS");
+          const l = valorListas ? JSON.parse(valorListas) : [];
+          
+          let listaEmail = '';
+          var lista = {};
+          if(listaActual != '' && listaActual != undefined){
+            listaEmail = JSON.parse(listaActual);
+          }
+          else{
+            listaEmail = listaInicial;
+          }        
+          lista.imagen = listaEmail.imagen;
+          lista.titulo = listaEmail.titulo;
+          lista.videolista = listaEmail.videolista;
+          lista.email = emailNuevo;
+
+          lista.idlista = listaEmail.idlista;
+          lista.fechacreacion = listaEmail.fechacreacion;
+          lista.listaRealizado = listaEmail.listaRealizado;
+          lista.imagenListaRealizado = listaEmail.imagenListaRealizado;    
+          lista.historial = listaEmail.historial;  
+          lista.fondo = listaEmail.fondo; 
+
+          var jsonLista = JSON.stringify(lista);
+
+          const newListas = l.filter((lista) => JSON.parse(lista).idlista !== JSON.parse(singleList).idlista);
+          newListas.push(jsonLista);
+
+          //convertimos el array de videos 'v' en un string usando JSON.stringify(v)
+          await AsyncStorage.setItem("LISTAS", JSON.stringify(newListas));
+
+          if(datList.length>0){
+            listaEmail.videolista = datList;
+          }
+
+          let listaVideolista = listaEmail.videolista;
+
+          setList(listaVideolista);
+          //setEmailNuevo("");
+
+          await AsyncStorage.getItem("LISTAS").then((listas) => {
+            setListas(JSON.parse(listas));  
+            setListaActual(JSON.stringify(lista));             
+            setFlagList(!flagList);            
+          });
+          
+        }
+      
+        catch(error){
+          console.log(error);
+        }
+      }
+      else {
+        Alert.alert('Introduce un correo electrónico válido')
+      }
     }
+    else {
+      Alert.alert('Introduce un correo electrónico')
+    }
+  }
 
     const guardarEjercicio = async () => {
       if ((videos !== undefined) && (videos !== null)){
         console.log('Se ha pulsado guardar Video si videos existe')
         try{
-          if(videoLocal === null){
+          if(videoLocal === null && previewVideo){
             Alert.alert("Inserta un vídeo");
+            return;
           }
-          if(statusVideoAdd.isPlaying){
-            if(videoLocalAddRef !== null && videoLocalAddRef.current !== null) {
-            videoLocalAddRef.current.pauseAsync();
-            }
+          if(link==='' && youtubeVideo){
+            if(!(link.includes('youtu.be')) || !(link.includes('youtube.com'))){
+              Alert.alert("Introduce un link válido");
+              return;
+            }          
           }
           else{
           const valorListas = await AsyncStorage.getItem("LISTAS");
@@ -1442,11 +1521,33 @@ export default function ListaConfiguracion ({route}) {
           
           const id = (Math.round(Math.random() * 1000)).toString();
           var lista = {};
-          lista.series = series + " series";
-          lista.repeticiones = repeticiones + " repeticiones";
-          lista.tiempo = tiempo + " " + listValueNumberTiempo;
+
+          if(series == "") {
+            lista.series = series;
+          }
+          else {
+            lista.series = series + " series";
+          }
+          if(repeticiones == "") {
+            lista.repeticiones = repeticiones;
+          }
+          else {
+            lista.repeticiones = repeticiones + " repeticiones";
+          }
+          if(tiempo == "") {
+            lista.tiempo = tiempo;
+          }
+          else {
+            lista.tiempo = tiempo + " " + listValueNumberTiempo;
+          }
+
           if(previewVideo){
             lista.videos = videoLocal;
+            if(statusVideoAdd.isPlaying){
+              if(videoLocalAddRef !== null && videoLocalAddRef.current !== null) {
+              videoLocalAddRef.current.pauseAsync();
+              }
+            }
           }
           if(youtubeVideo){
             lista.videos = video(link);
@@ -1518,6 +1619,7 @@ export default function ListaConfiguracion ({route}) {
       catch(error){
         console.log(error);
       }
+    
     }
   }
 
@@ -2127,6 +2229,13 @@ let abrirFondo = async() => {
   }
   */
   setOpened(false);
+  if(statusVideo.isPlaying){
+    if(videoLocalRef !== null && videoLocalRef.length !== 0) {
+      for(let i = 0; i<videoLocalRef.current.length; i++){
+        videoLocalRef.current[i].pauseAsync();
+      }
+    }
+  } 
   let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
   
   //si el usuario ha denegado el permiso para acceder a su galeria, entonces sale una alerta
@@ -2229,6 +2338,11 @@ let añadirFondo = async() => {
     setFlagList(!flagList);                 
   });
 }
+
+let modificarEmail = async() => {
+  setOpened(false);
+  setModalEmail(true);
+};
 
 try {
   if(dateVisible === true) {
@@ -2368,7 +2482,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                     style={{height: 35, width: 35}}>
                     <Entypo name="dots-three-vertical" size={24} color="black" />
                   </MenuTrigger>
-                    <MenuOptions optionsContainerStyle={{width:200,height:80}}>
+                    <MenuOptions optionsContainerStyle={{width:200,height:110}}>
                       <MenuOption value={1} 
                         style={{marginLeft: 10, marginTop: 3}}
                         onSelect={() => añadirEjercicio()}
@@ -2377,6 +2491,10 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                         style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => abrirFondo()}
                         text="Añadir fondo de pantalla" />
+                      <MenuOption value={3}
+                        style={{marginLeft: 10, marginTop: 0}}
+                        onSelect={() => modificarEmail()}
+                        text="Modificar correo electrónico de la lista" />
                     </MenuOptions>
               </Menu>
             </View>           
@@ -2387,31 +2505,72 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                   animationType='fade' 
                   transparent={true}>
                   <View style={styles.modalStyle}>
-                    <Text style={styles.titleVideo}>Añadir ejercicio</Text>                 
-                    <TextInput
-                      placeholder="Series"
-                      value={series}
-                      onChangeText={setSeries}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <TextInput
-                      placeholder="Repeticiones"
-                      value={repeticiones}
-                      onChangeText={setRepeticiones}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
-                    <TextInput
-                      placeholder="Tiempo"
-                      value={tiempo}
-                      onChangeText={setTiempo}
-                      style={styles.input2}
-                      multiline={true}
-                      selectionColor='#515759'
-                    /> 
+                  <Text style={styles.titleVideo}>Añadir ejercicio</Text>                 
+                    <View style={{ flexDirection: 'row', right: 22}}>
+                    <View>
+                      <TextInput
+                        placeholder="Series"
+                        value={series}
+                        onChangeText={setSeries}
+                        style={styles.input2}
+                        multiline={true}
+                        selectionColor='#515759'
+                        returnKeyType="done"
+                        keyboardType='number-pad'
+                      />
+                    </View>
+                    <View>
+                      <Text style={{marginLeft: 20, top: 10, fontSize: 17}}>series</Text>
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: 'row', left: 1}}>
+                    <View>
+                      <TextInput
+                        placeholder="Repeticiones"
+                        value={repeticiones}
+                        onChangeText={setRepeticiones}
+                        style={styles.input2}
+                        multiline={true}
+                        selectionColor='#515759'
+                        returnKeyType="done"
+                        keyboardType='number-pad'
+                      /> 
+                    </View>
+                    <View>
+                      <Text style={{marginLeft: 20, top: 10, fontSize: 17}}>repeticiones</Text>
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: 'row'}}>
+                    <View>
+                      <TextInput
+                        placeholder="Tiempo"
+                        value={tiempo}
+                        onChangeText={setTiempo}
+                        style={styles.input2}
+                        multiline={true}
+                        selectionColor='#515759'
+                        returnKeyType="done"
+                        keyboardType='number-pad'
+                      />
+                    </View>
+                    <View style={styles.pickerStyle5}>
+                      <DropDownPicker
+                        placeholder='tiempo'
+                        open={openListTiempo}
+                        value={valuelistTiempo}
+                        items={numerosTiempo}
+                        setOpen={setOpenListTiempo}
+                        setValue={setvaluelistTiempo}
+                        setItems={setNumerosTiempo}
+                        onChangeValue={(value) => {
+                          setListValueNumberTiempo(value);
+                        }}
+                        theme="DARK"
+                        mode="BADGE"
+                        badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                      />
+                    </View>
+                    </View>
                     <View style={{ flexDirection: 'row' }}>
                       <View>
                         <TextInput
@@ -2432,16 +2591,20 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       </View>
                     </View>                                                
                   </View>
-                  <Button onPress={guardarEjercicio} 
-                  style={styles.botonGuardarEjercicio}>
-                    <Text>Guardar</Text>
-                  </Button>      
-                  <Button onPress={() => {
-                    setModalVisibleVideo(false);
-                  }} 
-                  style={styles.botonCancelarEjercicio}>
-                    <Text>Cancelar</Text>
-                  </Button>         
+                  <View style={{ alignItems: 'center', justifyContent: 'center', top: 30 }}>
+                    <Button onPress={guardarEjercicio} 
+                    style={styles.botonGuardarEjercicio}>
+                      <Text>Guardar</Text>
+                    </Button> 
+                  </View>
+                  <View style={{ alignItems: 'center', justifyContent: 'center', top: 30 }}>     
+                    <Button onPress={() => {
+                      setModalVisibleVideo(false);
+                    }} 
+                    style={styles.botonCancelarEjercicio}>
+                      <Text>Cancelar</Text>
+                    </Button>
+                  </View>       
                 </Modal>
 
                 <Modal
@@ -2561,12 +2724,48 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                     style={styles.botonCancelarEjercicio}>
                       <Text>Cancelar</Text>
                     </Button>
+                  </View>   
+                </Modal>
 
+                <Modal
+                  visible={modalEmail} 
+                  animationType='fade' 
+                  transparent={true}>
+                  <View style={styles.modalStyleEmail}>
+                    <Text style={styles.titleEmail}>Modificar correo electrónico</Text>                 
+                    <View>
+                      <Input
+                        placeholder="Introduce un correo electrónico"
+                        value={emailNuevo}
+                        onChangeText={setEmailNuevo}
+                        style={styles.input4}
+                        multiline={true}
+                        selectionColor='#515759'
+                        returnKeyType="done"
+                      />
+                    </View>
+                  <View style={{ alignItems: 'center', justifyContent: 'center', top: 30 }}>
+                    <Button onPress={guardarEmail} 
+                    style={styles.botonGuardarEmail}>
+                      <Text>Guardar</Text>
+                    </Button> 
+                  </View>
+                  <View style={{ alignItems: 'center', justifyContent: 'center', top: 30 }}>     
+                    <Button onPress={() => {
+                      setModalEmail(false);
+                      setEmailNuevo("");
+                    }} 
+                    style={styles.botonCancelarEmail}>
+                      <Text>Cancelar</Text>
+                    </Button>
+                  </View>
                   </View>   
                 </Modal>
 
             {component}
-            
+            <Text style={{bottom: 5, fontSize: 14}}>
+              {(emailNuevo !== "") ? emailNuevo : JSON.parse(singleList).email}
+            </Text>
             <FlatList 
               data={list ? list : listaInicial.videolista}
               extraData={flagList}
@@ -2929,6 +3128,27 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     bottom: 140,
   },
+  botonGuardarEmail: {
+    backgroundColor: '#2d65c4',
+    borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#2a5db5',
+    borderRadius: 400/2,
+    height: 45,
+    width: 100,
+    marginBottom: 10,
+    top: 60,
+  },
+  botonCancelarEmail: {
+    backgroundColor: '#d1453d',
+    borderRadius: 400/2,
+    borderWidth: 1,
+    borderColor: '#bd3c35',
+    height: 45,
+    width: 100,
+    marginBottom: 30,
+    top: 60,
+  },
   button11: {
     //backgroundColor: '#1B4B95',
     position: 'absolute',
@@ -3016,10 +3236,17 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 18,
   },
+  titleEmail: {
+    textAlign: 'center',
+    bottom: 50,
+    color: 'black',
+    fontSize: 18,
+  },
   imagen: {
-    height: 52,
-    width: 52,
+    height: 55,
+    width: 55,
     borderRadius: 400/2,
+    marginBottom: 15,
   },
   imagen2: {
     position: 'absolute',
@@ -3180,6 +3407,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#79aad1',
   },
+  modalStyleEmail: {
+    borderColor: '#949699',
+    borderWidth: 1,
+    borderRadius: 9,
+    width: width-30,
+    height: Dimensions.get("window").height-360,
+    marginLeft: 15,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginTop: 170,
+    backgroundColor: '#95bddb',
+  },
   input2: {
     textAlignVertical: 'top',
     borderColor: "#4630eb",
@@ -3207,15 +3446,16 @@ const styles = StyleSheet.create({
   },
   input4: {
     textAlignVertical: 'top',
-    borderColor: "#4630eb",
-    color: '#111111',
+    borderColor: "#2D1F87",
     borderRadius: 4,
     borderWidth: 1,
-    height: 40,
+    height: 70,
     padding: 10,
-    margin: 3,
-    fontSize: 16,
-    width: width - 300,
+    fontSize: 15,
+    marginTop: 5,
+    top: 20,
+    marginBottom: 8,
+    width: width - 100,
   },
   pickerStyle3: {
     padding: 0,

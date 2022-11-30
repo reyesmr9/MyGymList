@@ -249,7 +249,7 @@ export default function AllLists () {
       console.log('AppState', appState.current);
     };
 */
-    const getListas = () => {
+    const getListas = async () => {
         /*
         var f = [''];
         f.length=0;
@@ -266,6 +266,18 @@ export default function AllLists () {
         AsyncStorage.getItem("LISTAS").then((listas) => {
           setListas(JSON.parse(listas));    //guardamos cada lista en formato string en listas
         });
+
+        if(selectedImage==null){
+          /*
+          const valorFondo = await AsyncStorage.getItem("FONDO");
+          const fondoAllLists = valorFondo ? JSON.parse(valorFondo) : [];
+          if(fondoAllLists.length!==0){
+            setSelectedImage ({localUri: (fondoAllLists.valor)});
+            console.log('FONDO ES: ', fondoAllLists.valor)
+          }
+          */
+        }
+
         console.log('las LISTAS que tenemos son: ', listas)
     }
 
@@ -291,7 +303,7 @@ export default function AllLists () {
     }
 */
 
-    const openMailClientIOS = () => {
+    const openMailClientIOS = async() => {
       Linking.canOpenURL('message:0')
         .then(supported => {
           if (!supported) {
@@ -305,7 +317,7 @@ export default function AllLists () {
     }
 
   
-    const openMailClientAndroid = () => {
+    const openMailClientAndroid = async() => {
       
       const activityAction = 'android.intent.action.MAIN'; // Intent.ACTION_MAIN   
       //const activityAction = 'android.intent.action.VIEW';  // solo cuando usamos packageName, para acceder a los archivos y a más aplicaciones
@@ -325,7 +337,9 @@ export default function AllLists () {
       */
       
       IntentLauncher.startActivityAsync(activityAction, intentParams)
-        .catch(this.handleOpenMailClientErrors);
+        .catch((error) => {
+          console.log('Ha habido un error al volver a la app desde gmail')
+        });
       
     /*
             .then(resultCode => {
@@ -348,18 +362,17 @@ export default function AllLists () {
       */
     }
 
-    const abrirEmail = () =>
-    Alert.alert(
-      "",
-      "Escoja el dispositivo", [
-        {
-          text: 'Android',
-          onPress: openMailClientAndroid,
-        },
-        {text: "IOS         ", onPress: openMailClientIOS},
-        {text: "Cancelar", onPress: () => {return;}, style: 'cancel'}
-      ]
-    );
+    const abrirEmail = () => {
+      if(Platform.OS === "ios"){
+        openMailClientIOS();
+      }
+      if(Platform.OS === "android"){
+        openMailClientAndroid();
+      }
+      else{
+        return;
+      }
+    };
 
     const abrirYoutube = async() => {
       
@@ -434,6 +447,26 @@ export default function AllLists () {
       }
     }
 
+    let cambiarEmail = async() => {
+      setOpened(false);
+      Alert.alert('', '¿Seguro que quieres cambiar el correo electrónico?', [
+        {
+          text: 'Cancelar',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        { text: 'Sí', onPress: async() => {
+          var f = [''];
+          f.length=0;   
+          //convertimos el array de listas 'l' en un string usando JSON.stringify(l) y lo pasamos a AllLists.js
+          await AsyncStorage.setItem("DATOS", JSON.stringify(f));
+          navigation.navigate('LogIn');
+          isMounted = false;
+        }},
+      ]);
+      
+    };
+
 
     const renderItem = ({ item, index }) => {
       try {
@@ -453,7 +486,7 @@ export default function AllLists () {
                   const valorModo = await AsyncStorage.getItem("MODO");
                   const m = valorModo ? JSON.parse(valorModo) : [];
                   console.log('MODO es: ', m)
-                  isMounted = false;
+                  
                   try{
                     if (JSON.parse(m).tipo === "Entrenamiento"){
                       navigation.reset({
@@ -494,6 +527,7 @@ export default function AllLists () {
                   else {
                     return;
                   }
+                  isMounted = false;
                   } catch(error){
                     console.log(error)
                   }
@@ -608,7 +642,7 @@ export default function AllLists () {
         }
       }
       catch(error){
-        console.log("No se ha importado la lista");
+        console.log("No se ha importado la lista: ", error);
         return;
       }
     }
@@ -701,6 +735,14 @@ export default function AllLists () {
       }
       
       setSelectedImage ({localUri: pickerResult.uri});  //de esta forma, estaria actualizado el estado
+      var listaFondo = {};
+        listaFondo.valor = pickerResult.uri;
+      var jsonDatos = JSON.stringify(listaFondo);
+      await AsyncStorage.setItem("FONDO", jsonDatos);
+      AsyncStorage.getItem("FONDO").then(() => {
+        console.log('FONDO ES AL INICIO: ', jsonDatos)
+      });
+      //console.log('FONDO ES AL INICIO: ', jsonDatos)
       //setFlag(true);
       
     };
@@ -1073,7 +1115,7 @@ export default function AllLists () {
                     style={styles.button11}>
                     <MaterialIcons name="menu" size={30} color="black" />
                   </MenuTrigger>
-                    <MenuOptions optionsContainerStyle={{width:200,height:70}}>
+                    <MenuOptions optionsContainerStyle={{width:200,height:100}}>
                       <MenuOption value={1}
                         style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => abrirFondo()}
@@ -1082,6 +1124,10 @@ export default function AllLists () {
                         style={{marginLeft: 10, marginTop: 3}}
                         onSelect={() => eliminarListas()}
                         text="Eliminar listas"/>
+                      <MenuOption value={3}
+                        style={{marginLeft: 10, marginTop: 0}}
+                        onSelect={() => cambiarEmail()}
+                        text="Cambiar correo electrónico" />
                     </MenuOptions>
               </Menu>
           </View>
@@ -1094,7 +1140,7 @@ export default function AllLists () {
             <View style={styles.modalStyle}>
             <View style={{flexDirection: 'column'}}>
                 <View>
-                  <Text style={{fontSize: 16}}>Eliminar elementos creados hace más de: </Text>
+                  <Text style={{fontSize: 16}}>Eliminar listas creadas hace más de: </Text>
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
                   <View style={styles.pickerStyle3}>
@@ -1496,7 +1542,7 @@ const styles = StyleSheet.create({
     marginTop: 82,
     right: 0,
     borderRadius: 5,
-    width: 100,
+    width: 140,
   },
   pickerStyle4: {
     padding: 0,

@@ -63,6 +63,14 @@ export default function Modo () {
       }
       else {
         isMounted = false;
+        Alert.alert('', '¿Seguro que quieres salir de la app?', [
+          {
+            text: 'Cancelar',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          { text: 'Sí', onPress: () => {BackHandler.exitApp()}},
+        ]);
         //navigation.navigate('Modo');
       }
       return true;
