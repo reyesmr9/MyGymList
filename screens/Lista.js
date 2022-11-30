@@ -1640,6 +1640,8 @@ export default function Lista ({route}) {
 
     const añadirRecordatorio = () => {
       setOpened(false);
+      setEdit(false);
+      setFlagEdit(false);
       if(statusVideo.isPlaying){
         if(videoLocalRef !== null && videoLocalRef.length !== 0) {
           for(let i = 0; i<videoLocalRef.current.length; i++){
@@ -1661,7 +1663,7 @@ export default function Lista ({route}) {
             style:"cancel"
             },
             {text: 'Sí', onPress: async() => {
-              await Notifications.cancelAllScheduledNotificationsAsync();
+              await Notifications.cancelScheduledNotificationAsync(listaInicial.idlista);
             }
             }
       ])
@@ -3765,6 +3767,7 @@ let abrirFondo = async() => {
   }
   */
   setOpened(false);
+  setEdit(false);
   if(statusVideo.isPlaying){
     if(videoLocalRef !== null && videoLocalRef.length !== 0) {
       for(let i = 0; i<videoLocalRef.current.length; i++){
@@ -4035,7 +4038,8 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                         style={{marginLeft: 10, marginTop: 0}}
                         onSelect={() => {
                           setOpened(false);
-                                                    
+                          setEdit(false);       
+                          setFlagEdit(false);                   
                           if(listaActual==''){
                             setFlagHistorial(!flagHistorial);
                           }                         
@@ -4224,6 +4228,16 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                           minutosml = horaml-(30*60000);
                           segundos = ((hora*3600) + (minutosml/1000));
                         } 
+                        if(listValueNumber==60){
+                          if(hora == 0){
+                            hora = 23;
+                          }
+                          else {
+                            hora = tiempo.getHours() - 1;
+                          }
+                          minutosml = tiempo.getMinutes()*60000;
+                          segundos = ((hora*3600) + (minutosml/1000));                        
+                        } 
 
                         minutos = minutosml/(60000);
 
@@ -4278,7 +4292,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       });                    
 
                       await Notifications.scheduleNotificationAsync({
-                        identifier: "myidentifer",
+                        identifier: listaInicial.idlista,
                         content: {
                           title: tituloList,
                           body: 'Entra en My GymList y haz tu rutina de ejercicios a las ' + horasElegido + ':' + minutosElegido,
@@ -4295,7 +4309,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                     
                     else {
                       await Notifications.scheduleNotificationAsync({
-                        identifier: "myidentifer",
+                        identifier: listaInicial.idlista,
                         content: {
                           title: tituloList,
                           body: 'Entra en My GymList y haz tu rutina de ejercicios a las ' + horasElegido + ':' + minutosElegido,
@@ -4367,6 +4381,8 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                   onPress={() => {
                     //pulseIconRef.current.startAnimation()                  
                     //setModalVisiblePlay(true);
+                    setEdit(false);
+                    setFlagEdit(false);
                     if(statusVideo.isPlaying){
                       if(videoLocalRef !== null && videoLocalRef.length !== 0) {
                         for(let i = 0; i<videoLocalRef.current.length; i++){

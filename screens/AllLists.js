@@ -1067,6 +1067,32 @@ export default function AllLists () {
       }
     
 */
+const mesFecha = (lista) => {
+  var mes = new Date().getMonth() + 1; //Para obtener el mes actual
+
+  let diaLista = (JSON.parse(lista).fechacreacion).split('-')[0];
+  let mesLista = (JSON.parse(lista).fechacreacion).split('-')[1];
+  let añoLista = (JSON.parse(lista).fechacreacion).split('-')[2];
+
+  var fechaLista = new Date(añoLista, mesLista, diaLista);
+
+  var diaIndicado = (JSON.parse(lista).fechacreacion).split('-')[0];
+  var mesIndicado = mes-listValueNumber;
+  var añoIndicado = (JSON.parse(lista).fechacreacion).split('-')[2];
+  var fechaIndicada = new Date(añoIndicado, mesIndicado, diaIndicado);
+
+  console.log(fechaLista >= fechaIndicada)
+  if((mes-listValueNumber) >= 0){
+    if((mesLista >= (mes-listValueNumber)) && (fechaLista >= fechaIndicada)){
+      console.log('la lista se quedaaaaaa')
+      return lista;
+    }
+  }
+  else{
+    return;
+  }
+
+}
 
 
     const menuLista = (item) => {
@@ -1173,12 +1199,35 @@ export default function AllLists () {
             <Button onPress = { async() => {
               var dia = new Date().getDate();
               var mes = new Date().getMonth() + 1; //Para obtener el mes actual
+              var año = new Date().getFullYear();
  
               const valorListas = await AsyncStorage.getItem("LISTAS");
-              const l = valorListas ? JSON.parse(valorListas) : [];             
+              const l = valorListas ? JSON.parse(valorListas) : [];   
 
-              const listMonth = l.filter((lista) => ((JSON.parse(lista).fechacreacion.split('-')[1]) >= 
-                (mes-listValueNumber)));  
+              let diaFechaCreacion = '';
+              let mesFechaCreacion = '';
+              /*
+              for(let i = 0; i<l.length; i++){
+                if(((JSON.parse(l[i]).fechacreacion).split('-')[0] !== ('10' || '20' || '30')) && 
+                  ((JSON.parse(l[i]).fechacreacion).split('-')[0].includes('0'))){
+                    diaFechaCreacion = ((JSON.parse(l[i]).fechacreacion).split('-')[0]).substring(1);
+                }
+                else {
+                  diaFechaCreacion = (JSON.parse(l[i]).fechacreacion).split('-')[0];
+                }
+
+                if(((JSON.parse(l[i]).fechacreacion).split('-')[1] !== '10') && 
+                  ((JSON.parse(l[i]).fechacreacion).split('-')[1].includes('0'))){
+                    mesFechaCreacion = ((JSON.parse(l[i]).fechacreacion).split('-')[1]).substring(1);
+                }
+                else {
+                  mesFechaCreacion = (JSON.parse(l[i]).fechacreacion).split('-')[1];
+                }
+
+              }
+              */
+
+              const listMonth = l.filter((lista) => (mesFecha(lista)));  
               await AsyncStorage.setItem("LISTAS", JSON.stringify(listMonth))
 
               await AsyncStorage.getItem("LISTAS").then((listas) => {       

@@ -128,11 +128,15 @@ export default function Entrenamiento ({route}) {
               });
               return 0;
             }
-            return minutes + 1;
+            else {
+              return minutes + 1;
+            }
           });
           return 0;
         }
-        return prevState + 1;
+        else {
+          return prevState + 1;
+        }
       });      
     }
 
@@ -155,54 +159,19 @@ export default function Entrenamiento ({route}) {
           }
         }
         */
-        
-        let listaf = listT;     
-        listaf.length=0;
-        setListT(listaf);
-        setFlagTiempo(false);
-        setFlagTiempoGuardar(false);
-        setFlagTiempoPress(false);
-        setFlagSaveTime(false);
-        setFlagOneVideo(false);
-        setFlagButton(false);
-        setFlagButtonGuardar(false);
-        setFlagTiempoInicial(false);
-        setFlagFinal(false);
-        previewVideoPlay=null;
-        youtubeVideoPlay=null;
-        videoGuardar=false;
-        videoSiguiente=false;
-        setCurrentSectionIndex(0);
-        
-        if(customInterval){
-          clearInterval(customInterval);
-          setSeconds(0);
-          setMinutes(0);
-          setHours(0);
-        }
-              
-        const varray = [];
-        var f=varray;
-        varray.length=0;
-
-        AsyncStorage.setItem("TIEMPO", JSON.stringify(f));
-        
-        navigation.reset({
-          index: 0,
-          routes: [
+        Alert.alert('',
+        "¿Estás seguro de cancelar el entrenamiento?", [
             {
-              name: 'Lista',
-              params: { singleList: listPlay,
-                        itemId: JSON.parse(listPlay).listaid,
-                      },
+            text: 'No',
+            onPress: () => null,
+            style:"cancel"
             },
-          ],
-        })
-        navigation.navigate("Lista", {
-          singleList: ((listaActualT !== '') ? listaActualT : listPlay),
-          itemId: JSON.parse(listPlay).listaid,
-        });
-        isMounted = false;
+            {text: "Sí", onPress: () => {
+              cancelarEntrenamiento();
+            }}
+        ]
+        );
+
       }
       return true;
     };
@@ -938,8 +907,8 @@ export default function Entrenamiento ({route}) {
           //const ti = await AsyncStorage.getItem("TIEMPO");
           //const td = ti ? JSON.parse(ti) : [];
           //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videopress: ')
-          console.log('El tiempo de realización FINAL del video anterior es videopress: ', 
+          console.log('Funciona hasta abrirVideo1 tiempoejerciciosrealizados: ')
+          console.log('El tiempo de realización FINAL del video anterior es tiempoejerciciosrealizados: ', 
             listaTiempo.tiempoRealizacion)
           console.log('La lista de tiempos es videopress: ', t)
           setFlagButton(false);
@@ -950,7 +919,6 @@ export default function Entrenamiento ({route}) {
       }
 
       else {
-
         if(tiempoInicio !== ""){
           let listArray = t;
           let listVideo = '';
@@ -962,12 +930,13 @@ export default function Entrenamiento ({route}) {
               let horasInicial = (tiempoEjInicial.split(":")[0]) * 3600;
               let minutosInicial = tiempoEjInicial.split(":")[1] * 60;
               console.log('minutosInicial en segundos es: ', minutosInicial)
-              let segundosInicial = tiempoEjInicial.split(":")[2];
+              let segundosInicial = tiempoEjInicial.split(":")[2] * 1;
 
               let segundosTotalActual = (hours * 3600) + (minutes * 60) + seconds;
               let segundosTotalInicial = horasInicial + minutosInicial + segundosInicial;
-                  
-              let segundosRealizacionTotal = segundosTotalActual - segundosTotalInicial;
+              //console.log('segundosTotalActual es: ', segundosTotalActual)
+              console.log('segundosTotalInicial es: ', segundosTotalInicial)
+              let segundosRealizacionTotal = Math.abs(segundosTotalActual - segundosTotalInicial);
               /*
               let horasRealizacion = Math.round(segundosRealizacionTotal/3600);
               let minutosRealizacion = segundosRealizacionTotal % 3600;
@@ -989,10 +958,17 @@ export default function Entrenamiento ({route}) {
               videoArray = JSON.parse(listaInicialT.videolista[i]);
 
               let horasRealizacion = Math.round(segundosRealizacionTotal/60/60);
-              let segundosRhoras = segundosRealizacionTotal - (horasRealizacion * 60 * 60);
-              let minutosRealizacion = Math.round(segundosRhoras/60);
-              let segundosRminutos = segundosRhoras - (minutosRealizacion * 60);
-              //let segundosDescanso = Math.round(segundosDescansoTotal % 60);
+              let minutosparaRealizacion = Math.round(segundosRealizacionTotal/60);
+              let minutosRealizacion = Math.round(minutosparaRealizacion % 60);
+              let segundosRminutos = Math.round(segundosRealizacionTotal % 60);
+
+
+              
+              //let horasRealizacion = Math.round(segundosRealizacionTotal/60/60);
+              //let segundosRhoras = segundosRealizacionTotal - (horasRealizacion * 60 * 60);
+              //let minutosRealizacion = Math.round(segundosRhoras/60);
+              //let segundosRminutos = segundosRhoras - (minutosRealizacion * 60);
+              //let segundosDescanso = Math.round(segundosDescansoTotal % 60); (no por ahora)
 
               if(horasRealizacion < 10){
                 horasRealizacion = "0" + horasRealizacion;
@@ -1042,7 +1018,7 @@ export default function Entrenamiento ({route}) {
 
         if(videoArray !== ''){
           //listFilterVideos.push(JSON.stringify(listVideo));
-          newTiempo1 = t.filter((lista) => lista !== videoArray);
+          newTiempo1 = t.filter((lista) => (JSON.parse(lista).id !== videoArray.id));
           //t.push(JSON.stringify(listVideo))
         }
 
@@ -1061,8 +1037,8 @@ export default function Entrenamiento ({route}) {
           //const ti = await AsyncStorage.getItem("TIEMPO");
           //const td = ti ? JSON.parse(ti) : [];
           //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videopress: ')
-          console.log('El tiempo de realización FINAL del video anterior es videopress: ', 
+          console.log('Funciona hasta abrirVideo1 tiempoejerciciosrealizados2: ')
+          console.log('El tiempo de realización FINAL del video anterior es tiempoejerciciosrealizados2: ', 
             listaTiempo.tiempoRealizacion)
           console.log('La lista de tiempos es videopress: ', t)
           setFlagButton(false);
@@ -1285,8 +1261,8 @@ export default function Entrenamiento ({route}) {
           //const ti = await AsyncStorage.getItem("TIEMPO");
           //const td = ti ? JSON.parse(ti) : [];
           //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videopress: ')
-          console.log('El tiempo de realización FINAL del video anterior es videopress: ', 
+          console.log('Funciona hasta abrirVideo1 videorealizado: ')
+          console.log('El tiempo de realización FINAL del video anterior es videorealizado: ', 
             listaTiempo.tiempoRealizacion)
           console.log('La lista de tiempos es videopress: ', t)
           setFlagButton(false);
@@ -1308,15 +1284,16 @@ export default function Entrenamiento ({route}) {
             if((JSON.parse(item).id) == (JSON.parse(listaInicialT.videolista[i]).id)){
               numVideo = i;
               let tiempoEjInicial = tiempoInicio;
+              
               let horasInicial = (tiempoEjInicial.split(":")[0]) * 3600;
               let minutosInicial = tiempoEjInicial.split(":")[1] * 60;
               console.log('minutosInicial en segundos es: ', minutosInicial)
-              let segundosInicial = tiempoEjInicial.split(":")[2];
+              let segundosInicial = tiempoEjInicial.split(":")[2] * 1;
 
               let segundosTotalActual = (hours * 3600) + (minutes * 60) + seconds;
               let segundosTotalInicial = horasInicial + minutosInicial + segundosInicial;
                   
-              let segundosRealizacionTotal = segundosTotalActual - segundosTotalInicial;
+              let segundosRealizacionTotal = Math.abs(segundosTotalActual - segundosTotalInicial);
               /*
               let horasRealizacion = Math.round(segundosRealizacionTotal/3600);
               let minutosRealizacion = segundosRealizacionTotal % 3600;
@@ -1332,14 +1309,24 @@ export default function Entrenamiento ({route}) {
                 segundosRealizacion = "0" + segundosRealizacion;
               }
               */
-
+              console.log('tiempo INICIO es: ', tiempoInicio)
+              console.log('segundosTotalActual es: ', segundosTotalActual)
+              console.log('segundosTotalInicial es: ', segundosTotalInicial) //error
+              console.log('segundos realizacion total es: ', segundosRealizacionTotal)
               listVideo = JSON.parse(listaInicialT.videolista[i]);
               videoArray = JSON.parse(listaInicialT.videolista[i]);
 
               let horasRealizacion = Math.round(segundosRealizacionTotal/60/60);
-              let segundosRhoras = segundosRealizacionTotal - (horasRealizacion * 60 * 60);
-              let minutosRealizacion = Math.round(segundosRhoras/60);
-              let segundosRminutos = segundosRhoras - (minutosRealizacion * 60);
+              let minutosparaRealizacion = Math.round(segundosRealizacionTotal/60);
+              let minutosRealizacion = Math.round(minutosparaRealizacion % 60);
+              let segundosRminutos = Math.round(segundosRealizacionTotal % 60);
+
+              //let horasRealizacion = Math.round(segundosRealizacionTotal/60/60);
+              //let segundosRhoras = segundosRealizacionTotal - (horasRealizacion * 60 * 60);
+              //let minutosRealizacion = Math.round(segundosRhoras/60);
+              //let segundosRminutos = segundosRhoras - (minutosRealizacion * 60);
+
+
               //let segundosDescanso = Math.round(segundosDescansoTotal % 60);
 
               if(horasRealizacion < 10){
@@ -1409,8 +1396,8 @@ export default function Entrenamiento ({route}) {
           //const ti = await AsyncStorage.getItem("TIEMPO");
           //const td = ti ? JSON.parse(ti) : [];
           //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videopress: ')
-          console.log('El tiempo de realización FINAL del video anterior es videopress: ', 
+          console.log('Funciona hasta abrirVideo1 videorealizado2: ')
+          console.log('El tiempo de realización FINAL del video anterior es videorealizado2: ', 
             listaTiempo.tiempoRealizacion)
           console.log('La lista de tiempos es videopress: ', t)
           setFlagButton(false);
@@ -1486,18 +1473,30 @@ export default function Entrenamiento ({route}) {
                 let horasFinal = (tiempoEjFinal.split(":")[0]) * 3600;
                 let minutosFinal = (tiempoEjFinal.split(":")[1]) * 60;
                 console.log('minutosFinal es: ', minutosFinal)
-                let segundosFinal = tiempoEjFinal.split(":")[2];
+                let segundosFinal = tiempoEjFinal.split(":")[2] * 1;
 
                 let segundosTotalActual = (hours * 3600) + (minutes * 60) + seconds;
                 let segundosTotalFinal = horasFinal + minutosFinal + segundosFinal;
-                
-                let segundosDescansoTotal = segundosTotalActual - segundosTotalFinal;
+                //console.log('segundosTotalActualDescanso es: ', segundosTotalActual)
+                console.log('segundosTotalFinal es: ', segundosTotalFinal)
+                let segundosDescansoTotal = Math.abs(segundosTotalActual - segundosTotalFinal);
 
                 let horasDescanso = Math.round(segundosDescansoTotal/60/60);
-                let segundosDhoras = segundosDescansoTotal - (horasDescanso * 60 * 60);
-                let minutosDescanso = Math.round(segundosDhoras/60);
-                let segundosDminutos = segundosDhoras - (minutosDescanso * 60);
-                //let segundosDescanso = Math.round(segundosDescansoTotal % 60);
+                let minutosparaDescanso = Math.round(segundosDescansoTotal/60);
+                let minutosDescanso = Math.round(minutosparaDescanso % 60);
+                let segundosDminutos = Math.round(segundosDescansoTotal % 60);
+
+                //('El tiempo de descanso TOTAL es1: ', segundosDescansoTotal)
+                /*
+                ('LAS HORAS de descanso TOTAL es: ', horasDescanso)
+                ('LOS MINUTOS de descanso TOTAL es: ', minutosDescanso)
+                ('LOS SEGUNDOS de descanso TOTAL es: ', segundosDminutos)
+                */
+                //let segundosDhoras = segundosDescansoTotal - (horasDescanso * 60 * 60);
+                //let minutosDescanso = Math.round(segundosDhoras/60);
+                //let segundosDminutos = segundosDhoras - (minutosDescanso * 60);
+
+                //let segundosDescanso = Math.round(segundosDescansoTotal % 60); (no por ahora)
 
                 videoArray = listArray[i-1];
                 listVideo = JSON.parse(listArray[i-1]);
@@ -1525,12 +1524,12 @@ export default function Entrenamiento ({route}) {
                 let horasFinal = (tiempoEjFinal.split(":")[0]) * 3600;
                 let minutosFinal = tiempoEjFinal.split(":")[1] * 60;
                 console.log('minutosFinal es: ', minutosFinal)
-                let segundosFinal = tiempoEjFinal.split(":")[2];
+                let segundosFinal = tiempoEjFinal.split(":")[2] * 1;
 
                 let segundosTotalActual = (hours * 3600) + (minutes * 60) + seconds;
                 let segundosTotalFinal = horasFinal + minutosFinal + segundosFinal;
                 
-                let segundosDescansoTotal = segundosTotalActual - segundosTotalFinal;
+                let segundosDescansoTotal = Math.abs(segundosTotalActual - segundosTotalFinal);
                 /*
                 let horasDescanso = Math.round(segundosDescansoTotal/3600);
                 let minutosDescanso = Math.round(segundosDescansoTotal % 3600);
@@ -1550,11 +1549,28 @@ export default function Entrenamiento ({route}) {
                 }
                 listVideo.tiempoDescanso = horasDescanso + ":" + minutosDescanso + ":" + segundosDescanso;
                 */
+
                 let horasDescanso = Math.round(segundosDescansoTotal/60/60);
-                let segundosDhoras = segundosDescansoTotal - (horasDescanso * 60 * 60);
-                let minutosDescanso = Math.round(segundosDhoras/60);
-                let segundosDminutos = segundosDhoras - (minutosDescanso * 60);
-                //let segundosDescanso = Math.round(segundosDescansoTotal % 60);
+                let minutosparaDescanso = Math.round(segundosDescansoTotal/60);
+                let minutosDescanso = Math.round(minutosparaDescanso % 60);
+                let segundosDminutos = Math.round(segundosDescansoTotal % 60);
+                
+                ('El tiempo de descanso TOTAL es2: ', segundosDescansoTotal)
+
+                /*
+                ('LAS HORAS de descanso TOTAL es: ', horasDescanso)
+                ('LOS MINUTOS de descanso TOTAL es: ', minutosDescanso)
+                ('LOS SEGUNDOS de descanso TOTAL es: ', segundosDminutos)
+                */
+
+                //let horasDescanso = Math.round(segundosDescansoTotal/60/60);
+                //let segundosDhoras = segundosDescansoTotal - (horasDescanso * 60 * 60);
+                //let minutosDescanso = Math.round(segundosDhoras/60);
+                //let segundosDminutos = segundosDhoras - (minutosDescanso * 60);
+
+
+
+                //let segundosDescanso = Math.round(segundosDescansoTotal % 60); (no por ahora)
 
                 videoArray = listArray[i-1];
                 listVideo = JSON.parse(listArray[i-1]);
