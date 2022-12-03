@@ -48,7 +48,6 @@ import * as Permissions from 'expo-permissions';
 //import {Menu, MenuItem} from 'react-native-material-menu';
 //import { Menu, Provider } from 'react-native-paper';
 //import { Menu, MenuItem } from '@mui/material';
-import { ListItem, Divider} from 'react-native-elements'
 import {TooltipMenu} from 'react-native-tooltip-menu';
 //import {PopoverTooltip} from 'react-native-popover-tooltip';
 //import RNPopover from 'react-native-popover-menu';
@@ -656,6 +655,8 @@ export default function ListaConfiguracion ({route}) {
     const getListas = async () => {
 
       if (Platform.OS === 'ios') {
+        console.log('estamos en ios')
+        /*
         Permissions.getAsync(Permissions.NOTIFICATIONS).then((statusObj) => {
           if (statusObj.status !== 'granted') {
           return Permissions.askAsync(Permissions.NOTIFICATIONS)
@@ -666,6 +667,7 @@ export default function ListaConfiguracion ({route}) {
           return;
           }
           })
+        */
       }
         await AsyncStorage.getItem("LISTAS").then((listas) => {
           setListas(JSON.parse(listas));    //guardamos cada lista en formato string en listas
@@ -2434,7 +2436,15 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
           ('https://images.pexels.com/photos/4589470/pexels-photo-4589470.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')
           ))}} resizeMode="cover" style={styles.imagen13}>
         <View style={styles.container}>
-          <View style={{ flexDirection: 'row', marginTop: 10}}>
+        <TouchableOpacity
+            style={styles.botonAtras}
+            onPress={() => backAction()}>
+            <Image
+              source={datosIm[5].image}
+              style={{height: 35, width: 35}}
+            />
+          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', marginTop: 20}}>
             <View style={styles.listaRealizadoIm}>
               <Image
                 source={(listaActual !== '') ? (JSON.parse(listaActual).imagenListaRealizado) : (listaInicial.imagenListaRealizado)}
@@ -2506,7 +2516,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                   transparent={true}>
                   <View style={styles.modalStyle}>
                   <Text style={styles.titleVideo}>Añadir ejercicio</Text>                 
-                    <View style={{ flexDirection: 'row', right: 22}}>
+                    <View style={{ flexDirection: 'row', right: 22, bottom: 30}}>
                     <View>
                       <TextInput
                         placeholder="Series"
@@ -2523,7 +2533,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       <Text style={{marginLeft: 20, top: 10, fontSize: 17}}>series</Text>
                     </View>
                   </View>
-                  <View style={{ flexDirection: 'row', left: 1}}>
+                  <View style={{ flexDirection: 'row', left: 1, bottom: 30}}>
                     <View>
                       <TextInput
                         placeholder="Repeticiones"
@@ -2537,10 +2547,10 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       /> 
                     </View>
                     <View>
-                      <Text style={{marginLeft: 20, top: 10, fontSize: 17}}>repeticiones</Text>
+                      <Text style={{marginLeft: 20, top: 10, fontSize: 17, bottom: 30}}>repeticiones</Text>
                     </View>
                   </View>
-                  <View style={{ flexDirection: 'row'}}>
+                  <View style={{ flexDirection: 'row', bottom: 30}}>
                     <View>
                       <TextInput
                         placeholder="Tiempo"
@@ -2571,7 +2581,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                       />
                     </View>
                     </View>
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row', bottom: 30 }}>
                       <View>
                         <TextInput
                           placeholder="Insertar link del vídeo de Youtube"
@@ -2739,7 +2749,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                         value={emailNuevo}
                         onChangeText={setEmailNuevo}
                         style={styles.input4}
-                        multiline={true}
+                        multiline={false}
                         selectionColor='#515759'
                         returnKeyType="done"
                       />
@@ -3412,7 +3422,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 9,
     width: width-30,
-    height: Dimensions.get("window").height-360,
+    height: Dimensions.get("window").height-260,
     marginLeft: 15,
     alignItems: 'center', 
     justifyContent: 'center',
@@ -3480,6 +3490,18 @@ const styles = StyleSheet.create({
     left: 18,
     borderRadius: 5,
     width: 110,
+  },
+  botonAtras: {
+    borderRadius: 1000,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 35,
+    position: 'absolute',
+    marginTop: 20,
+    bottom: 10,
+    top: 0,
+    right: 340,
   },
   videoPlayer: {
     alignSelf: 'center',

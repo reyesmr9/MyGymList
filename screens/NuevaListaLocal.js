@@ -6,7 +6,7 @@ import AllLists from './AllLists';
 
 import * as Sharing from 'expo-sharing';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Modal, Pressable, Text, TextInput, View, Image, TouchableOpacity, Alert, BackHandler, Platform, ScrollView, Dimensions, KeyboardAvoidingView} from 'react-native';
+import { StyleSheet, Modal, Pressable, Text, TextInput, View, Image, TouchableOpacity, Keyboard, Alert, BackHandler, Platform, ScrollView, Dimensions, KeyboardAvoidingView} from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import * as ImagePicker from 'expo-image-picker';
 import * as MailComposer from 'expo-mail-composer';
@@ -199,6 +199,7 @@ const iconoImportarVideo = (props) => (
       setTitulo("");
       setVideoLocal(null);
       //setEmail('');     
+      Keyboard.dismiss();
       navigation.reset({
         index: 0,
         routes: [
@@ -1093,7 +1094,7 @@ try{
             value={titulo}
             onChangeText={setTitulo}
             style={styles.input}
-            multiline={true}
+            multiline={false}
             selectionColor='#515759'
           />  
           <Text style={{marginBottom: 10}}>

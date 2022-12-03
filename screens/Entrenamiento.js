@@ -233,49 +233,18 @@ export default function Entrenamiento ({route}) {
 
 
       useEffect(() => {
-        //setList(listmenuinicial);
         if(isMounted===true){
-        //let listmenu = [''];
+        // Si se ha pulsado el botón Siguiente, se avanza al próximo ejercicio
         if(flagOneVideo === false && flagTiempoInicial === true){
-          //setList((singleList.split('[')[1]).split(','));
-          console.log('Se ha abierto listtiempo useeffect')
           pulsarSiguiente();
-          //let it = itemPlay;
-          /*
-          for(let i=0; i < listaInicialT.videolista.length; i++){
-            if(it.id == JSON.parse(listaInicialT.videolista)[i].id) {
-              console.log('el video esta en la lista')
-            }
-          }
-          */
-          //setFlagButtonGuardar(true);
-          //BackHandler.addEventListener('hardwareBackPress', backAction);
+          // Si se ha llegado al último ejercicio, se actualiza la lista
           if(currentSectionIndex >= ((listaActualT !== '') ? 
           (JSON.parse(listaActualT).videolista.length-2) : (listaInicialT.videolista.length-2))) {
             setFlagButtonGuardar(true);
-            console.log('se ha pulsado flagbuttonguardar true y el final de la lista useffect flagtiempo')
-            /*
-            if(customInterval){
-              clearInterval(customInterval);
-              setSeconds(0);
-              setMinutes(0);
-              setHours(0);
-            }
-            */
-          }
-          if(flagTiempoGuardar === true){
-            //setFlagTiempo(false);
-            /*
-            if(customInterval){
-              clearInterval(customInterval);
-              setSeconds(0);
-              setMinutes(0);
-              setHours(0);
-            }
-            */
-            console.log('Se ha borrado listtiempo useeffect')
           }
         }
+        // Si se ha pulsado el botón Guardar, guardamos el tiempo de realización y descanso
+        // de los ejercicios
         if(flagTiempoPress === true){
           guardarTiemposEjercicios();
         }
@@ -295,14 +264,6 @@ export default function Entrenamiento ({route}) {
 */
 
     const getLista = async() => {
-        /*
-        var f = [''];
-        f.length=0;
-        console.log('Al vaciar array datos el resultado es: ', f)  
-        setDatos(f);
-
-        await AsyncStorage.setItem("DATOS", JSON.stringify(f));
-        */
       try {
         if(flagSaveTime === false){
           console.log('iniciamos play')
@@ -329,14 +290,6 @@ export default function Entrenamiento ({route}) {
         (JSON.parse(listaActualT).videolista.length-1) : (listaInicialT.videolista.length-1))) {
           //setFlagButtonGuardar(true);
           console.log('se ha pulsado flagbuttonguardar true y final de lista getlista')
-          /*
-          if(customInterval){
-            clearInterval(customInterval);
-            setSeconds(0);
-            setMinutes(0);
-            setHours(0);
-          }
-          */
         }
       } catch (error){
         console.log(error)
@@ -463,8 +416,6 @@ export default function Entrenamiento ({route}) {
           <Button style={styles.botonGuardar}
             onPress={() => {
             console.log('se ha guardado play')
-            //guardarTiempoVideo(item);
-            //clear();
             if(statusVideo.isPlaying){
               if(videoLocalRef !== null && videoLocalRef.length !== 0) {
                 for(let i = 0; i<videoLocalRef.current.length; i++){
@@ -476,21 +427,8 @@ export default function Entrenamiento ({route}) {
             setFlagTiempoGuardar(true);
             setFlagTiempoPress(true);
             setFlagButtonGuardar(false);             
-            //setModalVisiblePlay(!modalVisiblePlay);
             setFlagTiempoInicial(false);
-            setFlagTiempo(!flagTiempo);
-            /*
-            setCurrentSectionIndex(0);
-            if(customInterval){
-              clearInterval(customInterval);
-              setSeconds(0);
-              setMinutes(0);
-              setHours(0);
-            }    
-            */          
-            //setFlagList(!flagList);
-            //setFlagFinal(!flagFinal);
-            
+            setFlagTiempo(!flagTiempo);            
             }}>
             <Text>Guardar</Text>
           </Button>
@@ -514,7 +452,7 @@ export default function Entrenamiento ({route}) {
                     videoLocalRef.current[i].pauseAsync();
                   }
                 }
-                console.log('se ha pausado video y se ha dado a siguiente')             
+              //Se ha pausado l vídeo y se ha dado a Siguiente            
             }
             tiempoVideoRealizado(item);
             }}}>
@@ -526,11 +464,12 @@ export default function Entrenamiento ({route}) {
   }
 
   const pulsarSiguiente = () => {
+    // Comprobar si se ha llegado al final de la lista
     if (currentSectionIndex >= ((listaActualT !== '') ? 
       (JSON.parse(listaActualT).videolista.length-1) : (listaInicialT.videolista.length-1))) {
-      console.log('he llegado al final de la lista')
       setFlagButtonGuardar(true);
       setCurrentSectionIndex(0);
+      // Si se está reproduciendo un vídeo local, pausarlo
       if(statusVideo.isPlaying){
         if(videoLocalRef !== null && videoLocalRef.length !== 0) {
           for(let i = 0; i<videoLocalRef.current.length; i++){
@@ -538,24 +477,15 @@ export default function Entrenamiento ({route}) {
           }
         }
       }
+      // Se muestra el último ejercicio de la lista
       flatListRef.current.scrollToIndex({
         index: currentSectionIndex,
       });        
-      /*
-      if(customInterval){
-        clearInterval(customInterval);
-        setSeconds(0);
-        setMinutes(0);
-        setHours(0);
-      }
-      */
       return;
     } else if (flatListRef.current){
-      // Go to the next item
-      console.log('no he llegado al final de la lista, seguimos')
+      // Si al avanzar en la lista llegamos al último ejercicio, mostrar el último ejercicio de la lista
       if (currentSectionIndex >= ((listaActualT !== '') ? 
         (JSON.parse(listaActualT).videolista.length-1) : (listaInicialT.videolista.length-1))) {
-        console.log('he llegado al final de la lista2')
         setFlagButtonGuardar(true);
         setCurrentSectionIndex(0);
         if(statusVideo.isPlaying){
@@ -568,17 +498,10 @@ export default function Entrenamiento ({route}) {
         flatListRef.current.scrollToIndex({
           index: currentSectionIndex,
         });
-        /*
-        if(customInterval){
-          clearInterval(customInterval);
-          setSeconds(0);
-          setMinutes(0);
-          setHours(0);
-        }
-        */
         return;
       }
       else {
+        // Si no se ha llegado al final de la lista, avanzar al siguiente ejercicio
         if(statusVideo.isPlaying){
           if(videoLocalRef !== null && videoLocalRef.length !== 0) {
             for(let i = 0; i<videoLocalRef.current.length; i++){
@@ -588,34 +511,28 @@ export default function Entrenamiento ({route}) {
         }
         flatListRef.current.scrollToIndex({
           index: currentSectionIndex + 1,
-        });
-        
-        console.log('EL INDEX ES: ', currentSectionIndex)
-        console.log('LA LISTA ES AHORA: ', listaActualT)
+        });       
 
-        setCurrentSectionIndex(currentSectionIndex + 1);
-        
+        setCurrentSectionIndex(currentSectionIndex + 1);        
         return;
       }
-    }       
-    console.log('saliendo del callback')
+    }
   }
 
 
   const guardarTiemposEjercicios = async() => {
     try{
+      // Obtenemos las listas y los tiempos de la base de datos
       const valorListas = await AsyncStorage.getItem("LISTAS");
       const l = valorListas ? JSON.parse(valorListas) : [];
 
       const valorTiempo = await AsyncStorage.getItem("TIEMPO");
       const t = valorTiempo ? JSON.parse(valorTiempo) : [];
 
-      //const valorHistorial = await AsyncStorage.getItem("HISTORIAL");
-      //const h = valorHistorial ? JSON.parse(valorHistorial) : [];
-
-      var dia = new Date().getDate(); //To get the Current Date
-      var mes = new Date().getMonth() + 1; //To get the Current Month
-      var año = new Date().getFullYear(); //To get the Current Year
+      // Obtenemos la fecha actual
+      var dia = new Date().getDate();
+      var mes = new Date().getMonth() + 1;
+      var año = new Date().getFullYear();
       var fecha = dia + '-' + mes + '-' + año;
 
       let listaHist = '';
@@ -629,6 +546,7 @@ export default function Entrenamiento ({route}) {
         listaHist = listaInicialT; 
       }
 
+      // Comprobamos que los id de los historiales de entrenamiento sean únicos en la lista
       for(let i=0; i<l.length; i++){
         if(listaHist.idlista === (JSON.parse(l[i]).idlista)) {
           for(let j=0; j<((listaHist.historial).length); j++){
@@ -641,6 +559,7 @@ export default function Entrenamiento ({route}) {
         }
       }
 
+      // Guardamos la fecha de realización del entrenamiento en el historial
       listaHistorial.fechaRealizado = fecha;
 
       let tiempoT = tiempoTotal;
@@ -667,163 +586,120 @@ export default function Entrenamiento ({route}) {
       }
 
       listaHistorial.tiempoTotal = horasTotal + ":" + minutosTotal + ":" + segundosTotal;
+
+      // Guardamos los tiempos de la base de datos en el historial de entrenamiento
       listaHistorial.tiemposEjercicios = t;    
 
-      //let tiempos = listaHistorial.tiemposEjercicios;
-      //tiempos.push(t);
-
-      //listaHistorial.tiemposEjercicios = JSON.stringify(tiempos);
-
       if(t.length !== 0){
-      let jsonListTiempo = null;
-      let jsonListTiempoVideos = '';
-      let listFilterVideos = t;
-      let historialList = '';
+        let jsonListTiempo = null;
+        let listFilterVideos = t;
 
-      console.log('LOS VIDEOS CON EL TIEMPO SON: ', listFilterVideos)
-
-      if (listaActualT !== '' && listaActualT !== undefined) {              
-        jsonListTiempo = JSON.parse(listaActualT);                 
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-      else {              
-        jsonListTiempo = listaInicialT;  //listaEm
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-
-      jsonListTiempoVideos = jsonListTiempo.videolista;
-        
-      jsonListTiempo.videolista = listFilterVideos;
-      let listaNueva = JSON.stringify(jsonListTiempo);
-      console.log('LA LISTA DE VIDEOS LLEGA HASTA AQUI')
-
-      let newLists = '';
-      let listaH = null;
-      let newVideoList = '';
-
-      for (let i = 0; i < l.length; i++){
-        if(jsonListTiempo.idlista === (JSON.parse(l[i]).idlista)) {
-          
-          if (listaActualT !== '' && listaActualT !== undefined) {              
-            newVideoList = JSON.parse(listaActualT).videolista;                 
-          }
-          else {              
-            newVideoList = listaInicialT.videolista;  
-          }
-          
-          console.log('LA LISTA DE VIDEOS LLEGA HASTA AQUI2: ', t)
-
-          
-          if (listaActualT !== '' && listaActualT !== undefined) {              
-            listaH = JSON.parse(listaActualT);                 
-  
-            //console.log('El tiempo de realización es: ', tiempoRealizacion)
-          }
-          else {              
-            listaH = listaInicialT;  //listaEm
-  
-            //console.log('El tiempo de realización es: ', tiempoRealizacion)
-          }
-
-          let arrayListaH = [];
-
-          if(JSON.parse(l[i]).historial == ''){
-            arrayListaH = [];
-            console.log('el historial está inicialmente vacío')
-          }
-          else{
-            arrayListaH = JSON.parse(l[i]).historial;
-            console.log('existe ya un historial')
-          }
-
-          //historialList.push(JSON.stringify(listaHistorial));
-          arrayListaH.push(JSON.stringify(listaHistorial));
-
-          listaH.historial = arrayListaH;
-          
-          break;     
+        if (listaActualT !== '' && listaActualT !== undefined) {              
+          jsonListTiempo = JSON.parse(listaActualT);                 
         }
-      }
-      //setDatList(listFilterVideos);
-      //setList(listFilterVideos);
-      setFlagSaveTime(true);
-      //setFlagTiempoPress(false);
-      setFlagOneVideo(false);
-      //newLists.push(listaNueva); //guardamos la lista en LISTAS
+        else {              
+          jsonListTiempo = listaInicialT;
+        }
+          
+        jsonListTiempo.videolista = listFilterVideos;
 
-      //l.push(JSON.stringify(listaH));
+        let newLists = '';
+        let listaH = null;
 
-
-      newLists = l.filter((lista) => JSON.parse(lista).idlista !== JSON.parse(listPlay).idlista);
-
-      console.log('NEWVIDEOLIST ES: ', newVideoList)
-
-      newLists.push(JSON.stringify(listaH));
-      console.log('NEWLISTS ENTRENAMIENTO ES: ', JSON.stringify(newLists))
-      const vid = AsyncStorage.getItem("TIEMPO");
-      //const v = vid ? JSON.parse(vid) : [];
-      const varray = [vid];
-      var f=varray;
-      f.length=0;
-      await AsyncStorage.setItem("TIEMPO", JSON.stringify(f));
-      //await AsyncStorage.setItem("HISTORIAL", JSON.stringify(f));
+        for (let i = 0; i < l.length; i++){
+          if(jsonListTiempo.idlista === (JSON.parse(l[i]).idlista)) {         
             
-      await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
+            if (listaActualT !== '' && listaActualT !== undefined) {              
+              listaH = JSON.parse(listaActualT);                 
+            }
+            else {              
+              listaH = listaInicialT;
+            }
 
-      let listaFinal = '';
+            let arrayListaH = [];
 
-      await AsyncStorage.getItem("LISTAS").then((listas) => {
-        setListas(JSON.parse(listas)); 
-        console.log('Las listas definitivas son: ', listas)
-        //setlistaActualT(JSON.stringify(listaH));
-        /*
-        for(let i=0; i<(JSON.parse(listas).length); i++){
-          if((listPlay.idlista) === ((JSON.parse(listas))[i].idlista)) {
-            listaFinal = (JSON.parse(listas))[i];
-            break;
-          }    
+            // Si el historial está vacío inicialmente, se crea una matriz vacía
+            if(JSON.parse(l[i]).historial == ''){
+              arrayListaH = [];
+              console.log('el historial está inicialmente vacío')
+            }
+            // Si el historial no está vacío, se añade a la variable arrayListaH
+            else{
+              arrayListaH = JSON.parse(l[i]).historial;
+              console.log('existe ya un historial')
+            }
+            
+            // Guardamos el historial de entrenamiento en el historial de la lista
+            arrayListaH.push(JSON.stringify(listaHistorial));
+
+            listaH.historial = arrayListaH;
+            
+            break;     
+          }
         }
-        */
-        listaFinal = JSON.stringify(listaH);
-        setFlagTiempoPress(false);
-        console.log("VOLVEMOS A LISTA DESDE ENTRENAMIENTO")
-        console.log("listaFinal ES: ", JSON.parse(listaFinal))
-        let listaf = listT;
-        listaf.length=0;
-        setListT(listaf);
+        setFlagSaveTime(true);
+        setFlagOneVideo(false);
+
+        // Filtramos las listas cuyo id sea diferente al de la lista actual
+        newLists = l.filter((lista) => JSON.parse(lista).idlista !== JSON.parse(listPlay).idlista);
+
+        // Añadimos la lista actual con el historial actualizado en la lista de listas
+        newLists.push(JSON.stringify(listaH));
+
+        const vid = AsyncStorage.getItem("TIEMPO");
+        const varray = [vid];
+        var f=varray;
+        f.length=0;
+
+        // Almacenamos una matriz vacía en los tiempos de la base de datos para eliminarlos
+        await AsyncStorage.setItem("TIEMPO", JSON.stringify(f));
         
-        setCurrentSectionIndex(0);
-        if(customInterval){
-          clearInterval(customInterval);
-          setSeconds(0);
-          setMinutes(0);
-          setHours(0);
-        }    
-        navigation.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'Lista',
-              params: { singleList: listPlay,
-                        itemId: JSON.parse(listPlay).listaid,
-                      },
-            },
-          ],
-        })
-        navigation.navigate("Lista", {
-          singleList: ((listaFinal !== '') ? listaFinal : listPlay),
-          itemId: JSON.parse(listPlay).listaid,
+        // Almacenamos las listas en la base de datos
+        await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
+
+        let listaFinal = '';
+
+        await AsyncStorage.getItem("LISTAS").then((listas) => {
+          setListas(JSON.parse(listas)); 
+
+          listaFinal = JSON.stringify(listaH);
+          setFlagTiempoPress(false);
+          let listaf = listT;
+          listaf.length=0;
+          setListT(listaf);
+          
+          // Reseteamos el cronómetro
+          setCurrentSectionIndex(0);
+          if(customInterval){
+            clearInterval(customInterval);
+            setSeconds(0);
+            setMinutes(0);
+            setHours(0);
+          }
+
+          // Navegamos a la pantalla Lista
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'Lista',
+                params: { singleList: listPlay,
+                          itemId: JSON.parse(listPlay).listaid,
+                        },
+              },
+            ],
+          })
+          navigation.navigate("Lista", {
+            singleList: ((listaFinal !== '') ? listaFinal : listPlay),
+            itemId: JSON.parse(listPlay).listaid,
+          });
+          isMounted=false;                        
         });
-        isMounted=false;                        
-      });
       
-    }
-    else {
-      console.log('No se ha guardado el tiempo en ninguno de LOS VIDEOS')
-      //setFlagTiempoPress(false);
-    }
+      }
+      else {
+        console.log('No se ha guardado el tiempo en ninguno de los vídeos')
+      }
       
     } catch(error){
       console.log(error)
@@ -833,19 +709,15 @@ export default function Entrenamiento ({route}) {
 
   const tiempoEjerciciosRealizados = async(item) => {
     try{
+      // Guardamos el tiempo final del ejercicio realizado y el tiempo total de entrenamiento
       setTiempoFinal(hours + ":" + minutes + ":" + seconds);
       setTiempoTotal(hours + ":" + minutes + ":" + seconds);
-      //let tiempoFinalPress = hours + ":" + minutes + ":" + seconds;
 
+      // Obtenemos los tiempos de la base de datos
       const valorTiempo = await AsyncStorage.getItem("TIEMPO");
       const t = valorTiempo ? JSON.parse(valorTiempo) : [];
 
       if(t.length==0){
-        //let listArray = t;
-        //let jsonListArray = '';
-        //let listVideo = '';
-        //let videoArray = '';
-
         var listaTiempo = {};
         listaTiempo.id = JSON.parse(item).id;
         listaTiempo.series = JSON.parse(item).series;
@@ -877,83 +749,45 @@ export default function Entrenamiento ({route}) {
         listaTiempo.tiempoDescanso = '';
         listaTiempo.video = JSON.parse(item).videos;
 
-        let jsonListTiempo = null;
-        //let jsonListTiempoVideos = '';
-        //let listFilterVideos = t;
-
-        if (listaActualT !== '' && listaActualT !== undefined) {              
-          jsonListTiempo = JSON.parse(listaActualT);                 
-        }
-        else {              
-          jsonListTiempo = listaInicialT;
-        }
-
-        //jsonListTiempoVideos = jsonListTiempo.videolista;
-
         let newTiempo6 = t;
 
         var jsonLista = JSON.stringify(listaTiempo);       
 
         newTiempo6.push(jsonLista);
-
+        // Si no se han guardado los tiempos, almacenamos el tiempo de realización del ejercicio en la base de datos
         await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo6));
 
         await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-          console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A GUARDAR: ', tiempo)
-          //setListTiempo(tiempo);
+          console.log('El valor de los tiempos es: ', tiempo)
         });
 
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          //const ti = await AsyncStorage.getItem("TIEMPO");
-          //const td = ti ? JSON.parse(ti) : [];
-          //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 tiempoejerciciosrealizados: ')
-          console.log('El tiempo de realización FINAL del video anterior es tiempoejerciciosrealizados: ', 
-            listaTiempo.tiempoRealizacion)
-          console.log('La lista de tiempos es videopress: ', t)
-          setFlagButton(false);
-          if(flagOneVideo === false){
+        setFlagButton(false);
+
+        if(flagOneVideo === false){
             setFlagTiempoInicial(true);
-          }
-          setFlagTiempo(!flagTiempo);
+        }
+        setFlagTiempo(!flagTiempo);
       }
 
       else {
         if(tiempoInicio !== ""){
-          let listArray = t;
           let listVideo = '';
           let videoArray = '';
 
+          // Si se han guardado los tiempos, calculamos el tiempo de realización del ejercicio
           for (let i = 0; i < listaInicialT.videolista.length; i++){
             if((JSON.parse(item).id) == (JSON.parse(listaInicialT.videolista[i]).id)){
               let tiempoEjInicial = tiempoInicio;
               let horasInicial = (tiempoEjInicial.split(":")[0]) * 3600;
               let minutosInicial = tiempoEjInicial.split(":")[1] * 60;
-              console.log('minutosInicial en segundos es: ', minutosInicial)
+
               let segundosInicial = tiempoEjInicial.split(":")[2] * 1;
 
               let segundosTotalActual = (hours * 3600) + (minutes * 60) + seconds;
               let segundosTotalInicial = horasInicial + minutosInicial + segundosInicial;
-              //console.log('segundosTotalActual es: ', segundosTotalActual)
-              console.log('segundosTotalInicial es: ', segundosTotalInicial)
+
               let segundosRealizacionTotal = Math.abs(segundosTotalActual - segundosTotalInicial);
-              /*
-              let horasRealizacion = Math.round(segundosRealizacionTotal/3600);
-              let minutosRealizacion = segundosRealizacionTotal % 3600;
-              let segundosRealizacion = segundosRealizacionTotal % 60;
 
-              
-
-              if(horasRealizacion < 10){
-                horasRealizacion = "0" + horasRealizacion;
-              }
-              if(minutosRealizacion < 10){
-                minutosRealizacion = "0" + minutosRealizacion;
-              }
-              if(segundosRealizacion < 10){
-                segundosRealizacion = "0" + segundosRealizacion;
-              }
-              */
               listVideo = JSON.parse(listaInicialT.videolista[i]);
               videoArray = JSON.parse(listaInicialT.videolista[i]);
 
@@ -961,14 +795,6 @@ export default function Entrenamiento ({route}) {
               let minutosparaRealizacion = Math.round(segundosRealizacionTotal/60);
               let minutosRealizacion = Math.round(minutosparaRealizacion % 60);
               let segundosRminutos = Math.round(segundosRealizacionTotal % 60);
-
-
-              
-              //let horasRealizacion = Math.round(segundosRealizacionTotal/60/60);
-              //let segundosRhoras = segundosRealizacionTotal - (horasRealizacion * 60 * 60);
-              //let minutosRealizacion = Math.round(segundosRhoras/60);
-              //let segundosRminutos = segundosRhoras - (minutosRealizacion * 60);
-              //let segundosDescanso = Math.round(segundosDescansoTotal % 60); (no por ahora)
 
               if(horasRealizacion < 10){
                 horasRealizacion = "0" + horasRealizacion;
@@ -981,8 +807,6 @@ export default function Entrenamiento ({route}) {
               }
               
               listVideo.tiempoRealizacion = horasRealizacion + ":" + minutosRealizacion + ":" + segundosRminutos;
-              //videoArray.tiempoRealizacion = horasRealizacion + ":" + minutosRealizacion + ":" + segundosRealizacion;
-
               break;
             }
           }
@@ -1000,47 +824,23 @@ export default function Entrenamiento ({route}) {
           listaTiempo.tiempoDescanso = '';
           listaTiempo.video = JSON.parse(item).videos;
 
+          let newTiempo1 = '';
 
-        let jsonListTiempo = null;
-        //let jsonListTiempoVideos = '';
-        //let listFilterVideos = t;
+          if(videoArray !== ''){
+            newTiempo1 = t.filter((lista) => (JSON.parse(lista).id !== videoArray.id));
+          }
 
-        if (listaActualT !== '' && listaActualT !== undefined) {              
-          jsonListTiempo = JSON.parse(listaActualT);                 
-        }
-        else {              
-          jsonListTiempo = listaInicialT;
-        }
+          var jsonLista = JSON.stringify(listaTiempo);       
 
-        //jsonListTiempoVideos = jsonListTiempo.videolista;
+          newTiempo1.push(jsonLista);
 
-        let newTiempo1 = '';
+          // Almacenamos el tiempo de realización del ejercicio en la base de datos
+          await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo1));
 
-        if(videoArray !== ''){
-          //listFilterVideos.push(JSON.stringify(listVideo));
-          newTiempo1 = t.filter((lista) => (JSON.parse(lista).id !== videoArray.id));
-          //t.push(JSON.stringify(listVideo))
-        }
+          await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
+            console.log('El valor de los tiempos es: ', tiempo)
+          });
 
-        var jsonLista = JSON.stringify(listaTiempo);       
-
-        newTiempo1.push(jsonLista);
-
-        await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo1));
-
-        await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-          console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A GUARDAR: ', tiempo)
-          //setListTiempo(tiempo);
-        });
-
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          //const ti = await AsyncStorage.getItem("TIEMPO");
-          //const td = ti ? JSON.parse(ti) : [];
-          //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 tiempoejerciciosrealizados2: ')
-          console.log('El tiempo de realización FINAL del video anterior es tiempoejerciciosrealizados2: ', 
-            listaTiempo.tiempoRealizacion)
-          console.log('La lista de tiempos es videopress: ', t)
           setFlagButton(false);
           if(flagOneVideo === false){
             setFlagTiempoInicial(true);
@@ -1049,130 +849,6 @@ export default function Entrenamiento ({route}) {
 
         }
       }
-      /*
-      if(hours === 0 && minutes === 0 && seconds === 0){
-        const valorTiempo = await AsyncStorage.getItem("TIEMPO");
-        const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-
-        let jsonListTiempo = null;
-        let jsonListTiempoVideos = '';
-        let listFilterVideos = t;
-
-        if (listaActualT !== '' && listaActualT !== undefined) {              
-          jsonListTiempo = JSON.parse(listaActualT);                 
-
-          //console.log('El tiempo de realización es: ', tiempoRealizacion)
-        }
-        else {              
-          jsonListTiempo = listaInicialT;  //listaEm
-
-          //console.log('El tiempo de realización es: ', tiempoRealizacion)
-        }
-
-        jsonListTiempoVideos = jsonListTiempo.videolista;
-
-        for (let i = 0; i < jsonListTiempo.videolista.length; i++){
-          if((JSON.parse(item).id) == (JSON.parse(jsonListTiempoVideos[i]).id)){
-            if(listFilterVideos.length > 0){
-              listFilterVideos = listFilterVideos.filter((lista) => ((JSON.parse(lista).id) !== 
-              (JSON.parse(jsonListTiempoVideos[i]).id)));
-            }
-            let videoItem = JSON.parse(item);
-
-            videoItem.tiempoRealizacion = JSON.parse(item).tiempoRealizacion;
-            
-            if(listFilterVideos.length > 0){
-              listFilterVideos.push(JSON.stringify(videoItem));
-              //t.push(JSON.stringify(videoItem))
-            }
-            //await AsyncStorage.setItem("TIEMPO", JSON.stringify(listFilterVideos));
-            console.log('no se ha guardado el tiempo de realización tiempovideo')
-            console.log('La lista de tiempos es si no se ha guardado el tiempovideo: ', listFilterVideos)
-            if(flagTiempo === false){
-              setFlagOneVideo(true);
-              setFlagButton(false);
-              setFlagTiempo(!flagTiempo);
-            }
-          }
-        }
-      }
-      else {
-      const valorTiempo = await AsyncStorage.getItem("TIEMPO");
-      const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-
-      let jsonListTiempo = null;
-      let jsonListTiempoVideos = '';
-      let listFilterVideos = t;
-
-      if (listaActualT !== '' && listaActualT !== undefined) {              
-        jsonListTiempo = JSON.parse(listaActualT);                 
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-      else {              
-        jsonListTiempo = listaInicialT;  //listaEm
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-
-      jsonListTiempoVideos = jsonListTiempo.videolista;
-
-      for (let i = 0; i < jsonListTiempo.videolista.length; i++){
-        if((JSON.parse(item).id) == (JSON.parse(jsonListTiempoVideos[i]).id)){
-          listFilterVideos = listFilterVideos.filter((lista) => ((JSON.parse(lista).id) !== 
-            (JSON.parse(jsonListTiempoVideos[i]).id)));
-          let videoItem = JSON.parse(item);
-          let horas = '';
-          let minutos = '';
-          let segundos = '';
-          if(hours<10){
-            horas = "0" + hours;             
-          }
-          else {
-            horas = hours;
-          }
-          if(minutes<10){
-            minutos = "0" + minutes;             
-          }
-          else {
-            minutos = minutes;
-          }
-          if(seconds<10){
-            segundos = "0" + seconds;             
-          }
-          else {
-            segundos = seconds;
-          }
-
-          videoItem.tiempoRealizacion = horas + ":" + minutos + ":" + segundos;
-          
-          if(listFilterVideos){
-            listFilterVideos.push(JSON.stringify(videoItem));
-            //t.push(JSON.stringify(videoItem))
-          }
-          //await AsyncStorage.setItem("TIEMPO", JSON.stringify(listFilterVideos));
-          await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-            //setListTiempo(tiempo);
-          });
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          //const ti = await AsyncStorage.getItem("TIEMPO");
-          //const td = ti ? JSON.parse(ti) : [];
-          //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 video: ', JSON.parse(jsonListTiempo.videolista[i]).tiempoRealizacion)
-          console.log('El tiempo de realización FINAL del video es: ', videoItem.tiempoRealizacion)
-          console.log('La lista de tiempos es video: ', listFilterVideos)
-          if(flagTiempo === false){
-            setFlagOneVideo(true);
-            setFlagButton(false);
-            setFlagTiempo(!flagTiempo);
-          }
-        }              
-      }        
-
-      }
-      */
-
-
     } catch(error){
       console.log(error)
     }
@@ -1181,25 +857,14 @@ export default function Entrenamiento ({route}) {
 
   const tiempoVideoRealizado = async(item) => {
     try{
+      // Guardamos el tiempo de realización final del ejercicio
       setTiempoFinal(hours + ":" + minutes + ":" + seconds);
 
-      //let tiempoFinalPress = hours + ":" + minutes + ":" + seconds;
-
+      // Obtenemos los tiempos de la base de datos
       const valorTiempo = await AsyncStorage.getItem("TIEMPO");
       const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-      /*
-      if(statusVideo.isPlaying){
-        if(videoLocalRef !== null) {
-          videoLocalRef.current.pauseAsync();
-        }
-      }
-      */
-      if(t.length==0){
-        //let listArray = t;
-        //let jsonListArray = '';
-        //let listVideo = '';
-        //let videoArray = '';
 
+      if(t.length==0){
         var listaTiempo = {};
         listaTiempo.id = JSON.parse(item).id;
         listaTiempo.series = JSON.parse(item).series;
@@ -1208,6 +873,7 @@ export default function Entrenamiento ({route}) {
         let horas = '';
         let minutos = '';
         let segundos = '';
+
         if(hours < 10){
           horas = "0" + hours;
         }
@@ -1231,41 +897,19 @@ export default function Entrenamiento ({route}) {
         listaTiempo.tiempoDescanso = '';
         listaTiempo.video = JSON.parse(item).videos;
 
-        let jsonListTiempo = null;
-        //let jsonListTiempoVideos = '';
-        //let listFilterVideos = t;
-
-        if (listaActualT !== '' && listaActualT !== undefined) {              
-          jsonListTiempo = JSON.parse(listaActualT);                 
-        }
-        else {              
-          jsonListTiempo = listaInicialT;
-        }
-
-        //jsonListTiempoVideos = jsonListTiempo.videolista;
-
         let newTiempo3 = t;
 
         var jsonLista = JSON.stringify(listaTiempo);       
 
         newTiempo3.push(jsonLista);
-
+        // Si no se han guardado los tiempos en la base de datos, se guarda el tiempo de realización del ejercicio
         await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo3));
 
         await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-          console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A SIGUIENTE: ', tiempo)
-          //setListTiempo(tiempo);
+          console.log('El valor de los tiempos es: ', tiempo)
         });
-
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          //const ti = await AsyncStorage.getItem("TIEMPO");
-          //const td = ti ? JSON.parse(ti) : [];
-          //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videorealizado: ')
-          console.log('El tiempo de realización FINAL del video anterior es videorealizado: ', 
-            listaTiempo.tiempoRealizacion)
-          console.log('La lista de tiempos es videopress: ', t)
           setFlagButton(false);
+          // Si hay más de un ejercicio en la lista, se avanza al siguiente ejercicio
           if(flagOneVideo === false){
             setFlagTiempoInicial(true);
           }
@@ -1273,13 +917,13 @@ export default function Entrenamiento ({route}) {
       }
 
       else {
-
         if(tiempoInicio !== ""){
           let listArray = t;
           let listVideo = '';
           let videoArray = '';
           let numVideo = '';
 
+          // Si se han guardado los tiempos en la base de datos, se calcula el tiempo de realización del ejercicio
           for (let i = 0; i < listaInicialT.videolista.length; i++){
             if((JSON.parse(item).id) == (JSON.parse(listaInicialT.videolista[i]).id)){
               numVideo = i;
@@ -1287,32 +931,14 @@ export default function Entrenamiento ({route}) {
               
               let horasInicial = (tiempoEjInicial.split(":")[0]) * 3600;
               let minutosInicial = tiempoEjInicial.split(":")[1] * 60;
-              console.log('minutosInicial en segundos es: ', minutosInicial)
+
               let segundosInicial = tiempoEjInicial.split(":")[2] * 1;
 
               let segundosTotalActual = (hours * 3600) + (minutes * 60) + seconds;
               let segundosTotalInicial = horasInicial + minutosInicial + segundosInicial;
                   
               let segundosRealizacionTotal = Math.abs(segundosTotalActual - segundosTotalInicial);
-              /*
-              let horasRealizacion = Math.round(segundosRealizacionTotal/3600);
-              let minutosRealizacion = segundosRealizacionTotal % 3600;
-              let segundosRealizacion = segundosRealizacionTotal % 60;
 
-              if(horasRealizacion < 10){
-                horasRealizacion = "0" + horasRealizacion;
-              }
-              if(minutosRealizacion < 10){
-                minutosRealizacion = "0" + minutosRealizacion;
-              }
-              if(segundosRealizacion < 10){
-                segundosRealizacion = "0" + segundosRealizacion;
-              }
-              */
-              console.log('tiempo INICIO es: ', tiempoInicio)
-              console.log('segundosTotalActual es: ', segundosTotalActual)
-              console.log('segundosTotalInicial es: ', segundosTotalInicial) //error
-              console.log('segundos realizacion total es: ', segundosRealizacionTotal)
               listVideo = JSON.parse(listaInicialT.videolista[i]);
               videoArray = JSON.parse(listaInicialT.videolista[i]);
 
@@ -1320,14 +946,6 @@ export default function Entrenamiento ({route}) {
               let minutosparaRealizacion = Math.round(segundosRealizacionTotal/60);
               let minutosRealizacion = Math.round(minutosparaRealizacion % 60);
               let segundosRminutos = Math.round(segundosRealizacionTotal % 60);
-
-              //let horasRealizacion = Math.round(segundosRealizacionTotal/60/60);
-              //let segundosRhoras = segundosRealizacionTotal - (horasRealizacion * 60 * 60);
-              //let minutosRealizacion = Math.round(segundosRhoras/60);
-              //let segundosRminutos = segundosRhoras - (minutosRealizacion * 60);
-
-
-              //let segundosDescanso = Math.round(segundosDescansoTotal % 60);
 
               if(horasRealizacion < 10){
                 horasRealizacion = "0" + horasRealizacion;
@@ -1340,8 +958,6 @@ export default function Entrenamiento ({route}) {
               }
               
               listVideo.tiempoRealizacion = horasRealizacion + ":" + minutosRealizacion + ":" + segundosRminutos;
-              //videoArray.tiempoRealizacion = horasRealizacion + ":" + minutosRealizacion + ":" + segundosRealizacion;
-
               break;
             }
           }
@@ -1359,47 +975,23 @@ export default function Entrenamiento ({route}) {
           listaTiempo.tiempoDescanso = '';
           listaTiempo.video = JSON.parse(item).videos;
 
+          let newTiempo4 = '';
 
-        let jsonListTiempo = null;
-        //let jsonListTiempoVideos = '';
-        //let listFilterVideos = t;
+          if(videoArray !== ''){
+            newTiempo4 = t.filter((lista) => lista !== listArray[numVideo]);
+          }
 
-        if (listaActualT !== '' && listaActualT !== undefined) {              
-          jsonListTiempo = JSON.parse(listaActualT);                 
-        }
-        else {              
-          jsonListTiempo = listaInicialT;
-        }
+          var jsonLista = JSON.stringify(listaTiempo);       
 
-        //jsonListTiempoVideos = jsonListTiempo.videolista;
+          newTiempo4.push(jsonLista);
+          // Almacenamos el tiempo de realización del ejercicio
+          await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo4));
 
-        let newTiempo4 = '';
+          await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
+            console.log('El valor de los tiempos es: ', tiempo)
+          });
 
-        if(videoArray !== ''){
-          //listFilterVideos.push(JSON.stringify(listVideo));
-          newTiempo4 = t.filter((lista) => lista !== listArray[numVideo]);
-          //t.push(JSON.stringify(listVideo))
-        }
-
-        var jsonLista = JSON.stringify(listaTiempo);       
-
-        newTiempo4.push(jsonLista);
-
-        await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo4));
-
-        await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-          console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A SIGUIENTE: ', tiempo)
-          //setListTiempo(tiempo);
-        });
-
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          //const ti = await AsyncStorage.getItem("TIEMPO");
-          //const td = ti ? JSON.parse(ti) : [];
-          //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videorealizado2: ')
-          console.log('El tiempo de realización FINAL del video anterior es videorealizado2: ', 
-            listaTiempo.tiempoRealizacion)
-          console.log('La lista de tiempos es videopress: ', t)
+          // Si hay más de un ejercicio en la lista, se avanza al siguiente ejercicio
           setFlagButton(false);
           if(flagOneVideo === false){
             setFlagTiempoInicial(true);
@@ -1417,12 +1009,15 @@ export default function Entrenamiento ({route}) {
 
   const tiempoVideoDescanso = async(item) => {
     try{
+      // Establecemos el tiempo inicial del ejercicio
       setTiempoInicio(hours + ":" + minutes + ":" + seconds);
 
+      // Obtenemos los tiempos de los ejercicios
       const valorTiempo = await AsyncStorage.getItem("TIEMPO");
       const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-           
+            
       if(t.length==0){
+        // Si no se han guardado los tiempos, iniciamos el cronómetro
         comenzarTimer();
         setFlagSaveTime(true);
         setFlagButton(true);
@@ -1435,26 +1030,18 @@ export default function Entrenamiento ({route}) {
         listaTiempo.tiempoDescanso = '';
         listaTiempo.video = JSON.parse(item).videos;
 
-        let jsonList = JSON.stringify(listaTiempo);
-        let jsonListTiempo = '';
-        if (listaActualT !== '' && listaActualT !== undefined) {              
-          jsonListTiempo = JSON.parse(listaActualT);                 
-        }
-        else {              
-          jsonListTiempo = listaInicialT;
-        }
+        // Convertimos el objeto lista en una cadena en formato JSON
+        let jsonLista = JSON.stringify(listaTiempo);
 
         let newTiempo = [];
 
-        //var jsonLista = JSON.stringify(listaTiempo);       
-
-        newTiempo.push(jsonList);
+        // Guardamos los tiempos del ejercicio en la base de datos
+        newTiempo.push(jsonLista);
         await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo));
-
         await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-          console.log('EL TIEMPO AHORA ES CUANDO NO EXISTE ITEM "TIEMPOS": ', tiempo)
+          console.log('El valor de los tiempos es: ', tiempo)
         });
-        
+          
       }
       else {
         if(tiempoFinal !== ""){
@@ -1462,9 +1049,9 @@ export default function Entrenamiento ({route}) {
           let listArray = t;
           let jsonListArray = '';
           let listVideo = '';
-          let videoArray = '';
           let numLista = '';
 
+          // Si se han guardado los tiempos, calculamos el tiempo de descanso del ejercicio anterior
           for (let i = 0; i < listaInicialT.videolista.length; i++){
             if(listaActualT == ''){
               if((JSON.parse(item).id) == (JSON.parse(listaInicialT.videolista[i]).id)){
@@ -1472,13 +1059,11 @@ export default function Entrenamiento ({route}) {
                 let tiempoEjFinal = tiempoFinal;
                 let horasFinal = (tiempoEjFinal.split(":")[0]) * 3600;
                 let minutosFinal = (tiempoEjFinal.split(":")[1]) * 60;
-                console.log('minutosFinal es: ', minutosFinal)
                 let segundosFinal = tiempoEjFinal.split(":")[2] * 1;
 
                 let segundosTotalActual = (hours * 3600) + (minutes * 60) + seconds;
                 let segundosTotalFinal = horasFinal + minutosFinal + segundosFinal;
-                //console.log('segundosTotalActualDescanso es: ', segundosTotalActual)
-                console.log('segundosTotalFinal es: ', segundosTotalFinal)
+
                 let segundosDescansoTotal = Math.abs(segundosTotalActual - segundosTotalFinal);
 
                 let horasDescanso = Math.round(segundosDescansoTotal/60/60);
@@ -1486,19 +1071,6 @@ export default function Entrenamiento ({route}) {
                 let minutosDescanso = Math.round(minutosparaDescanso % 60);
                 let segundosDminutos = Math.round(segundosDescansoTotal % 60);
 
-                //('El tiempo de descanso TOTAL es1: ', segundosDescansoTotal)
-                /*
-                ('LAS HORAS de descanso TOTAL es: ', horasDescanso)
-                ('LOS MINUTOS de descanso TOTAL es: ', minutosDescanso)
-                ('LOS SEGUNDOS de descanso TOTAL es: ', segundosDminutos)
-                */
-                //let segundosDhoras = segundosDescansoTotal - (horasDescanso * 60 * 60);
-                //let minutosDescanso = Math.round(segundosDhoras/60);
-                //let segundosDminutos = segundosDhoras - (minutosDescanso * 60);
-
-                //let segundosDescanso = Math.round(segundosDescansoTotal % 60); (no por ahora)
-
-                videoArray = listArray[i-1];
                 listVideo = JSON.parse(listArray[i-1]);
 
                 if(horasDescanso < 10){
@@ -1510,10 +1082,11 @@ export default function Entrenamiento ({route}) {
                 if(segundosDminutos < 10){
                   segundosDminutos = "0" + segundosDminutos;
                 }
+                // Guardamos el tiempo de descanso en la lista
                 listVideo.tiempoDescanso = horasDescanso + ":" + minutosDescanso + ":" + segundosDminutos;
 
+                // Convertimos el objeto lista en una cadena en formato JSON
                 jsonListArray = JSON.stringify(listVideo);
-                console.log('El tiempo de descanso final es: ', listVideo.tiempoDescanso)
                 break;
               }
             }
@@ -1523,56 +1096,18 @@ export default function Entrenamiento ({route}) {
                 let tiempoEjFinal = tiempoFinal;
                 let horasFinal = (tiempoEjFinal.split(":")[0]) * 3600;
                 let minutosFinal = tiempoEjFinal.split(":")[1] * 60;
-                console.log('minutosFinal es: ', minutosFinal)
-                let segundosFinal = tiempoEjFinal.split(":")[2] * 1;
 
+                let segundosFinal = tiempoEjFinal.split(":")[2] * 1;
                 let segundosTotalActual = (hours * 3600) + (minutes * 60) + seconds;
                 let segundosTotalFinal = horasFinal + minutosFinal + segundosFinal;
-                
+                  
                 let segundosDescansoTotal = Math.abs(segundosTotalActual - segundosTotalFinal);
-                /*
-                let horasDescanso = Math.round(segundosDescansoTotal/3600);
-                let minutosDescanso = Math.round(segundosDescansoTotal % 3600);
-                let segundosDescanso = Math.round(segundosDescansoTotal % 60);
-
-                videoArray = listArray[i-1];
-                listVideo = JSON.parse(listArray[i-1]);
-
-                if(horasDescanso < 10){
-                  horasDescanso = "0" + horasDescanso;
-                }
-                if(minutosDescanso < 10){
-                  minutosDescanso = "0" + minutosDescanso;
-                }
-                if(segundosDescanso < 10){
-                  segundosDescanso = "0" + segundosDescanso;
-                }
-                listVideo.tiempoDescanso = horasDescanso + ":" + minutosDescanso + ":" + segundosDescanso;
-                */
 
                 let horasDescanso = Math.round(segundosDescansoTotal/60/60);
                 let minutosparaDescanso = Math.round(segundosDescansoTotal/60);
                 let minutosDescanso = Math.round(minutosparaDescanso % 60);
-                let segundosDminutos = Math.round(segundosDescansoTotal % 60);
-                
-                ('El tiempo de descanso TOTAL es2: ', segundosDescansoTotal)
+                let segundosDminutos = Math.round(segundosDescansoTotal % 60);               
 
-                /*
-                ('LAS HORAS de descanso TOTAL es: ', horasDescanso)
-                ('LOS MINUTOS de descanso TOTAL es: ', minutosDescanso)
-                ('LOS SEGUNDOS de descanso TOTAL es: ', segundosDminutos)
-                */
-
-                //let horasDescanso = Math.round(segundosDescansoTotal/60/60);
-                //let segundosDhoras = segundosDescansoTotal - (horasDescanso * 60 * 60);
-                //let minutosDescanso = Math.round(segundosDhoras/60);
-                //let segundosDminutos = segundosDhoras - (minutosDescanso * 60);
-
-
-
-                //let segundosDescanso = Math.round(segundosDescansoTotal % 60); (no por ahora)
-
-                videoArray = listArray[i-1];
                 listVideo = JSON.parse(listArray[i-1]);
 
                 if(horasDescanso < 10){
@@ -1586,7 +1121,6 @@ export default function Entrenamiento ({route}) {
                 }
                 listVideo.tiempoDescanso = horasDescanso + ":" + minutosDescanso + ":" + segundosDminutos;
                 jsonListArray = JSON.stringify(listVideo);
-                console.log('El tiempo de descanso final es: ', listVideo.tiempoDescanso)
                 break;
                 }
               }
@@ -1605,203 +1139,39 @@ export default function Entrenamiento ({route}) {
             listaTiempo.tiempoDescanso = '';
             listaTiempo.video = JSON.parse(item).videos;
           }
-          
-
-          let jsonListTiempo = null;
-          let jsonListTiempoVideos = '';
-          let listFilterVideos = t;
-
-          if (listaActualT !== '' && listaActualT !== undefined) {              
-            jsonListTiempo = JSON.parse(listaActualT);                 
-          }
-          else {              
-            jsonListTiempo = listaInicialT;
-          }
-
-          //jsonListTiempoVideos = jsonListTiempo.videolista;
 
           let newTiempo5 = '';
 
           if(listVideo !== ''){
             if(numLista !== 1){
+              // Si hay más de un ejercicio en la lista, se guardará el tiempo de descanso
+              // del ejercicio anterior en la base de datos
               newTiempo5 = t.filter((lista) => lista !== listArray[numLista-1]);
             }
             else{
+              // Si solo hay un ejercicio en la lista, se borrarán los tiempos de la base de datos
               newTiempo5 = t;
               newTiempo5.length=0;
             }
             console.log('newTiempo5 es: ', newTiempo5)
-            //t.push(JSON.stringify(listVideo))
           }
 
           var jsonLista = JSON.stringify(listaTiempo);       
 
           newTiempo5.push(jsonLista);
+
           await AsyncStorage.setItem("TIEMPO", JSON.stringify(newTiempo5));
 
           await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-            console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A EJERCICIO TERMINADO: ', tiempo)
-            //setListTiempo(tiempo);
+            console.log('El valor de los tiempos es: ', tiempo)
           });
-
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          //const ti = await AsyncStorage.getItem("TIEMPO");
-          //const td = ti ? JSON.parse(ti) : [];
-          //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videobutton: ')
-          console.log('El tiempo de realización FINAL del video anterior es videobutton: ', 
-            listaTiempo.tiempoRealizacion)
-          console.log('La lista de tiempos es videobutton: ', t)
           setFlagSaveTime(true);
           setFlagButton(true);
-
         }
       }
-      /*
-      var listaTiempo = {};
-      listaTiempo.id = JSON.parse(item).id;
-      listaTiempo.series = JSON.parse(item).series;
-      listaTiempo.repeticiones = JSON.parse(item).repeticiones;
-      listaTiempo.tiempoRealizacion = '';
-      listaTiempo.tiempoDescanso = '';
-
-      if(hours === 0 && minutes === 0 && seconds === 0){
-      const valorTiempo = await AsyncStorage.getItem("TIEMPO");
-      const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-
-      let jsonListTiempo = null;
-      let jsonListTiempoVideos = '';
-      let listFilterVideos = t;
-      //let listArray = t;
-
-      if (listaActualT !== '' && listaActualT !== undefined) {              
-        jsonListTiempo = JSON.parse(listaActualT);                 
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-      else {              
-        jsonListTiempo = listaInicialT;  //listaEm
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-
-      jsonListTiempoVideos = jsonListTiempo.videolista;
-
-      for (let i = 0; i < jsonListTiempo.videolista.length; i++){
-        if((JSON.parse(item).id) == (JSON.parse(jsonListTiempoVideos[i]).id)){
-          listFilterVideos = jsonListTiempo.videolista.filter((lista) => ((JSON.parse(lista).id) !== 
-            (JSON.parse(jsonListTiempoVideos[i]).id)));
-          let videoItem = JSON.parse(item);
-
-          videoItem.tiempoRealizacion = JSON.parse(item).tiempoRealizacion;
-          listaTiempo.tiempoRealizacion = JSON.parse(item).tiempoRealizacion;
-
-          var jsonLista = JSON.stringify(listaTiempo);
-
-          if(listFilterVideos){
-            listFilterVideos.push(JSON.stringify(videoItem));
-            
-            //t.push(JSON.stringify(videoItem))
-          }
-
-          //t.push(jsonLista);
-          //await AsyncStorage.setItem("TIEMPO", JSON.stringify(t));
-          
-          await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-            console.log('EL TIEMPO AHORA ES SIN GUARDAR Y DARLE A EJERCICIO TERMINADO: ', tiempo)
-            //setListTiempo(tiempo);
-          });
-          console.log('no se ha guardado el tiempo de realización tiempovideopress')
-          console.log('La lista de tiempos es si no se ha guardado el tiempovideopress: ', t)
-          setFlagSaveTime(true);
-          setFlagButton(true);
-          break;
-        }
-      }
-      }
-      else {
-      const valorTiempo = await AsyncStorage.getItem("TIEMPO");
-      const t = valorTiempo ? JSON.parse(valorTiempo) : [];
-      
-      let jsonListTiempo = null;
-      let jsonListTiempoVideos = '';
-      let listFilterVideos = t;
-
-      if (listaActualT !== '' && listaActualT !== undefined) {              
-        jsonListTiempo = JSON.parse(listaActualT);                 
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-      else {              
-        jsonListTiempo = listaInicialT;  //listaEm
-
-        //console.log('El tiempo de realización es: ', tiempoRealizacion)
-      }
-
-      jsonListTiempoVideos = jsonListTiempo.videolista;
-
-      for (let i = 0; i < jsonListTiempo.videolista.length; i++){
-        if((JSON.parse(item).id) == (JSON.parse(jsonListTiempoVideos[i]).id)){
-          listFilterVideos = jsonListTiempo.videolista.filter((lista) => ((JSON.parse(lista).id) !== 
-            (JSON.parse(jsonListTiempoVideos[i]).id)));
-          let videoItem = JSON.parse(item);
-          let horas = '';
-          let minutos = '';
-          let segundos = '';
-          if(hours<10){
-            horas = "0" + hours;             
-          }
-          else {
-            horas = hours;
-          }
-          if(minutes<10){
-            minutos = "0" + minutes;             
-          }
-          else {
-            minutos = minutes;
-          }
-          if(seconds<10){
-            segundos = "0" + seconds;             
-          }
-          else {
-            segundos = seconds;
-          }
-
-          videoItem.tiempoRealizacion = horas + ":" + minutos + ":" + segundos;
-          listaTiempo.tiempoRealizacion = horas + ":" + minutos + ":" + segundos;
-
-          var jsonLista = JSON.stringify(listaTiempo);
-
-          if(listFilterVideos){
-            listFilterVideos.push(JSON.stringify(videoItem));
-            //t.push(JSON.stringify(videoItem))
-          }
-          t.push(jsonLista);
-          await AsyncStorage.setItem("TIEMPO", JSON.stringify(t));
-
-          await AsyncStorage.getItem("TIEMPO").then((tiempo) => {
-            console.log('EL TIEMPO AHORA ES GUARDANDO Y DARLE A EJERCICIO TERMINADO: ', tiempo)
-            //setListTiempo(tiempo);
-          });
-
-          //videolista = videolista.push(series + '\n' + repeticiones + '\n' + tiempo + '\n' + video(link));
-          //const ti = await AsyncStorage.getItem("TIEMPO");
-          //const td = ti ? JSON.parse(ti) : [];
-          //setListTiempo(listFilterVideos);           
-          console.log('Funciona hasta abrirVideo1 videopress: ')
-          console.log('El tiempo de realización FINAL del video es videopress: ', videoItem.tiempoRealizacion)
-          console.log('La lista de tiempos es videopress: ', t)
-          setFlagSaveTime(true);
-          setFlagButton(true);
-          break;
-        }              
-      }        
-
-      }
-      */
     } catch(error){
-      console.log(error)
-    }
+        console.log(error)
+      }
   }
 
   const cancelarEntrenamiento = async() => {

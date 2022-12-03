@@ -46,11 +46,9 @@ import DatePicker from 'react-native-modern-datepicker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
-import { CameraRoll } from "@react-native-camera-roll/camera-roll";
 //import {Menu, MenuItem} from 'react-native-material-menu';
 //import { Menu, Provider } from 'react-native-paper';
 //import { Menu, MenuItem } from '@mui/material';
-import { ListItem, Divider} from 'react-native-elements'
 import {TooltipMenu} from 'react-native-tooltip-menu';
 //import {PopoverTooltip} from 'react-native-popover-tooltip';
 //import RNPopover from 'react-native-popover-menu';
@@ -199,6 +197,7 @@ export default function Lista ({route}) {
     const [modalVisibleLocalVideo, setModalVisibleLocalVideo] = useState(false);
     const [modalVisibleTiempo, setModalVisibleTiempo] = useState(false);
     const [modalVisiblePlay, setModalVisiblePlay] = useState(false);
+    const [modalVisibleFecha, setModalVisibleFecha] = useState(false);
     const [cameraPermission, setCameraPermission] = useState();
     const [type, setType] = useState(Camera.Constants.Type.back);
     const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
@@ -428,7 +427,7 @@ export default function Lista ({route}) {
     const showMode = (currentMode) => {
       //setShow(true);
       setDateVisible(true);
-
+      setModalVisibleFecha(true);
       /*
       if (Platform.OS === 'android') {
         setShow(false);
@@ -579,7 +578,7 @@ export default function Lista ({route}) {
         };
     }, [flagList]));
     
-
+    
     useEffect(() => {
       //isMounted = true;
       //setList(listmenuinicial);
@@ -819,6 +818,8 @@ export default function Lista ({route}) {
 
     const getListasInicial = async() => {
       if (Platform.OS === 'ios') {
+        console.log('estamos en ios')
+        /*
         Permissions.getAsync(Permissions.NOTIFICATIONS).then((statusObj) => {
           if (statusObj.status !== 'granted') {
           return Permissions.askAsync(Permissions.NOTIFICATIONS)
@@ -829,6 +830,7 @@ export default function Lista ({route}) {
           return;
           }
           })
+          */
       }
       let listasIniciales = '';
       let listaConHistorial = '';
@@ -2186,7 +2188,7 @@ export default function Lista ({route}) {
                               : <Ionicons name="flash" size={24} color="black" />
                             }
                           </TouchableOpacity>
-                          <View style={{ flexDirection: 'row', marginTop: 580}}>
+                          <View style={{ flexDirection: 'row', marginTop: 480}}>
                             <View style={styles.imagen9}>
                                 <TouchableOpacity onPress={() => {
                                     setModalVisibleFoto(false);
@@ -3233,38 +3235,25 @@ export default function Lista ({route}) {
     
     }
 
-    const enviarLista = async () => {
-      //llamamos al modulo 'Sharing' y dentro del modulo llamamos al metodo 'isAvailableAsync'
-      //si una funcion es asincrona, le debemos poner async, y a los modulos asincronos se les pone 'await' delante
-      if (!(await Sharing.isAvailableAsync())) {
-        alert('No se puede compartir la lista');
-        return;
-      }
-  
-      saveFile();
-
-      if (fileUri !== null) {
-        if (previewVideo !== null){
-          //await sendEmailWithAttachment();
-          //await Sharing.shareAsync(FileSystem.cacheDirectory + "listDir/test0.mp4");
-          console.log('NO SE PUEDE ENVIAR LISTA')
-          //await Sharing.shareAsync(fileUri);
-        }
-        else {
-          //await Sharing.shareAsync(fileUri);
-          console.log('SE PUEDE ENVIAR LISTA')
-        }
-      }
-      //usamos el metodo shareAsync para compartir la imagen que esta guardada en selectedImage.localUri
-
+  const enviarLista = async () => {
+    // Comprobamos que se pueda compartir la lista
+    if (!(await Sharing.isAvailableAsync())) {
+      Alert.alert('No se puede compartir la lista');
+      return;
     }
+    // Llamamos al método que comprueba los permisos para compartir la lista
+    saveFile();
+  }
 
-  const getFiles = async () => {
+  const getLista = async () => {
     try{
       var lista = {};
+
+      // Obtenemos las listas de la base de datos local
       const valorListas = await AsyncStorage.getItem("LISTAS");
       const l = valorListas ? JSON.parse(valorListas) : [];
-
+      
+      // Obtenemos la lista cuyo id coincide con la lista actual
       for (let i=0; i < l.length; i++){
         if((JSON.parse(l[i])).idlista == listaInicial.idlista){
           lista.imagen = (JSON.parse(l[i])).imagen;
@@ -3280,34 +3269,43 @@ export default function Lista ({route}) {
           break;
         }
       }
+      // Convertimos el objeto lista en una cadena en formato JSON
       var jsonLista = JSON.stringify(lista, null, 2);
-      console.log('la lista en formato JSON es: ', jsonLista);
+
+      // Creamos la uri de la lista con formato .TXT
       fileUri = FileSystem.documentDirectory + "lista.txt";
+
+      // Escribimos el contenido de la lista en la uri
       await FileSystem.writeAsStringAsync(fileUri, jsonLista, { encoding: FileSystem.EncodingType.UTF8 });
+
+      // Leemos el contenido de la lista de la uri
       file = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.UTF8 });
       
+      // Enviamos la uri de la lista llamando al módulo "Sharing"
       await Sharing.shareAsync(fileUri);
  
       } catch (error){
-      console.log(error)
-      }
-      
-    };
+        console.log(error)
+      }     
+  };
 
 
-    const saveFile = async () => {
+  const saveFile = async () => {
+    // Si el sistema operativo es iOS, obtenemos la lista
     if (Platform.OS === 'ios') {
-      getFiles();
+      getLista();
     } else {
         try{
+          // Si el sistema operativo es Android, comprobamos los permisos
           const writegranted = await PermissionsAndroid.check(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
           );
           if (writegranted) {
             try {
-                getFiles();
-            } catch (e) {
-              console.log(e);
+              // Si existen permisos para escribir en el almacenamiento externo, obtenemos la lista
+                getLista();
+            } catch (error) {
+              console.log("No tiene permisos para escribir en el almacenamiento externo", error);
             }
           }  
           else {
@@ -3323,12 +3321,13 @@ export default function Lista ({route}) {
             );
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
               try {
-                console.log('Se puede escribir en el almacenamiento externo');
+                // Si se puede escribir en el almacenamiento externo, obtener permisos para acceder
+                // a la galería del dispositivo
                 const permission = await MediaLibrary.getPermissionsAsync();
-                console.log(permission);
+
                 if (permission.granted) {
-                  // we want to get all the files
-                  getFiles();
+                  // Obtenemos la lista si se han otorgado los permisos para acceder a la galería
+                  getLista();
                 }
                 if (!permission.granted && permission.canAskAgain) {
                   const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync();
@@ -3337,36 +3336,25 @@ export default function Lista ({route}) {
                     Alert.alert('El usuario debe aceptar los permisos para enviar la lista');
                   }
                   if (status === 'granted'){
-                    getFiles();
+                    getLista();
                   }
                   if (status === 'denied' && !canAskAgain) {
-                    console.log("El usuario ha denegado el permiso y no se puede volver a preguntar");
+                    Alert.alert("Se ha denegado el permiso y no se puede volver a preguntar");
                   }
                 }
                 if (!permission.canAskAgain && !permission.granted) {
-                  console.log("El usuario ha denegado el permiso y no se puede volver a preguntar");
+                  Alert.alert("Se ha denegado el permiso y no se puede volver a preguntar");
                 }
-                /*
-                const asset = await MediaLibrary.createAssetAsync('file:///storage/emulated/0/Teleco erasmus/1° semestre/IMG_20191001_004207.jpg');
-                const album = await MediaLibrary.getAlbumAsync('Download');
-                if (album == null) {
-                  await MediaLibrary.createAlbumAsync('Download', asset, false);
-                } else {
-                  await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
-                }
-                */
               } catch (e) {
                 console.log(e);
               }
           }
           else if (granted === PermissionsAndroid.RESULTS.DENIED){
-            // If permission denied then show alert
+            // Si el permiso ha sido denegado, se muestra una alerta de error
             Alert.alert('Error, no se han aceptado los permisos de almacenamiento');
-            console.log('No se puede escribir en el almacenamiento externo');
           }
           else {
             Alert.alert('Error, no se han aceptado los permisos de almacenamiento');
-            console.log('No se puede escribir en el almacenamiento externo');
           }
         }
       }
@@ -3374,7 +3362,7 @@ export default function Lista ({route}) {
           console.log(err);
         }
       }
-    }
+  }
 
 
     for (let i = 0; i<datos.length; i++){
@@ -3880,12 +3868,19 @@ let añadirFondo = async() => {
 
 try {
   if(dateVisible === true) {
-    datepick = (<DateTimePicker
+    datepick = (
+      <View style={{alignItems: 'center', justifyContent: 'center'}}>
+        <Modal
+        visible={modalVisibleFecha} 
+        animationType='fade' 
+        transparent={true}>
+    <DateTimePicker
     testID="dateTimePicker"
+    style={{ width: '40%', top: 30, left: 90, backgroundColor: '#95bddb' }}
     value={date}
     mode={mode}
     is24Hour={true}
-    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+    display={'default'}
     onChange={(event, value) => {
       //console.log('al entrar en onchange, show es: ', show)
       setDateVisible(!dateVisible);
@@ -3908,9 +3903,12 @@ try {
       console.log('EL dia elegido es: ', fDate)
       console.log('LA hora elegida es: ', fTime)
       setTime(currentDate);
+      setModalVisibleFecha(false);
       
     }}
-    />);
+    />
+    </Modal>
+    </View>);
   }
   else {
     datepick = (<View> 
@@ -3968,7 +3966,15 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
           ('https://images.pexels.com/photos/4589470/pexels-photo-4589470.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')
           ))}} resizeMode="cover" style={styles.imagen13}>
         <View style={styles.container}>
-          <View style={{ flexDirection: 'row', marginTop: 10}}>
+        <TouchableOpacity
+            style={styles.botonAtras}
+            onPress={() => backAction()}>
+            <Image
+              source={datosIm[5].image}
+              style={{height: 35, width: 35}}
+            />
+          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', marginTop: 20}}>
             <View style={styles.listaRealizadoIm}>
               <Image
                 source={(listaActual !== '') ? (JSON.parse(listaActual).imagenListaRealizado) : (listaInicial.imagenListaRealizado)}
@@ -4125,7 +4131,7 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                         backgroundColor: '#5a9ed1',
                       }}
                       dropDownContainerStyle={{
-                        height: 160,
+                        height: 120,
                       }}
                     />
                   </View>
@@ -4800,7 +4806,7 @@ const styles = StyleSheet.create({
     height: 45,
     width: 100,
     marginLeft: 140,
-    bottom: 155,
+    bottom: 170,
   },
   botonCancelarFecha: {
     backgroundColor: '#d1453d',
@@ -4810,7 +4816,7 @@ const styles = StyleSheet.create({
     height: 45,
     width: 100,
     marginLeft: 140,
-    bottom: 145,
+    bottom: 165,
   },
   botonEmoticono: {
     backgroundColor: '#2d65c4',
@@ -5082,6 +5088,18 @@ const styles = StyleSheet.create({
     borderRadius: 400/2,
     height: 35,
   },
+  botonAtras: {
+    borderRadius: 1000,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 35,
+    position: 'absolute',
+    marginTop: 20,
+    bottom: 10,
+    top: 0,
+    right: 340,
+  },
   modalStyle: {
     borderColor: '#949699',
     borderWidth: 1,
@@ -5108,8 +5126,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 9,
     width: width-30,
-    height: Dimensions.get("window").height-500,
+    height: Dimensions.get("window").height-400,
     marginLeft: 15,
+    marginTop: 10,
     alignItems: 'center', 
     justifyContent: 'center',
     backgroundColor: '#95bddb',

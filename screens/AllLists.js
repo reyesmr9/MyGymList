@@ -1124,7 +1124,14 @@ const mesFecha = (lista) => {
          'https://images.pexels.com/photos/3927386/pexels-photo-3927386.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
          }} resizeMode="cover" style={styles.imagen4}>
         <View style={styles.container}>
-        
+        <TouchableOpacity
+            style={styles.botonAtras}
+            onPress={() => backAction()}>
+            <Image
+              source={datosIm[5].image}
+              style={{height: 35, width: 35}}
+            />
+          </TouchableOpacity>
         <View style={{ flexDirection: 'row', bottom: 40}}>
           <View>
             <Text style={styles.title}>
@@ -1546,6 +1553,17 @@ const styles = StyleSheet.create({
     width: 45,
     borderRadius: 400/2,
     marginTop: 0,
+  },
+  botonAtras: {
+    borderRadius: 1000,
+    alignItems: 'center', 
+    justifyContent: 'center',
+    alignSelf: 'center',
+    height: 35,
+    position: 'absolute',
+    bottom: 10,
+    top: 35,
+    right: 340,
   },
   border: {
     marginTop: 2,
