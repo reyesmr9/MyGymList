@@ -353,7 +353,6 @@ const BottomTabBar = ({navigation, state}) => (
 export default function App () {
   let isMounted = true;
   const [loginDatos, setLoginDatos] = useState("");
-  const [loginDatosB, setLoginDatosB] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState('');
   const [datosModo, setDatosModo] = useState("");
   const [isModo, setIsModo] = useState('');
@@ -432,21 +431,21 @@ export default function App () {
     await AsyncStorage.setItem("MODO", JSON.stringify(f));   
     */
     
-    await AsyncStorage.getItem("DATOS").then((datos) => {
-      setLoginDatos(JSON.parse(datos));    //guardamos cada lista en formato string en listas
-      setIsLoggedIn(datos);
-    });
+    const datosUsuario = await AsyncStorage.getItem("DATOS");
+    const datos = datosUsuario ? JSON.parse(datosUsuario) : [];
+    if(datos.length==0){
+      console.log('No se han introducido datos')
+    }
+    else{
+      // Guardamos los datos del usuario en una variable de estado
+      setIsLoggedIn(datosUsuario);
+    }    
     
     
   }
       
     useEffect(() => {
       isMounted = true;
-      /*
-      if(isMounted){
-        BackHandler.addEventListener('hardwareBackPress', backAction);
-      }
-      */
       if(isMounted){
         getDatos();
         BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -460,7 +459,7 @@ export default function App () {
         //subscription.remove();
       };
         
-      }, [loginDatosB]);
+      }, []);
 
     
     return (

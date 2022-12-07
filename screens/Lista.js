@@ -3204,7 +3204,7 @@ export default function Lista ({route}) {
 
     const sendEmailWithAttachment = async() => {
     //get the image to attach
-      //await saveFile();
+      //await comprobarLista();
       /*
       let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -3241,8 +3241,8 @@ export default function Lista ({route}) {
       Alert.alert('No se puede compartir la lista');
       return;
     }
-    // Llamamos al método que comprueba los permisos para compartir la lista
-    saveFile();
+    // Llamamos a la función que comprueba los permisos para compartir la lista
+    comprobarLista();
   }
 
   const getLista = async () => {
@@ -3290,7 +3290,7 @@ export default function Lista ({route}) {
   };
 
 
-  const saveFile = async () => {
+  const comprobarLista = async () => {
     // Si el sistema operativo es iOS, obtenemos la lista
     if (Platform.OS === 'ios') {
       getLista();
@@ -3381,14 +3381,19 @@ export default function Lista ({route}) {
       />;
     }
     else {
-      component = <Image
-      //source={{uri: 'https://picsum.photos/200/200'}}
-      //la listaInicial puede que tenga que ser un string
-      source={{uri: listaInicial.imagen.toString() }}
-      style={styles.imagen}
-      //si existe el estado (si es distinto de null), se pinta una imagen (de la uri) que escogemos en la galeria. 
-      //Si no existe el estado (si es null), se muestra la imagen 'picsum.photos' por defecto
-      />;
+      if(listaInicial.imagen !== ''){
+        component = <Image
+        //source={{uri: 'https://picsum.photos/200/200'}}
+        //la listaInicial puede que tenga que ser un string
+        source={{uri: listaInicial.imagen.toString() }}
+        style={styles.imagen}
+        //si existe el estado (si es distinto de null), se pinta una imagen (de la uri) que escogemos en la galeria. 
+        //Si no existe el estado (si es null), se muestra la imagen 'picsum.photos' por defecto
+        />;
+      }
+      else{
+        component = <View></View>
+      }
     }
    
     console.log('el valor de num es: ', num)
@@ -4141,9 +4146,9 @@ const handleKeyPress = ({ nativeEvent: { key: keyValue } }) => {
                 </View>
                 </View>
                 <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{bottom: 170}}>Fecha Seleccionada:    {(date) ? 
+                <Text style={{bottom: 175}}>Fecha Seleccionada:    {(date) ? 
                   (date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()) : ''} </Text>
-                <Text style={{right: 20, bottom: 170}}>Hora Seleccionada:      {(date) ? 
+                <Text style={{right: 20, bottom: 175}}>Hora Seleccionada:      {(date) ? 
                   (((date.getHours()<10) ? ('0'+ date.getHours()) : date.getHours()) + ':' + 
                    ((date.getMinutes()<10) ? ('0'+ date.getMinutes()) : date.getMinutes())
                   ) : ''} 
@@ -4806,7 +4811,7 @@ const styles = StyleSheet.create({
     height: 45,
     width: 100,
     marginLeft: 140,
-    bottom: 170,
+    bottom: 165,
   },
   botonCancelarFecha: {
     backgroundColor: '#d1453d',
@@ -4816,7 +4821,7 @@ const styles = StyleSheet.create({
     height: 45,
     width: 100,
     marginLeft: 140,
-    bottom: 165,
+    bottom: 160,
   },
   botonEmoticono: {
     backgroundColor: '#2d65c4',
@@ -5000,13 +5005,13 @@ const styles = StyleSheet.create({
     borderRadius: 400/2,
   },
   imagen6: {
-    right: 70,
+    right: 60,
     marginBottom: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     height: 40,
     width: 40,
-    top: 30,
+    top: 40,
     marginLeft: 5,
     borderRadius: 400/2,
   },
@@ -5097,7 +5102,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     marginTop: 20,
     bottom: 10,
-    top: 0,
+    top: 10,
     right: 340,
   },
   modalStyle: {

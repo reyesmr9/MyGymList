@@ -304,7 +304,6 @@ export default function NuevaLista () {
         }});
         */
         if(titulo !== ""){
-        if(selectedImage.localUri !== 'https://cdn.pixabay.com/photo/2017/01/25/17/35/picture-2008484_960_720.png' || im !== imagenInicial[2].image){
           const valorListas = await AsyncStorage.getItem("LISTAS");
           const l = valorListas ? JSON.parse(valorListas) : [];
           const valorVideos = await AsyncStorage.getItem("EJERCICIOS");
@@ -317,8 +316,7 @@ export default function NuevaLista () {
           var año = new Date().getFullYear(); //To get the Current Year
           var fecha = dia + '-' + mes + '-' + año;
           
-          try{
-            
+          try{            
             if ((videos.length > 0) && (videos !== undefined) && (videos !== null)){
               if ((selectedImage.localUri !== null) && (selectedImage.localUri !== undefined) && (selectedImage.localUri !== "") && (flag === true)){
 
@@ -407,6 +405,35 @@ export default function NuevaLista () {
                 //var newVideos = videos.filter((video) => video !== vids);
                 //creamos un nuevo array con todas las listas que no coinciden con el parametro singleList de las listas usando array.filter
               }
+              else{
+                lista.imagen = '';
+                lista.titulo = titulo;
+                lista.videolista = video;
+                lista.email = email;
+
+                let idVideos = "";
+
+                if(l.length>0){
+                  for (let i=0; i < l.length; i++){
+                    if(idList !== (JSON.parse(l[i]).idlista)) {
+                      idVideos = idList;
+                    }
+                  }
+                }
+                if(idVideos === "")
+                {
+                  idVideos = (Math.round(Math.random() * 1000)).toString();
+                }
+
+                lista.idlista = idVideos;
+                lista.fechacreacion = fecha;
+                lista.listaRealizado = "no";
+                lista.imagenListaRealizado = datosIm[7].image;
+                lista.historial = '';
+                lista.fondo = '';
+                var jsonLista = JSON.stringify(lista);
+                l.push(jsonLista);
+              }
               console.log('Se ha pulsado Crear Lista')
               
               var anotherArray=videos;
@@ -451,21 +478,17 @@ export default function NuevaLista () {
               Alert.alert("Inserta un link de Youtube en el ejercicio");
             }
           
-
           }
           catch(error){
             console.log(error);
-            Alert.alert("Error. Inserta una imagen o un icono");
+            Alert.alert("Error al crear la lista");
           }
         }
-        
-        else {
-          Alert.alert("Inserta una imagen o un icono");
-        }
-    } 
-    else {
-      Alert.alert("Inserta un título");
-    }
+
+    
+      else {
+        Alert.alert("Inserta un título");
+      }
   }
 
     const addVideoLink = () => {

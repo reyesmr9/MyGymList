@@ -1951,14 +1951,19 @@ export default function ListaConfiguracion ({route}) {
       />;
     }
     else {
-      component = <Image
-      //source={{uri: 'https://picsum.photos/200/200'}}
-      //la listaInicial puede que tenga que ser un string
-      source={{uri: listaInicial.imagen.toString() }}
-      style={styles.imagen}
-      //si existe el estado (si es distinto de null), se pinta una imagen (de la uri) que escogemos en la galeria. 
-      //Si no existe el estado (si es null), se muestra la imagen 'picsum.photos' por defecto
-      />;
+      if(listaInicial.imagen !== ''){
+        component = <Image
+        //source={{uri: 'https://picsum.photos/200/200'}}
+        //la listaInicial puede que tenga que ser un string
+        source={{uri: listaInicial.imagen.toString() }}
+        style={styles.imagen}
+        //si existe el estado (si es distinto de null), se pinta una imagen (de la uri) que escogemos en la galeria. 
+        //Si no existe el estado (si es null), se muestra la imagen 'picsum.photos' por defecto
+        />;
+      }
+      else{
+        component = <View></View>
+      }
     }
 
 
@@ -3302,13 +3307,13 @@ const styles = StyleSheet.create({
     borderRadius: 400/2,
   },
   imagen6: {
-    right: 70,
+    right: 60,
     marginBottom: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     height: 40,
     width: 40,
-    top: 30,
+    top: 40,
     marginLeft: 5,
     borderRadius: 400/2,
   },
@@ -3500,7 +3505,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     marginTop: 20,
     bottom: 10,
-    top: 0,
+    top: 10,
     right: 340,
   },
   videoPlayer: {

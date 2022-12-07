@@ -177,7 +177,16 @@ export default function AllLists () {
       else {       
         setOpened(false);
         isMounted = false;
-        navigation.goBack();
+        //navigation.goBack();
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'Modo'
+            },
+          ],
+        })
+        navigation.navigate("Modo");
       }
      
       return true;
