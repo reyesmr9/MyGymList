@@ -1,99 +1,60 @@
-import * as eva from "@eva-design/eva";
 import 'react-native-gesture-handler';
-import React, {useState, useEffect, useCallback, useRef} from 'react';
-import Constants from 'expo-constants';
+import React, {useState} from 'react';
 
-import * as Sharing from 'expo-sharing';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, TextInput, Modal, View, BackHandler, Image, TouchableOpacity, Dimensions, 
-  Alert, Platform, ScrollView} from 'react-native';
+import { StyleSheet, View, BackHandler, Dimensions, Alert} from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SQLite from 'expo-sqlite';
-import * as ImagePicker from 'expo-image-picker';
-import * as MailComposer from 'expo-mail-composer';
-import * as IntentLauncher from 'expo-intent-launcher';
-import * as Linking from 'expo-linking';
-import * as DocumentPicker from 'expo-document-picker';
-import YoutubePlayer from 'react-native-youtube-iframe';
-import { Video, AVPlaybackStatus } from 'expo-av';
-import { NavigationContainer, useNavigation, useFocusEffect } from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
-import {createStackNavigator} from '@react-navigation/stack';
-import {List, ListItem, Divider, Text, Button} from '@ui-kitten/components';
-import * as FileSystem from 'expo-file-system';
-import NativeModules from "react-native";
-import {startActivityAsync, ActivityAction} from 'expo-intent-launcher';
-import launch from 'react-native-mail-launcher';
-import launchMailApp from 'react-native-mail-launcher';
-import { SafeAreaView, FlatList } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import { StackRouter } from 'react-navigation';
-import { MenuProvider } from 'react-native-popup-menu';
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-  MenuContext,
-} from 'react-native-popup-menu';
-
-import {ApplicationProvider, BottomNavigation, BottomNavigationTab} from '@ui-kitten/components';
-
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import {List, ListItem, Text, Button} from '@ui-kitten/components';
 
 export default function Historial ({route}) {
+  const navigation = useNavigation();
+  const {listHistorial, itemIdHistorial} = route.params;
+  const [modalVisibleHistorial, setModalVisibleHistorial] = useState(false);
+  const [listActualH, setListActualH] = useState([]);
+  const [flagListActual, setFlagListActual] = useState(false);
 
-    const navigation = useNavigation();
-    const {listHistorial, itemIdHistorial} = route.params;
-
-    const [modalVisibleHistorial, setModalVisibleHistorial] = useState(false);
-    const [listActualH, setListActualH] = useState([]);
-    const [flagListActual, setFlagListActual] = useState(false);
-    const videoLocalReference = useRef(null);
-    const [statusVideoR, setStatusVideoR] = useState({});
- 
-    let isMounted = true;
-       
-    const backAction = () => {
-      if(!navigation.canGoBack()){
-        Alert.alert('', '¿Seguro que quieres salir de la app?', [
+  let isMounted = true;
+      
+  const backAction = () => {
+    if(!navigation.canGoBack()){
+      Alert.alert('', '¿Seguro que quieres salir de la app?', [
+        {
+          text: 'Cancelar',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        { text: 'Sí', onPress: () => {BackHandler.exitApp()}},
+      ]);
+    }
+    else {
+      let listH = listActualH;
+      navigation.reset({
+        index: 0,
+        routes: [
           {
-            text: 'Cancelar',
-            onPress: () => null,
-            style: 'cancel',
+            name: 'Lista',
+            params: { singleList: listHistorial,
+                      itemId: JSON.parse(listHistorial).listaid,
+                    },
           },
-          { text: 'Sí', onPress: () => {BackHandler.exitApp()}},
-        ]);
+        ],
+      })
+      navigation.navigate("Lista", {
+        singleList: ((listH.length!==0) ? listActualH : listHistorial),
+        itemId: JSON.parse(listHistorial).listaid,
+      });
+      if(modalVisibleHistorial===false){
+        isMounted = false;
       }
-      else {
-        let listH = listActualH;
-        navigation.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'Lista',
-              params: { singleList: listHistorial,
-                        itemId: JSON.parse(listHistorial).listaid,
-                      },
-            },
-          ],
-        })
-        navigation.navigate("Lista", {
-          singleList: ((listH.length!==0) ? listActualH : listHistorial),
-          itemId: JSON.parse(listHistorial).listaid,
-        });
-        if(modalVisibleHistorial===false){
-          isMounted = false;
-        }
-      }
-      return true;
-    };
+    }
+    return true;
+  };
 
   useFocusEffect(
     React.useCallback(() => {
     isMounted = true;
 
     if(isMounted){
-      //getLista();
       BackHandler.addEventListener('hardwareBackPress', backAction);
     }
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -101,43 +62,37 @@ export default function Historial ({route}) {
     return () => {
       backHandler.remove();
       isMounted = false;
-      //setListH('');
     };
       
     }, []));
 
-    const borrarHistorial = async() => {    
-      const valorListas = await AsyncStorage.getItem("LISTAS");
-      const l = valorListas ? JSON.parse(valorListas) : [];
+  const borrarHistorial = async() => {    
+    const valorListas = await AsyncStorage.getItem("LISTAS");
+    const l = valorListas ? JSON.parse(valorListas) : [];
 
-      let newLists = '';
-      let listaAhoraH = JSON.parse(listHistorial);
-      listaAhoraH.historial = '';
+    let newLists = '';
+    let listaAhoraH = JSON.parse(listHistorial);
+    listaAhoraH.historial = '';
 
-      newLists = l.filter((lista) => lista !== listHistorial); 
+    newLists = l.filter((lista) => lista !== listHistorial); 
 
-      newLists.push(JSON.stringify(listaAhoraH));
+    newLists.push(JSON.stringify(listaAhoraH));
 
-      await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
+    await AsyncStorage.setItem("LISTAS", JSON.stringify(newLists));
 
-      await AsyncStorage.getItem("LISTAS").then((listas) => {
-        console.log('Las lista historial tras borrar el historial es: ', listaAhoraH)
-        setListActualH(JSON.stringify(listaAhoraH));
-        setFlagListActual(true);                          
-      })
-      .catch(()=>{
-        console.log('No existe la lista')
-      });
-      
-      console.log('Se ha borrado el historial')
-    }
-
-  
+    await AsyncStorage.getItem("LISTAS").then((listas) => {
+      setListActualH(JSON.stringify(listaAhoraH));
+      setFlagListActual(true);                          
+    })
+    .catch(()=>{
+      console.log('No existe la lista')
+    }); 
+    console.log('Se ha borrado el historial')
+  }
 
   const renderItem = ({ item, index }) => {
     try {
       if (item !== undefined || item !== null){
-        //let duracion = (JSON.parse(item).titulo).length * 135;
           return (
             <View>        
             <View style={styles.textHistorial2}>     
@@ -150,7 +105,6 @@ export default function Historial ({route}) {
                 </Text>}
                 onPress={async() => {
                 try{
-                  //setModalVisibleHistorial(true);
                   let listH = listActualH;
                   navigation.reset({
                     index: 0,
@@ -173,7 +127,6 @@ export default function Historial ({route}) {
                   console.log(error)
                 }
                 }
-  
               }
               style={styles.border2}
             />
@@ -231,7 +184,7 @@ export default function Historial ({route}) {
           style={styles.botonAtras}
           onPress={() => {
             let listH = listActualH;
-            console.log('VOLVEMOS A LA LISTA DESDE EL HISTORIAL')
+            // Volvemos a la lista
             navigation.reset({
               index: 0,
               routes: [
@@ -258,7 +211,6 @@ export default function Historial ({route}) {
     </View>
   );
 }
-
 
 const { width } = Dimensions.get('window');
 
@@ -335,7 +287,6 @@ const styles = StyleSheet.create({
     width: 80,
   },
   button2: {
-    //backgroundColor: '#1B4B95',
     padding: 0,
     marginBottom: 0,
     marginTop: 3,
@@ -348,7 +299,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button3: {
-    //backgroundColor: '#1B4B95',
     padding: 4,
     marginBottom: 0,
     right: 25,
@@ -358,7 +308,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button4: {
-    //backgroundColor: '#1B4B95',
     position: 'absolute',
     right: 5,
     marginBottom: 0,
@@ -370,14 +319,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   button5: {
-    //backgroundColor: '#1B4B95',
     padding: 0,
     marginBottom: 0,
     borderRadius: 400/2,
     height: 35,
   },
   button6: {
-    //backgroundColor: '#1B4B95',
     position: 'absolute',
     padding: 0,
     marginBottom: 0,
@@ -423,7 +370,6 @@ const styles = StyleSheet.create({
     bottom: 140,
   },
   button11: {
-    //backgroundColor: '#1B4B95',
     position: 'absolute',
     padding: 0,
     marginLeft: 0,
@@ -435,7 +381,6 @@ const styles = StyleSheet.create({
     top: 4,
   },
   button12: {
-    //backgroundColor: '#1B4B95',
     padding: 0,
     marginBottom: 40,
     marginLeft: 10,
@@ -468,18 +413,15 @@ const styles = StyleSheet.create({
     width: 150,
   },
   foto2: {
-    //backgroundColor: '#1B4B95',
     height: 150,
     width: 150,
   },
   foto3: {
-    //backgroundColor: '#1B4B95',
     height: 280,
     width: 280,
     marginBottom: 50,
   },
   viewFoto: {
-    //backgroundColor: '#1B4B95',
     marginTop: 40,
     marginBottom: 10,
     alignItems: 'center',
@@ -531,14 +473,12 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   textHistorial: {
-    //backgroundColor: '#1B4B95',
     padding: 10,
     marginRight: 30,
     fontSize: 16,
     backgroundColor:'rgba(52, 52, 52, 0.010)',
   },
   textHistorial2: {
-    //backgroundColor: '#79aad1',
     padding: 0,
     marginRight: 30,
     fontSize: 16,
@@ -611,13 +551,11 @@ const styles = StyleSheet.create({
     borderRadius: 400/2,
   },
   imagen7: {
-    //backgroundColor: '#1B4B95',
     height: 70,
     width: 70,
     borderRadius: 400/2,
   },
   imagen8: {
-    //backgroundColor: '#1B4B95',
     marginTop: 10,
     left: 20,
     height: 60,
@@ -636,7 +574,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   imagen10: {
-    //backgroundColor: '#1B4B95',
     padding: 3,
     marginBottom: 0,
     marginTop: 4,
@@ -648,7 +585,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   imagen11: {
-    //backgroundColor: '#1B4B95',
     padding: 3,
     marginBottom: 0,
     marginTop: 4,
@@ -684,7 +620,6 @@ const styles = StyleSheet.create({
     right: 3,
   },
   listaRealizadoIm: {
-    //backgroundColor: '#1B4B95',
     padding: 0,
     left: 30,
     marginBottom: 0,

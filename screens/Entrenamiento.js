@@ -1,353 +1,207 @@
-import * as eva from "@eva-design/eva";
 import 'react-native-gesture-handler';
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import Constants from 'expo-constants';
 
-import * as Sharing from 'expo-sharing';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, TextInput, View, BackHandler, Image, TouchableOpacity, Dimensions, 
-  Alert, Platform, ScrollView} from 'react-native';
+import { StyleSheet, View, BackHandler, TouchableOpacity, Dimensions, Alert} from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SQLite from 'expo-sqlite';
-import * as ImagePicker from 'expo-image-picker';
-import * as MailComposer from 'expo-mail-composer';
-import * as IntentLauncher from 'expo-intent-launcher';
-import * as Linking from 'expo-linking';
-import * as DocumentPicker from 'expo-document-picker';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import { Video, AVPlaybackStatus } from 'expo-av';
-import { NavigationContainer, useNavigation, useFocusEffect } from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
-import {createStackNavigator} from '@react-navigation/stack';
-import {List, ListItem, Divider, Icon, Text, Button} from '@ui-kitten/components';
-import * as FileSystem from 'expo-file-system';
-import NativeModules from "react-native";
-import {startActivityAsync, ActivityAction} from 'expo-intent-launcher';
-import launch from 'react-native-mail-launcher';
-import launchMailApp from 'react-native-mail-launcher';
-import { SafeAreaView, FlatList } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import { StackRouter } from 'react-navigation';
-import { MenuProvider } from 'react-native-popup-menu';
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-  MenuContext,
-} from 'react-native-popup-menu';
-
-import {ApplicationProvider, BottomNavigation, BottomNavigationTab} from '@ui-kitten/components';
-
+import { Video } from 'expo-av';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import {Icon, Text, Button} from '@ui-kitten/components';
+import { FlatList } from 'react-native';
 
 export default function Entrenamiento ({route}) {
+  const navigation = useNavigation();
+  const [flagPlay, setFlagPlay] = useState(false);
+  const {listPlay, itemIdPlay} = route.params;
+  const [listas, setListas] = useState([]);
+  const [listT, setListT] = useState([]);
+  const listaInicialT = JSON.parse(listPlay);
+  const [listaActualT, setlistaActualT] = useState('');
+  const flatListRef = useRef(null);
+  const [flagTiempo, setFlagTiempo] = useState(false);
+  const [flagTiempoGuardar, setFlagTiempoGuardar] = useState(false);
+  const [flagTiempoPress, setFlagTiempoPress] = useState(false);
+  const [flagSaveTime, setFlagSaveTime] = useState(false);
+  const [flagOneVideo, setFlagOneVideo] = useState(false);
+  const [flagTiempoInicial, setFlagTiempoInicial] = useState(false);
+  const [flagButton, setFlagButton] = useState(false);
+  const [flagButtonGuardar, setFlagButtonGuardar] = useState(false);
+  const [flagFinal, setFlagFinal] = useState(false);
+  const [tiempoInicio, setTiempoInicio] = useState("");
+  const [tiempoFinal, setTiempoFinal] = useState("");
+  const [tiempoTotal, setTiempoTotal] = useState("");
+  const [statusVideo, setStatusVideo] = useState({});
+  let previewVideoPlay = null;
+  let youtubeVideoPlay = null;
+  let videoGuardar = false;
+  let videoSiguiente = false;
+  const videoLocalRef = useRef([]);
 
-    const navigation = useNavigation();
-    //const [modo, setModo] = useState([]);  //guardamos los datos del usuario en un array con nombre: datos[0]
-    const [flagPlay, setFlagPlay] = useState(false);
-    const {listPlay, itemIdPlay} = route.params;
-    const [listas, setListas] = useState([]);
-    const [listT, setListT] = useState([]); //cambiarla por variables locales en las funciones
-    const listaInicialT = JSON.parse(listPlay);
-    const [listaActualT, setlistaActualT] = useState('');
-    const flatListRef = useRef(null);
-    const [flagTiempo, setFlagTiempo] = useState(false);
-    const [flagTiempoGuardar, setFlagTiempoGuardar] = useState(false);
-    const [flagTiempoPress, setFlagTiempoPress] = useState(false);
-    const [flagSaveTime, setFlagSaveTime] = useState(false);
-    const [flagOneVideo, setFlagOneVideo] = useState(false);
-    const [flagTiempoInicial, setFlagTiempoInicial] = useState(false);
-    const [flagButton, setFlagButton] = useState(false);
-    const [flagButtonGuardar, setFlagButtonGuardar] = useState(false);
-    const [flagFinal, setFlagFinal] = useState(false);
-    const [tiempoInicio, setTiempoInicio] = useState("");
-    const [tiempoFinal, setTiempoFinal] = useState("");
-    const [tiempoTotal, setTiempoTotal] = useState("");
-    //const [itemPlay, setItemPlay] = useState(false);
-    const [statusVideo, setStatusVideo] = useState({});
-    const [paused, setpaused] = useState(true);
-    let previewVideoPlay = null;
-    let youtubeVideoPlay = null;
-    let videoGuardar = false;
-    let videoSiguiente = false;
-    let listaAhora = listPlay;
-    const videoLocalRef = useRef([]);
+  const [seconds, setSeconds] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [hours, setHours] = useState(0);
+  const [customInterval, setCustomInterval] = useState();
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
 
-    const [seconds, setSeconds] = useState(0);
-    const [minutes, setMinutes] = useState(0);
-    const [hours, setHours] = useState(0);
-    const [customInterval, setCustomInterval] = useState();
-    const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  let isMounted = true;
 
-    let isMounted = true;
+  const iconRef = React.useRef();
+  const siguienteIcon = (props) => (
+    <Icon
+      {...props}
+      ref={iconRef}
+      name='arrow-circle-right'
+    />
+  );
 
-    const iconRef = React.useRef();
-    const siguienteIcon = (props) => (
-      <Icon
-        {...props}
-        ref={iconRef}
-        name='arrow-circle-right'
-      />
+  const comenzarTimer = () => {
+    setCustomInterval(
+      setInterval(() => {
+        cambiarTiempo();
+      }, 1000)
     );
+  }
 
-    const comenzarTimer = () => {
-      setCustomInterval(
-        setInterval(() => {
-          cambiarTiempo();
-        }, 1000)
-      );
+  const pararTimer = () => {
+    if(customInterval){
+      clearInterval(customInterval);
     }
+  }
 
-    const pararTimer = () => {
-      if(customInterval){
-        clearInterval(customInterval);
-      }
-    }
+  const resetearTimer = () => {
+    pararTimer();
+    setSeconds(0);
+    setMinutes(0);
+    setHours(0);
+    return;
+  }
 
-    const resetearTimer = () => {
-      pararTimer();
-      setSeconds(0);
-      setMinutes(0);
-      setHours(0);
-      return;
-    }
-
-    const cambiarTiempo = () => {     
-      setSeconds((prevState) => {
-        if((prevState + 1) == 60){
-          setMinutes((prevMinutes) => {
-            if((minutes + 1) == 60){
-              console.log('los minutos previos son: ', prevMinutes)
-              console.log('los minutos ahora son: ', minutes)
-              setHours((prevHours) => {
-                if((hours + 1) == 60){
-                  resetearTimer();
-                  return 0;
-                }
-                return hours + 1;
-              });
-              return 0;
-            }
-            else {
-              return minutes + 1;
-            }
-          });
-          return 0;
-        }
-        else {
-          return prevState + 1;
-        }
-      });      
-    }
-
-    const backAction = () => {
-      if(!navigation.canGoBack()){
-        Alert.alert('', '¿Seguro que quieres salir de la app?', [
-          {
-            text: 'Cancelar',
-            onPress: () => null,
-            style: 'cancel',
-          },
-          { text: 'Sí', onPress: () => {BackHandler.exitApp()}},
-        ]);
+  const cambiarTiempo = () => {     
+    setSeconds((prevState) => {
+      if((prevState + 1) == 60){
+        setMinutes((prevMinutes) => {
+          if((minutes + 1) == 60){
+            setHours((prevHours) => {
+              if((hours + 1) == 60){
+                resetearTimer();
+                return 0;
+              }
+              return hours + 1;
+            });
+            return 0;
+          }
+          else {
+            return minutes + 1;
+          }
+        });
+        return 0;
       }
       else {
-        /*
-        if(statusVideo.isPlaying){
-          if(videoLocalRef !== null) {
-            videoLocalRef.current.pauseAsync();
-          }
-        }
-        */
-        Alert.alert('',
-        "¿Estás seguro de cancelar el entrenamiento?", [
-            {
-            text: 'No',
-            onPress: () => null,
-            style:"cancel"
-            },
-            {text: "Sí", onPress: () => {
-              cancelarEntrenamiento();
-            }}
-        ]
-        );
-
+        return prevState + 1;
       }
-      return true;
-    };
-    
-    /*
-    const getDatos = async() => {
+    });      
+  }
 
-      
-      await AsyncStorage.getItem("USUARIO").then((datos) => {
-        console.log('El tipo de usuario es: ', datos)
-        setUsuario(JSON.parse(datos));
-        navigation.navigate("AllLists");
-      });
-        
+  const backAction = () => {
+    if(!navigation.canGoBack()){
+      Alert.alert('', '¿Seguro que quieres salir de la app?', [
+        {
+          text: 'Cancelar',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        { text: 'Sí', onPress: () => {BackHandler.exitApp()}},
+      ]);
     }
-    */
-
-    useFocusEffect(
-      React.useCallback(() => {
-      isMounted = true;
-
-      if(isMounted){
-        getLista();
-        BackHandler.addEventListener('hardwareBackPress', backAction);
-      }
-      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-
-      return () => {
-        backHandler.remove();
-        isMounted = false;
-        /*
-        let listaf = listT;
-        listaf.length=0;
-        setListT(listaf);
-        setFlagTiempo(false);
-        setFlagTiempoGuardar(false);
-        setFlagTiempoPress(false);
-        setFlagSaveTime(false);
-        setFlagOneVideo(false);
-        setFlagButton(false);
-        setFlagButtonGuardar(false);
-        setFlagTiempoInicial(false);
-        previewVideoPlay=null;
-        youtubeVideoPlay=null;
-        videoGuardar=false;
-        videoSiguiente=false;
-        setCurrentSectionIndex(0);
-        
-        if(customInterval){
-          clearInterval(customInterval);
-          setSeconds(0);
-          setMinutes(0);
-          setHours(0);
-        }
-        */
-      };
-        
-      }, [flagButtonGuardar]));
-
-
-      useEffect(() => {
-        if(isMounted===true){
-        // Si se ha pulsado el botón Siguiente, se avanza al próximo ejercicio
-        if(flagOneVideo === false && flagTiempoInicial === true){
-          pulsarSiguiente();
-          // Si se ha llegado al último ejercicio, se actualiza la lista
-          if(currentSectionIndex >= ((listaActualT !== '') ? 
-          (JSON.parse(listaActualT).videolista.length-2) : (listaInicialT.videolista.length-2))) {
-            setFlagButtonGuardar(true);
-          }
-        }
-        // Si se ha pulsado el botón Guardar, guardamos el tiempo de realización y descanso
-        // de los ejercicios
-        if(flagTiempoPress === true){
-          guardarTiemposEjercicios();
-        }
-        }
-        return () => {
-          isMounted = false;
-        };
-  
-      }, [flagTiempo]);
-
-/*
-      useEffect(() => {
-        if(flagTiempoPress === true){
-          regresarLista();
-        }
-      }, [flagFinal]);
-*/
-
-    const getLista = async() => {
-      try {
-        if(flagSaveTime === false){
-          console.log('iniciamos play')
-          if((listaInicialT.videolista) !== undefined){             
-            setListT(listaInicialT.videolista);
-            if (listaActualT == ''){
-              setlistaActualT(listPlay);
-            }
-            if(currentSectionIndex!==0 && seconds == 0 && minutes == 0 && hours == 0){
-              setCurrentSectionIndex(0);
-            }
-            setCurrentSectionIndex(0);
-            setFlagTiempo(false);
-            setFlagTiempoGuardar(false);
-            setFlagTiempoPress(false);
-            setFlagSaveTime(false);
-            setFlagOneVideo(false);
-            setFlagButton(false);
-            setFlagButtonGuardar(false);
-            setFlagTiempoInicial(false);
-          }
-        }
-        if(currentSectionIndex >= ((listaActualT !== '') ? 
-        (JSON.parse(listaActualT).videolista.length-1) : (listaInicialT.videolista.length-1))) {
-          //setFlagButtonGuardar(true);
-          console.log('se ha pulsado flagbuttonguardar true y final de lista getlista')
-        }
-      } catch (error){
-        console.log(error)
-      }
-
-    }
-
-    const regresarLista = async() => {
-      const valorListas = await AsyncStorage.getItem("LISTAS");
-      const l = valorListas ? JSON.parse(valorListas) : [];
-
-      let listaHist = '';
-      let listaFinal = '';
-
-      if (listaActualT !== '' && listaActualT !== undefined) {              
-        listaHist = JSON.parse(listaActualT);
-      }
-      else {              
-        listaHist = listaInicialT; 
-      }
-
-      for(let i=0; i<l.length; i++){
-        if((listaHist.idlista) === (JSON.parse(l[i]).idlista)) {
-          listaFinal = l[i];
-          break;
-        }    
-      }
-      
-      setFlagTiempoPress(false);
-      console.log("VOLVEMOS A LISTA DESDE ENTRENAMIENTO")
-      console.log("listaFinal ES: ", JSON.parse(listaFinal))
-      let listaf = listT;
-      listaf.length=0;
-      setListT(listaf);
-      
-      navigation.reset({
-        index: 0,
-        routes: [
+    else {
+      Alert.alert('',
+      "¿Estás seguro de cancelar el entrenamiento?", [
           {
-            name: 'Lista',
-            params: { singleList: listPlay,
-                      itemId: JSON.parse(listPlay).listaid,
-                    },
+          text: 'No',
+          onPress: () => null,
+          style:"cancel"
           },
-        ],
-      })
-      navigation.navigate("Lista", {
-        singleList: ((listaFinal !== '') ? listaFinal : listPlay),
-        itemId: JSON.parse(listPlay).listaid,
-      });
-      isMounted=false;
+          {text: "Sí", onPress: () => {
+            cancelarEntrenamiento();
+          }}
+      ]
+      );
+    }
+    return true;
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+    isMounted = true;
+
+    if(isMounted){
+      getLista();
+      BackHandler.addEventListener('hardwareBackPress', backAction);
+    }
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => {
+      backHandler.remove();
+      isMounted = false;
+    };
+      
+    }, [flagButtonGuardar]));
+
+  useEffect(() => {
+    if(isMounted===true){
+    // Si se ha pulsado el botón Siguiente, se avanza al próximo ejercicio
+    if(flagOneVideo === false && flagTiempoInicial === true){
+      pulsarSiguiente();
+      // Si se ha llegado al último ejercicio, se actualiza la lista
+      if(currentSectionIndex >= ((listaActualT !== '') ? 
+      (JSON.parse(listaActualT).videolista.length-2) : (listaInicialT.videolista.length-2))) {
+        setFlagButtonGuardar(true);
+      }
+    }
+    // Si se ha pulsado el botón Guardar, guardamos el tiempo de realización y descanso
+    // de los ejercicios
+    if(flagTiempoPress === true){
+      guardarTiemposEjercicios();
+    }
+    }
+    return () => {
+      isMounted = false;
+    };
+
+  }, [flagTiempo]);
+
+  const getLista = async() => {
+    try {
+      if(flagSaveTime === false){
+        if((listaInicialT.videolista) !== undefined){             
+          setListT(listaInicialT.videolista);
+          if (listaActualT == ''){
+            setlistaActualT(listPlay);
+          }
+          if(currentSectionIndex!==0 && seconds == 0 && minutes == 0 && hours == 0){
+            setCurrentSectionIndex(0);
+          }
+          setCurrentSectionIndex(0);
+          setFlagTiempo(false);
+          setFlagTiempoGuardar(false);
+          setFlagTiempoPress(false);
+          setFlagSaveTime(false);
+          setFlagOneVideo(false);
+          setFlagButton(false);
+          setFlagButtonGuardar(false);
+          setFlagTiempoInicial(false);
+        }
+      }
+      if(currentSectionIndex >= ((listaActualT !== '') ? 
+      (JSON.parse(listaActualT).videolista.length-1) : (listaInicialT.videolista.length-1))) {
+        console.log('Se ha llegado al final del entrenamiento')
+      }
+    } catch (error){
+      console.log(error)
+    }
   }
 
   const renderItemPlay = ({ item, index }) => {
-    
-    //const videoLocalRefEn = useRef(null);
-    //const [statusVideoEn, setStatusVideoEn] = useState({});
-
     if((JSON.parse(item).videos).includes("file") && isMounted==true){
       previewVideoPlay = JSON.parse(item).videos;
     }
@@ -358,11 +212,9 @@ export default function Entrenamiento ({route}) {
     if (currentSectionIndex >= ((listaActualT !== '') ? 
       (JSON.parse(listaActualT).videolista.length-1) : (listaInicialT.videolista.length-1))) {
       videoGuardar = true;
-      //console.log('SE HA PULSADO VIDEOGUARDAR')
     }
     else {
       videoSiguiente = true;
-      //console.log('SE HA PULSADO VIDEOSIGUIENTE')
     }
     return(
       <View style={styles.container2}>       
@@ -415,7 +267,6 @@ export default function Entrenamiento ({route}) {
         (<View style={{marginLeft: 20, alignItems: 'center', justifyContent: 'center'}}>
           <Button style={styles.botonGuardar}
             onPress={() => {
-            console.log('se ha guardado play')
             if(statusVideo.isPlaying){
               if(videoLocalRef !== null && videoLocalRef.length !== 0) {
                 for(let i = 0; i<videoLocalRef.current.length; i++){
@@ -452,7 +303,7 @@ export default function Entrenamiento ({route}) {
                     videoLocalRef.current[i].pauseAsync();
                   }
                 }
-              //Se ha pausado l vídeo y se ha dado a Siguiente            
+            // Se ha pausado el vídeo y se ha dado a Siguiente            
             }
             tiempoVideoRealizado(item);
             }}}>
@@ -518,7 +369,6 @@ export default function Entrenamiento ({route}) {
       }
     }
   }
-
 
   const guardarTiemposEjercicios = async() => {
     try{
@@ -1006,7 +856,6 @@ export default function Entrenamiento ({route}) {
     }
   }
 
-
   const tiempoVideoDescanso = async(item) => {
     try{
       // Establecemos el tiempo inicial del ejercicio
@@ -1045,7 +894,6 @@ export default function Entrenamiento ({route}) {
       }
       else {
         if(tiempoFinal !== ""){
-
           let listArray = t;
           let jsonListArray = '';
           let listVideo = '';
@@ -1175,7 +1023,7 @@ export default function Entrenamiento ({route}) {
   }
 
   const cancelarEntrenamiento = async() => {
-    console.log('se ha cancelado el entrenamiento')
+    console.log('Se ha cancelado el entrenamiento')
     
     if(statusVideo.isPlaying){
       if(videoLocalRef !== null && videoLocalRef.length !== 0) {
@@ -1215,6 +1063,7 @@ export default function Entrenamiento ({route}) {
     varray.length=0;
     
     AsyncStorage.setItem("TIEMPO", JSON.stringify(f)); 
+    // Cancelamos el entrenamiento y volvemos a la lista
     navigation.reset({
       index: 0,
       routes: [
@@ -1268,32 +1117,6 @@ export default function Entrenamiento ({route}) {
   );
 }
 
-/*
-<VisibilitySensor onChange={(isVisible) => {
-              console.log('El video está VISIBLE')
-              if(isVisible) {
-                videoLocalRef.current.playAsync();
-              }
-              else{
-                videoLocalRef.current.pauseAsync();
-              }
-          }}>
-        <View style={styles.buttonContainer}>
-          <Button title="start"
-            onPress={startTimer}>
-              START
-          </Button>
-          <Button title="stop"
-            onPress={stopTimer}>
-              STOP
-          </Button>
-          <Button title="reset"
-            onPress={clear}>
-              RESET
-          </Button>
-        </View>
-*/
-
 const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -1301,7 +1124,6 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      //color: "white",
       width: Dimensions.get("window").width,
       height: Dimensions.get("window").height,
   },
@@ -1352,7 +1174,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button2: {
-    //backgroundColor: '#1B4B95',
     padding: 0,
     marginBottom: 0,
     marginTop: 3,
@@ -1365,7 +1186,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button3: {
-    //backgroundColor: '#1B4B95',
     padding: 4,
     marginBottom: 0,
     right: 25,
@@ -1375,7 +1195,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button4: {
-    //backgroundColor: '#1B4B95',
     position: 'absolute',
     right: 5,
     marginBottom: 0,
@@ -1387,14 +1206,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   button5: {
-    //backgroundColor: '#1B4B95',
     padding: 0,
     marginBottom: 0,
     borderRadius: 400/2,
     height: 35,
   },
   button6: {
-    //backgroundColor: '#1B4B95',
     position: 'absolute',
     padding: 0,
     marginBottom: 0,
@@ -1440,7 +1257,6 @@ const styles = StyleSheet.create({
     bottom: 140,
   },
   button11: {
-    //backgroundColor: '#1B4B95',
     position: 'absolute',
     padding: 0,
     marginLeft: 0,
@@ -1452,7 +1268,6 @@ const styles = StyleSheet.create({
     top: 4,
   },
   button12: {
-    //backgroundColor: '#1B4B95',
     padding: 0,
     marginBottom: 40,
     marginLeft: 10,
@@ -1471,18 +1286,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   foto2: {
-    //backgroundColor: '#1B4B95',
     height: 150,
     width: 150,
   },
   foto3: {
-    //backgroundColor: '#1B4B95',
     height: 280,
     width: 280,
     marginBottom: 50,
   },
   viewFoto: {
-    //backgroundColor: '#1B4B95',
     marginTop: 40,
     marginBottom: 10,
     alignItems: 'center',
@@ -1599,13 +1411,11 @@ const styles = StyleSheet.create({
     borderRadius: 400/2,
   },
   imagen7: {
-    //backgroundColor: '#1B4B95',
     height: 70,
     width: 70,
     borderRadius: 400/2,
   },
   imagen8: {
-    //backgroundColor: '#1B4B95',
     marginTop: 10,
     left: 20,
     height: 60,
@@ -1624,7 +1434,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   imagen10: {
-    //backgroundColor: '#1B4B95',
     padding: 3,
     marginBottom: 0,
     marginTop: 4,
@@ -1636,7 +1445,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   imagen11: {
-    //backgroundColor: '#1B4B95',
     padding: 3,
     marginBottom: 0,
     marginTop: 4,
@@ -1672,7 +1480,6 @@ const styles = StyleSheet.create({
     right: 3,
   },
   listaRealizadoIm: {
-    //backgroundColor: '#1B4B95',
     padding: 0,
     left: 30,
     marginBottom: 0,
